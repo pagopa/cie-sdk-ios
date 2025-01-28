@@ -1,0 +1,16 @@
+PODS:
+  - cie-sdk-ios (0.1.0)
+
+DEPENDENCIES:
+  - cie-sdk-ios (from `../`)
+
+EXTERNAL SOURCES:
+  cie-sdk-ios:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  cie-sdk-ios: a1256eacf5bb83f31093d43d5311b717583f9d41
+
+PODFILE CHECKSUM: b494cdeea8aa0913ccd128a4cf86c91e00120bd1
+
+COCOAPODS: 1.16.2

@@ -1,0 +1,6 @@
+framework module cie_sdk_ios {
+  umbrella header "cie-sdk-ios-umbrella.h"
+
+  export *
+  module * { export * }
+}

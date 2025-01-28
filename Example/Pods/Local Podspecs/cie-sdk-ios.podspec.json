@@ -1,0 +1,22 @@
+{
+  "name": "cie-sdk-ios",
+  "version": "0.1.0",
+  "summary": "A short description of cie-sdk-ios.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/pagopa/cie-sdk-ios",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "acapadev": "antonio.caparello@digitouch.it"
+  },
+  "source": {
+    "git": "https://github.com/pagopa/cie-sdk-ios.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source_files": "cie-sdk-ios/Classes/**/*"
+}

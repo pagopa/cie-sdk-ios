@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'cie-sdk-ios_Example' do
+  pod 'cie-sdk-ios', :path => '../'
+
+  target 'cie-sdk-ios_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
