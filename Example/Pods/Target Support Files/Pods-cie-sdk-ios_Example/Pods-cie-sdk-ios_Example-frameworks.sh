@@ -176,10 +176,10 @@ code_sign_if_enabled() {
 }
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/cie-sdk-ios/cie_sdk_ios.framework"
+  install_framework "${PODS_XCFRAMEWORKS_BUILD_DIR}/cie-sdk-ios/IOWalletCIE.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_framework "${BUILT_PRODUCTS_DIR}/cie-sdk-ios/cie_sdk_ios.framework"
+  install_framework "${PODS_XCFRAMEWORKS_BUILD_DIR}/cie-sdk-ios/IOWalletCIE.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait

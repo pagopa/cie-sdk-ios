@@ -1,5 +1,4 @@
 import XCTest
-import cie-sdk-ios
 
 class Tests: XCTestCase {
     

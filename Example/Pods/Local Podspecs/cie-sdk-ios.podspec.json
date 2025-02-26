@@ -12,11 +12,14 @@
     "acapadev": "antonio.caparello@digitouch.it"
   },
   "source": {
-    "git": "https://github.com/pagopa/cie-sdk-ios.git",
-    "tag": "0.1.0"
+    "git": "/Users/username/repos/digitouch/pagopa1/cie-sdk-ios/.git",
+    "branch": "develop"
   },
   "platforms": {
-    "ios": "10.0"
+    "ios": "13.0"
   },
-  "source_files": "cie-sdk-ios/Classes/**/*"
+  "prepare_command": "./build.sh",
+  "ios": {
+    "vendored_frameworks": "archives/IOWalletCIE.xcframework"
+  }
 }

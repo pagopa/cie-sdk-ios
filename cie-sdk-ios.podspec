@@ -25,18 +25,14 @@ TODO: Add long description of the pod here.
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'acapadev' => 'antonio.caparello@digitouch.it' }
-  s.source           = { :git => 'https://github.com/pagopa/cie-sdk-ios.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/pagopa/cie-sdk-ios.git', branch: 'develop' }
+ 
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '13.0'
 
-  s.source_files = 'cie-sdk-ios/Classes/**/*'
-  
-  # s.resource_bundles = {
-  #   'cie-sdk-ios' => ['cie-sdk-ios/Assets/*.png']
-  # }
+  s.prepare_command = './build.sh'
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.ios.vendored_frameworks = "archives/IOWalletCIE.xcframework"
+
 end
