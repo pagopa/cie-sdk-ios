@@ -35,7 +35,7 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
     
     func sendRawApdu(_ apdu: [UInt8]) async throws -> APDUResponse {
         guard let apdu = NFCISO7816APDU(data: Data(apdu)) else {
-            throw NfcDigitalIdError.responseError("Error constructing apdu")//MARK: improve error
+            throw NfcDigitalIdError.errorBuildingApdu
         }
         return try await sendRawApdu(apdu)
     }
@@ -45,7 +45,7 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
         let response = try await sendApduUnchecked(apduHead, data, le)
         
         if (!response.isSuccess) {
-            throw NfcDigitalIdError.responseError(response.statusAsString)
+            try response.throwError()
         }
         
         return response

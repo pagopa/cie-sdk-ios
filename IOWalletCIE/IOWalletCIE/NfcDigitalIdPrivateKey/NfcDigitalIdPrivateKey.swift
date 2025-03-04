@@ -31,7 +31,7 @@ class NfcDigitalIdPrivateKey {
         })
         
         if (rc != 1) {
-            throw NIOSSLError.unableToValidateCertificate
+            throw NfcDigitalIdError.tlsHashingFailed
         }
         
         let signatureSize = CNIOBoringSSL_EVP_MD_size(algorithm.md)
@@ -93,16 +93,13 @@ class NfcDigitalIdPrivateKey {
     
     func sign(algorithm: NIOSSL.SignatureAlgorithm, data: NIOCore.ByteBuffer) async throws -> [UInt8] {
         guard let nidAlgorithm = algorithm.NID_algorithmId else {
-            throw NfcDigitalIdError.responseError("not valid algorithm")
+            throw NfcDigitalIdError.tlsUnsupportedAlgorithm
         }
         
-        
-        guard let hash = try? computeHash(algorithm: algorithm, data: data) else {
-            throw NfcDigitalIdError.responseError("not valid hash")
-        }
+        let hash = try computeHash(algorithm: algorithm, data: data)
         
         guard let digestInfo = makeDigestInfo(algId: nidAlgorithm, toBeSigned: hash) else {
-            throw NfcDigitalIdError.responseError("not valid algorithm")
+            throw NfcDigitalIdError.tlsUnsupportedAlgorithm
         }
         
         let CIE_Sign_Algorithm: UInt8 = 2

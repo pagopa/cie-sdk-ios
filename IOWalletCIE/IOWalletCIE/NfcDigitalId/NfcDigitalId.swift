@@ -18,6 +18,19 @@ class NfcDigitalId {
         self.logger = logger
     }
 
+    func performCieTypeReading() async throws -> CIEType {
+        try await selectIAS()
+        try await selectCIE()
+        
+        try await selectMainFile(id: [])
+                
+        let type = try await readCIEType()
+                
+        logger.logData("\(type)", name: "CIEType")
+      
+        return type
+    }
+    
     func performAuthentication(forUrl url: String, withPin pin: String) async throws -> String {
         let request = try NfcDigitalIdRequest(url)
         

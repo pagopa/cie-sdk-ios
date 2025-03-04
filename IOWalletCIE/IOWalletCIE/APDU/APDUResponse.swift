@@ -12,6 +12,10 @@ public struct APDUResponse {
     public var sw1 : UInt8
     public var sw2 : UInt8
     
+    public var sw: UInt16 {
+        return UInt16(low: sw2, high: sw1)
+    }
+    
     public var isSuccess: Bool {
         return sw1 == 0x90 && sw2 == 0x00
     }
@@ -28,6 +32,16 @@ public struct APDUResponse {
         return self.sw1 == 0x6C
     }
     
+    public func throwError() throws {
+        if sw == 0xFFC0 || sw == 0x6983 {
+            throw NfcDigitalIdError.cardBlocked
+        }
+        else if sw1 == 0xFF {
+            throw NfcDigitalIdError.wrongPin(Int(sw2 - 0xC0))
+        }
+        
+        throw NfcDigitalIdError.responseError(sw1, sw2)
+    }
     
     public init(data: [UInt8], sw1: UInt8, sw2: UInt8) {
         self.data = data
@@ -35,7 +49,7 @@ public struct APDUResponse {
         self.sw2 = sw2
     }
     
-    private static func decodeError( sw1: UInt8, sw2: UInt8 ) -> String {
+    static func decodeError( sw1: UInt8, sw2: UInt8 ) -> String {
         
         let errors: [UInt8: [UInt8: String]] = [
             0x62: [0x00: "No information given",
@@ -95,6 +109,12 @@ public struct APDUResponse {
             return "State of non-volatile memory unchanged (SW2=00, other values are RFU)"
         } else if sw1 == 0x6C {
             return "Wrong length Le: SW2 indicates the exact length - (exact length :\(sw2))"
+        }
+        else if sw1 == 0xFF && sw2 == 0xC0 {
+            return "Card blocked"
+        }
+        else if sw1 == 0xFF {
+            return "Wrong pin. Remaining tries: \(sw2 - 0xC0)"
         }
         
         if let dict = errors[sw1], let errorMsg = dict[sw2] {

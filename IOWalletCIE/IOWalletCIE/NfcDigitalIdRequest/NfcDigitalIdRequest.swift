@@ -16,11 +16,11 @@ class NfcDigitalIdRequest {
     
     init(_ url: String) throws {
         guard let deepLinkInfo = NfcDigitalIdRequest.getDeepLinkInfo(url) else {
-            throw NfcDigitalIdError.responseError("failed to get deeplink info")
+            throw NfcDigitalIdError.missingDeepLinkParameters
         }
         
         if !NfcDigitalIdRequest.validateDeepLinkInfo(deepLinkInfo) {
-            throw NfcDigitalIdError.responseError("failed to validate deeplink info")
+            throw NfcDigitalIdError.missingDeepLinkParameters
         }
         
         self.deepLinkInfo = deepLinkInfo
@@ -81,13 +81,13 @@ class NfcDigitalIdRequest {
         guard let body = response.body,
               let bodyString = body.getString(at: 0, length: body.readableBytes)
         else {
-            throw NfcDigitalIdError.responseError("empty body")
+            throw NfcDigitalIdError.idpEmptyBody
         }
         
         let codePrefix = "codice:"
         
         if (!bodyString.contains(codePrefix)) {
-            throw NfcDigitalIdError.responseError("no code found")
+            throw NfcDigitalIdError.idpCodeNotFound
         }
         
         let serverCode = bodyString.replacingOccurrences(of: codePrefix, with: "")

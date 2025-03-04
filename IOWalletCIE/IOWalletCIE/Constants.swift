@@ -10,27 +10,15 @@ internal import SwiftASN1
 
 class Constants {
     static let securityContainer: ASN1Identifier = ASN1Identifier(tagWithNumber: 4100, tagClass: .contextSpecific)
-    
     static let keyManagementContainer: ASN1Identifier = ASN1Identifier(tagWithNumber: 73, tagClass: .application)
-    
     static let modulus: ASN1Identifier = ASN1Identifier(tagWithNumber: 1, tagClass: .contextSpecific)
     static let exponent: ASN1Identifier = ASN1Identifier(tagWithNumber: 2, tagClass: .contextSpecific)
     static let certificateHolderAuthorization: ASN1Identifier = ASN1Identifier(tagWithNumber: 76, tagClass: .application)
     static let certificateHolderReference: ASN1Identifier = ASN1Identifier(tagWithNumber: 32, tagClass: .application)
-    
-    
-    static let valueContainerId: ASN1Identifier =
-    ASN1Identifier(tagWithNumber: 3, tagClass: .contextSpecific)
-    
+    static let valueContainerId: ASN1Identifier = ASN1Identifier(tagWithNumber: 3, tagClass: .contextSpecific)
     static let containerId: ASN1Identifier = ASN1Identifier(tagWithNumber: 4225, tagClass: .contextSpecific)
-    
-    
     static let rootId: ASN1Identifier = ASN1Identifier(tagWithNumber: 16, tagClass: .application)
-    
     static let iccRootId: ASN1Identifier = ASN1Identifier(tagWithNumber: 6, tagClass: .contextSpecific)
-    
-    static let iccContainerId: ASN1Identifier = ASN1Identifier(tagWithNumber: 17, tagClass: .contextSpecific)
-    
     
     static let GET_DH_EF: [UInt8] = [
         0x00,
@@ -57,9 +45,9 @@ class Constants {
         0x00
     ]
     
-    static let GET_DH_G_PARAM = join([GET_DH_PARAM, G_PARAM])
-    static let GET_DH_P_PARAM = join([GET_DH_PARAM, P_PARAM])
-    static let GET_DH_Q_PARAM = join([GET_DH_PARAM, Q_PARAM])
+    static let GET_DH_G_PARAM = Utils.join([GET_DH_PARAM, G_PARAM])
+    static let GET_DH_P_PARAM = Utils.join([GET_DH_PARAM, P_PARAM])
+    static let GET_DH_Q_PARAM = Utils.join([GET_DH_PARAM, Q_PARAM])
     
     
     static let GET_KEY_DATA: [UInt8] = [
@@ -79,15 +67,6 @@ class Constants {
     static let GET_PUBLIC_KEY_DATA: [UInt8] = [
         0x4D, 0x04, 0xA6, 0x02, 0x91, 0x00
     ]
-    
-    static func join(_ arrays: [[UInt8]]) -> [UInt8] {
-        var result: [UInt8] = []
-        arrays.forEach({
-            array in
-            result.append(contentsOf: array)
-        })
-        return result
-    }
     
     static let DH_EXT_AUTH_PRIVATE_EXP: [UInt8] = [
         0x18, 0x6B, 0x31, 0x48, 0x8C, 0x25, 0xDC, 0xF8, 0x5D, 0x95, 0x3D, 0x36, 0x30, 0xC0, 0xD0, 0x73,

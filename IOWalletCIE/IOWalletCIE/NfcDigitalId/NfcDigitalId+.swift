@@ -43,7 +43,7 @@ extension NfcDigitalId {
                 result.append(contentsOf: response.data)
                 break
             } else if (!response.isSuccess) {
-                throw NfcDigitalIdError.responseError(response.statusAsString)
+                try response.throwError()
             }
             
             result.append(contentsOf: response.data)
@@ -81,7 +81,7 @@ extension NfcDigitalId {
     func requireSecureMessaging<T>(_ function: () async throws -> T) async throws -> T {
         guard tag.isSecureMessaging else {
             logger.logError("required secure messaging")
-            throw NfcDigitalIdError.responseError("required secure messaging")
+            throw NfcDigitalIdError.secureMessagingRequired
         }
         return try await function()
     }

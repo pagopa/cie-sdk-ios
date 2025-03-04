@@ -41,7 +41,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
     
     override func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> [UInt8] {
         if !data.isEmpty {
-            return Constants.join([
+            return Utils.join([
                 apduHead,
                 Utils.intToBin(data.count),
                 data,
@@ -49,7 +49,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
             ])
             
         } else {
-            return Constants.join([
+            return Utils.join([
                 apduHead,
                 (le == nil) ? [] : le!
             ])

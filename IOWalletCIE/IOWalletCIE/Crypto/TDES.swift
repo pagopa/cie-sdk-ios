@@ -53,7 +53,7 @@ class TDES {
             
             return [UInt8](cryptData)
         } else {
-            throw NfcDigitalIdError.responseError("Error: \(cryptStatus)")
+            throw  NfcDigitalIdError.commonCryptoError(cryptStatus, "TDES.encrypt")
         }
     }
     
@@ -105,7 +105,7 @@ class TDES {
             
             return [UInt8](cryptData)
         } else {
-            throw NfcDigitalIdError.responseError("Error: \(cryptStatus)")
+            throw  NfcDigitalIdError.commonCryptoError(cryptStatus, "TDES.decrypt")
         }
     }
 }

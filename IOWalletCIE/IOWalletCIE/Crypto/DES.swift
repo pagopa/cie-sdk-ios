@@ -48,7 +48,7 @@ class DES {
             
             return [UInt8](cryptData)
         } else {
-            throw NfcDigitalIdError.responseError("Error: \(cryptStatus)")
+            throw NfcDigitalIdError.commonCryptoError(cryptStatus, "DES.encrypt")
         }
     }
     
@@ -93,7 +93,7 @@ class DES {
             
             return [UInt8](cryptData)
         } else {
-            throw NfcDigitalIdError.responseError("Error: \(cryptStatus)")
+            throw NfcDigitalIdError.commonCryptoError(cryptStatus, "DES.decrypt")
         }
     }
 }

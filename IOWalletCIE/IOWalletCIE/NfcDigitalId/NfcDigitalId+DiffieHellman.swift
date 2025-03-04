@@ -71,8 +71,8 @@ extension NfcDigitalId {
         let diffENC: [UInt8] = [0x00, 0x00, 0x00, 0x01]
         let diffMAC: [UInt8] = [0x00, 0x00, 0x00, 0x02]
         
-        let sessENC = Utils.calcSHA256Hash(Constants.join([secret, diffENC]))[0..<16].map({$0})
-        let sessMAC = Utils.calcSHA256Hash(Constants.join([secret, diffMAC]))[0..<16].map({$0})
+        let sessENC = Utils.calcSHA256Hash(Utils.join([secret, diffENC]))[0..<16].map({$0})
+        let sessMAC = Utils.calcSHA256Hash(Utils.join([secret, diffMAC]))[0..<16].map({$0})
         let sequence: [UInt8] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
         
         logger.logData(sessENC, name: "encryptionKey")
@@ -103,7 +103,7 @@ extension NfcDigitalId {
         logger.logData([algorithm], name: "algorithm")
         logger.logData([keyId], name: "keyId")
         logger.logData(publicKey, name: "publicKey")
-        let request = Constants.join([
+        let request = Utils.join([
             Utils.wrapDO(b: 0x80, arr: [algorithm]),
             Utils.wrapDO(b: 0x83, arr: [keyId]),
             Utils.wrapDO(b: 0x91, arr: publicKey)
@@ -120,7 +120,7 @@ extension NfcDigitalId {
         logger.logData([algorithm], name: "algorithm")
         logger.logData([keyId], name: "keyId")
         
-        let request = Constants.join([
+        let request = Utils.join([
             Utils.wrapDO(b: 0x80, arr: [algorithm]),
             Utils.wrapDO(b: 0x83, arr: [keyId])
         ])

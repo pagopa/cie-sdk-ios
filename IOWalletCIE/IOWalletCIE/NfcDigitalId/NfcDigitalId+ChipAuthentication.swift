@@ -40,28 +40,28 @@ extension NfcDigitalId {
         
         let baseOID: [UInt8] = [ 0x2A, 0x81, 0x22, 0xF4, 0x2A, 0x02, 0x04, 0x01 ]
         
-        let CHR = Constants.join([
+        let CHR = Utils.join([
             baseCHR,
             snIFD
         ])
         
-        let CHA = Constants.join([
+        let CHA = Utils.join([
             CA_AID,
             [01]
         ])
         
-        let OID = Constants.join([
+        let OID = Utils.join([
             baseOID,
             [shaOID]
         ])
         
-        let endEntityCert = Constants.join([[CPI], CA_CAR, CHR, CHA, OID, module, pubExp])
+        let endEntityCert = Utils.join([[CPI], CA_CAR, CHR, CHA, OID, module, pubExp])
         
         let endEntityCertBa = endEntityCert[0..<module.count - shaSize - 2].map({$0})
         
         let endEntityCertDigest = Utils.calcSHA256Hash(endEntityCert)
         
-        let toSign = Constants.join([
+        let toSign = Utils.join([
             [0x6A],
             endEntityCertBa,
             endEntityCertDigest,
@@ -123,14 +123,14 @@ extension NfcDigitalId {
             let intAuthResp = intAuthRsa.pure(respWithoutICCSN)
             
             if intAuthResp[0] != 0x6a {
-                throw NfcDigitalIdError.responseError("chip authentication failed")
+                throw NfcDigitalIdError.chipAuthenticationFailed
             }
             
             let prnd2 = intAuthResp[1..<1 + intAuthResp.count - shaSize - 2].map({$0})
             
             let hashICC = intAuthResp[prnd2.count + 1..<prnd2.count + 1 + 32].map({$0})
             
-            let toHashIFD = Constants.join([
+            let toHashIFD = Utils.join([
                 prnd2,
                 iccPublicKey.modulus,
                 iccSN,
@@ -144,11 +144,11 @@ extension NfcDigitalId {
             let calcHashIFD = Utils.calcSHA256Hash(toHashIFD)
             
             if calcHashIFD != hashICC {
-                throw NfcDigitalIdError.responseError("chip authentication failed")
+                throw NfcDigitalIdError.chipAuthenticationFailed
             }
             
             if intAuthResp[intAuthResp.count - 1] != 0xbc {
-                throw NfcDigitalIdError.responseError("chip authentication failed")
+                throw NfcDigitalIdError.chipAuthenticationFailed
             }
             
             let challengeBa = challenge.data[challenge.data.count - 4..<challenge.data.count].map({$0})
@@ -157,7 +157,7 @@ extension NfcDigitalId {
             
             let secureMessagingTag = self.tag.me as! APDUDeliverySecureMessaging
             
-            return secureMessagingTag.withSequence(sequence: Constants.join([challengeBa, rndIFDBa]))
+            return secureMessagingTag.withSequence(sequence: Utils.join([challengeBa, rndIFDBa]))
         })
     }
     
@@ -171,7 +171,7 @@ extension NfcDigitalId {
         
         let prnd: [UInt8] = Utils.generateRandomUInt8Array(padSize)
         
-        let toHash = Constants.join([
+        let toHash = Utils.join([
             prnd,
             dh_pubKey,
             snIFD,
@@ -184,7 +184,7 @@ extension NfcDigitalId {
         
         let hash = Utils.calcSHA256Hash(toHash)
         
-        let toSign = Constants.join([
+        let toSign = Utils.join([
             [0x6a],
             prnd,
             hash,
@@ -196,7 +196,7 @@ extension NfcDigitalId {
         let signature = certRSA.pure(toSign)
         
         
-        let challengeResponse = Constants.join([
+        let challengeResponse = Utils.join([
             snIFD,
             signature
         ])
@@ -231,7 +231,7 @@ extension NfcDigitalId {
     func verifyCertificate(certificate : [UInt8], remaining: [UInt8], certificateAuthorizationReference: [UInt8] ) async throws -> APDUResponse {
         logger.logDelimiter(#function)
         
-        let cert = Utils.wrapDO1(b: 0x7F21, arr: Constants.join([
+        let cert = Utils.wrapDO1(b: 0x7F21, arr: Utils.join([
             Utils.wrapDO1(b: 0x5F37, arr: certificate),
             Utils.wrapDO1(b: 0x5F38, arr: remaining),
             Utils.wrapDO(b: 0x42, arr: certificateAuthorizationReference)

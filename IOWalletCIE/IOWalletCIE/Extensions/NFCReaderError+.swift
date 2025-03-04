@@ -8,7 +8,7 @@
 import CoreNFC
 
 extension NFCReaderError {
-    public static func decodeError(_ error: NFCReaderError) -> String? {
+    static func decodeError(_ error: NFCReaderError) -> String? {
         switch error.code {
             case .readerTransceiveErrorTagConnectionLost, .readerTransceiveErrorTagResponseError:
                 return "Hai rimosso la carta troppo presto"

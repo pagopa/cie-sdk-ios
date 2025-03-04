@@ -6,11 +6,50 @@
 //
 
 
+
+
 extension NfcDigitalId {
-    func selectIAS() async throws -> APDUResponse {
+    func selectIAS() async throws  {
         logger.logDelimiter(#function)
-        let iasAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x30, 0x80, 0x00, 0x00, 0x00, 0x09, 0x81, 0x60, 0x01]
-        return try await selectApplication(iasAid)
+        
+        do {
+            let iasAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x30, 0x80, 0x00, 0x00, 0x00, 0x09, 0x81, 0x60, 0x01]
+            try await selectApplication(iasAid)
+        }
+        catch {
+            guard let nfcError = error as? NfcDigitalIdError else {
+                throw error
+            }
+            
+            //handle only responseerror -> when SW != 0x9000
+            switch(nfcError) {
+                case .responseError(_, _):
+                    break
+                default:
+                    throw error
+            }
+          
+            try await selectMainFile(id: [])
+            
+            let type = try await readCIEType()
+            
+            logger.logData("\(type)", name: "CIEType")
+        }
+    }
+    
+    func selectMainFile(id: [UInt8]) async throws -> APDUResponse {
+        logger.logDelimiter(#function)
+        
+        return try await select(0x00, 0x00, id: id)
+    }
+    
+    func readCIEType() async throws -> CIEType {
+        //Select main file with id
+        try await selectMainFile(id: [0x02, 0x3f])
+        
+        let atr = try await selectFileAndRead(id: [0x2f, 0x01])
+        
+        return CIEType.fromATR(atr)
     }
     
     func selectCIE() async throws -> APDUResponse {
@@ -61,7 +100,7 @@ extension NfcDigitalId {
         logger.logData([algorithm].hexEncodedString, name: "algorithm")
         logger.logData([keyId].hexEncodedString, name: "keyId")
         return try await requireSecureMessaging {
-            let request = Constants.join([
+            let request = Utils.join([
                 Utils.wrapDO(b: 0x84, arr: [keyId]),
                 Utils.wrapDO(b: 0x80, arr: [algorithm])
             ])

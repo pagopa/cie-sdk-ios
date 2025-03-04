@@ -72,7 +72,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         
         while(index < resp.count) {
             if resp[index] == 0x99 {
-                calcMac = Constants.join([
+                calcMac = Utils.join([
                     calcMac,
                     resp[index..<Int(index + Int(resp[index + 1]) + 2)].map({$0}),
                 ])
@@ -85,7 +85,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
             else if resp[index] == 0x8e {
                 if resp[index + 1] != 0x08 {
                     //error
-                    throw NfcDigitalIdError.responseError("")
+                    throw NfcDigitalIdError.errorDecodingAsn1
                 }
                 respMac = resp[index + 2..<index + 2 + 8].map({$0})
                 index += 10;
@@ -102,11 +102,11 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                         lgn = Int((Int(resp[index + 2]) << 8) | Int(resp[index + 3]))
                     }
                     else {
-                        throw NfcDigitalIdError.responseError("")
+                        throw NfcDigitalIdError.errorDecodingAsn1
                         //Error
                     }
                     encData = resp[index + llen + 2..<index + llen + 2 + lgn].map({$0})
-                    calcMac = Constants.join([
+                    calcMac = Utils.join([
                         calcMac,
                         resp[index..<index+llen + lgn + 2].map({$0})
                     ])
@@ -114,7 +114,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                 }
                 else {
                     encData = resp[index + 2..<index + 2 + Int(resp[index + 1])].map({$0})
-                    calcMac = Constants.join([
+                    calcMac = Utils.join([
                         calcMac,
                         resp[index..<index+Int(resp[index + 1]) + 2].map({$0})
                     ])
@@ -132,11 +132,11 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                         lgn = Int((Int(resp[index + 2]) << 8) | Int(resp[index + 3]))
                     }
                     else {
-                        throw NfcDigitalIdError.responseError("")
+                        throw NfcDigitalIdError.errorDecodingAsn1
                         //Error
                     }
                     encData = resp[index + llen + 3..<index + llen + 3 + lgn - 1].map({$0})
-                    calcMac = Constants.join([
+                    calcMac = Utils.join([
                         calcMac,
                         resp[index..<index+llen + lgn + 2].map({$0})
                     ])
@@ -144,7 +144,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                 }
                 else {
                     encData = resp[index + 3..<index + 3 + Int(resp[index + 1] - 1)].map({$0})
-                    calcMac = Constants.join([
+                    calcMac = Utils.join([
                         calcMac,
                         resp[index..<index+Int(resp[index + 1]) + 2].map({$0})
                     ])
@@ -153,7 +153,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                 continue
             }
             else {
-                throw NfcDigitalIdError.responseError("")
+                throw NfcDigitalIdError.errorDecodingAsn1
                 //error
             }
         }
@@ -163,7 +163,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         if (smMac != respMac) {
             //error
             if (!resp.isEmpty) {
-                throw NfcDigitalIdError.responseError("")
+                throw NfcDigitalIdError.secureMessagingHashMismatch
             }
         }
         
@@ -184,7 +184,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         
         smHead[0] |= 0x0C;
        
-        var calcMac = Utils.pad(Constants.join([
+        var calcMac = Utils.pad(Utils.join([
             sequence,
             smHead
         ]), blockSize: 8)
@@ -201,7 +201,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
             let enc = try TDES.encrypt(key: encryptionKey, message: toEncrypt, iv: iv)
             
             if (apdu[1] & 1) == 0x00 {
-                doob = Utils.wrapDO(b: 0x87, arr: Constants.join([
+                doob = Utils.wrapDO(b: 0x87, arr: Utils.join([
                     [Val01],
                     enc
                 ]))
@@ -210,12 +210,12 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                 doob = Utils.wrapDO(b: 0x85, arr: enc)
             }
             
-            calcMac = Constants.join([
+            calcMac = Utils.join([
                 calcMac,
                 doob
             ])
             
-            datafield = Constants.join([
+            datafield = Utils.join([
                 datafield,
                 doob
             ])
@@ -227,7 +227,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
             let enc = try TDES.encrypt(key: encryptionKey, message: toEncrypt, iv: iv)
             
             if (apdu[1] & 1) == 0x00 {
-                doob = Utils.wrapDO(b: 0x87, arr: Constants.join([
+                doob = Utils.wrapDO(b: 0x87, arr: Utils.join([
                     [Val01],
                     enc
                 ]))
@@ -236,12 +236,12 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
                 doob = Utils.wrapDO(b: 0x85, arr: enc)
             }
             
-            calcMac = Constants.join([
+            calcMac = Utils.join([
                 calcMac,
                 doob
             ])
             
-            datafield = Constants.join([
+            datafield = Utils.join([
                 datafield,
                 doob
             ])
@@ -250,11 +250,11 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         if (apdu.count == 5 || apdu.count == (apdu[4] + 6)) {
             let le = apdu[apdu.count - 1]
             doob = Utils.wrapDO(b: 0x97, arr: [le])
-            calcMac = Constants.join([
+            calcMac = Utils.join([
                 calcMac,
                 doob
             ])
-            datafield = Constants.join([
+            datafield = Utils.join([
                 datafield,
                 doob
             ])
@@ -263,7 +263,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         
         let tagMacBa = Utils.wrapDO(b: 0x8e, arr: macBa)
         
-        datafield = Constants.join([
+        datafield = Utils.join([
             datafield,
             tagMacBa
         ])
@@ -271,7 +271,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         let result: [UInt8]
         
         if datafield.count < 0x100 {
-            result = Constants.join([
+            result = Utils.join([
                 smHead,
                 Utils.intToBin(datafield.count),
                 datafield,
@@ -279,7 +279,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
             ])
         }
         else {
-            result = Constants.join([
+            result = Utils.join([
                 smHead,
                 [0x00] + Utils.intToBin(datafield.count, pad: 4),
                 [0x00, 0x00]

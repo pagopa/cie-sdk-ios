@@ -74,9 +74,16 @@ public class IOWalletDigitalId {
     
     public func performAuthentication(forUrl url: String, withPin pin: String) async throws -> String {
         guard let nfcDigitalIdAuthentication = self.nfcDigitalIdAuthentication else {
-            throw NfcDigitalIdError.responseError("")
+            throw NfcDigitalIdError.genericError
         }
         return try await nfcDigitalIdAuthentication.performAuthentication(forUrl: url, withPin: pin)
+    }
+    
+    public func performReadCieType() async throws -> CIEType {
+        guard let nfcDigitalIdAuthentication = self.nfcDigitalIdAuthentication else {
+            throw NfcDigitalIdError.genericError
+        }
+        return try await nfcDigitalIdAuthentication.readCieType()
     }
 }
 
