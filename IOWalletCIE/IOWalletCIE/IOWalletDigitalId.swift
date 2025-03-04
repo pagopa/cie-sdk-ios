@@ -30,8 +30,6 @@ public class IOWalletDigitalId {
     
     var alertMessages : [AlertMessageKey : String]
     
-    private lazy var nfcDigitalIdAuthentication: NfcDigitalIdAuthentication? = nil
-    
     public var idpUrl: String {
         get {
             return ""
@@ -67,23 +65,36 @@ public class IOWalletDigitalId {
     public init(_ logMode: LogMode = .disabled) {
         self.alertMessages = [:]
         self.logger = NfcDigitalIdLogger(mode: logMode)
-        self.nfcDigitalIdAuthentication = NfcDigitalIdAuthentication(ioWallet: self)
-        
         self.initAlertMessages()
     }
     
     public func performAuthentication(forUrl url: String, withPin pin: String) async throws -> String {
-        guard let nfcDigitalIdAuthentication = self.nfcDigitalIdAuthentication else {
-            throw NfcDigitalIdError.genericError
-        }
-        return try await nfcDigitalIdAuthentication.performAuthentication(forUrl: url, withPin: pin)
+        return try await NfcDigitalIdPerformer(ioWallet: self, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performAuthentication", prominent: true)
+            }
+            self.logger.logDelimiter("begin nfcDigitalId.performAuthentication", prominent: true)
+            
+            return try await nfcDigitalId.performAuthentication(forUrl: url, withPin: pin)
+            
+        }).perform()
     }
     
     public func performReadCieType() async throws -> CIEType {
-        guard let nfcDigitalIdAuthentication = self.nfcDigitalIdAuthentication else {
-            throw NfcDigitalIdError.genericError
-        }
-        return try await nfcDigitalIdAuthentication.readCieType()
+        return try await NfcDigitalIdPerformer(ioWallet: self, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performCieTypeReading", prominent: true)
+            }
+            
+            self.logger.logDelimiter("begin nfcDigitalId.performCieTypeReading", prominent: true)
+            
+            return try await nfcDigitalId.performCieTypeReading()
+            
+        }).perform()
     }
 }
 
