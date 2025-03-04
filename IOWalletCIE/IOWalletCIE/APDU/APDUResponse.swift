@@ -8,7 +8,7 @@
 import Foundation
 
 
-public struct APDUResponse {
+struct APDUResponse {
     
     public var data : [UInt8]
     public var sw1 : UInt8

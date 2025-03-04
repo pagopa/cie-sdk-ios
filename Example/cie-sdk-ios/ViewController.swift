@@ -21,6 +21,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     var infoLabel: UILabel!
     var pinTextField: UITextField!
     var actionButton: UIButton!
+    var cieTypeButton: UIButton!
     
     var webView: WKWebView!
     
@@ -55,6 +56,9 @@ class ViewController: UIViewController, WKNavigationDelegate {
         pinTextField.placeholder = "PIN"
         pinTextField.borderStyle = .roundedRect
         pinTextField.translatesAutoresizingMaskIntoConstraints = false
+        
+        pinTextField.text = ""
+        
         view.addSubview(pinTextField)
         
         actionButton = UIButton(type: .system)
@@ -62,6 +66,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         actionButton.addTarget(self, action: #selector(doAuthentication), for: .touchUpInside)
         view.addSubview(actionButton)
+        
+        cieTypeButton = UIButton(type: .system)
+        cieTypeButton.setTitle("GET CIE TYPE", for: .normal)
+        cieTypeButton.translatesAutoresizingMaskIntoConstraints = false
+        cieTypeButton.addTarget(self, action: #selector(getCIEType), for: .touchUpInside)
+        view.addSubview(cieTypeButton)
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
@@ -75,9 +85,14 @@ class ViewController: UIViewController, WKNavigationDelegate {
             actionButton.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 10),
             actionButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            infoLabel.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 20),
+            cieTypeButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
+            cieTypeButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            
+            infoLabel.topAnchor.constraint(equalTo: cieTypeButton.bottomAnchor, constant: 20),
             infoLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            infoLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+            infoLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            
+            
         ])
     }
     
@@ -100,6 +115,22 @@ class ViewController: UIViewController, WKNavigationDelegate {
         infoLabel.text = "Loading..."
     }
     
+    @objc func getCIEType() {
+        Task {
+            do {
+                let authenticatedUrl = try await IOWalletDigitalId(.enabled).performReadCieType()
+                
+                DispatchQueue.main.async {
+                    self.infoLabel.text = "\(authenticatedUrl)"
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.infoLabel.text = error.localizedDescription
+                }
+            }
+        }
+    }
+    
     @objc func doAuthentication() {
         guard let pin = pinTextField.text else {
             infoLabel.text = "Invalid PIN"
@@ -107,7 +138,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         }
         
         guard let foundUrl = foundUrl,
-        !foundUrl.isEmpty else {
+              !foundUrl.isEmpty else {
             infoLabel.text = "URL not found"
             return
         }
@@ -118,6 +149,11 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 
                 DispatchQueue.main.async {
                     self.infoLabel.text = authenticatedUrl
+                    
+                    let navigateView = WebViewViewController()
+                    navigateView.urlToOpen = authenticatedUrl
+                    
+                    self.present(navigateView, animated: true)
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -144,4 +180,6 @@ class ViewController: UIViewController, WKNavigationDelegate {
         decisionHandler(.allow)
     }
 }
+
+
 
