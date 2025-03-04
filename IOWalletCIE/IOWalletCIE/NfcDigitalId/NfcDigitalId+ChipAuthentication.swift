@@ -9,6 +9,9 @@
 extension NfcDigitalId {
     func readChipPublicKey() async throws -> PublicKeyValue {
         logger.logDelimiter(#function)
+        
+        onEvent?(.READ_CHIP_PUBLIC_KEY)
+        
         let dappKeyId: [UInt8] = [0x10, 0x04]
         
         let dappKey = try await selectFileAndRead(id: dappKeyId)
@@ -207,6 +210,8 @@ extension NfcDigitalId {
     func setCertificateHolderReference(certificateHolderReference: [UInt8]) async throws -> APDUResponse {
         logger.logDelimiter(#function)
         return try await requireSecureMessaging {
+            onEvent?(.CHIP_SET_CAR)
+            
             let request = Utils.wrapDO(b: 0x83, arr: certificateHolderReference)
             
             return try await manageSecurityEnvironment(p1: 0x81, p2: 0xA4, data: request)
@@ -216,6 +221,9 @@ extension NfcDigitalId {
     func getChallenge() async throws -> APDUResponse{
         logger.logDelimiter(#function)
         return try await requireSecureMessaging {
+            
+            onEvent?(.GET_CHALLENGE)
+            
             return try await tag.sendApdu([ 0x00, 0x84, 0x00, 0x00 ], [] , [8])
         }
     }
@@ -223,13 +231,19 @@ extension NfcDigitalId {
     func answerChallenge(_ answer: [UInt8]) async throws -> APDUResponse {
         logger.logDelimiter(#function)
         logger.logData(answer, name: "answer")
+        
+        
         return try await requireSecureMessaging {
+            onEvent?(.SEND_CHALLENGE_RESPONSE)
+            
             return try await tag.sendApdu([ 0x00, 0x82, 0x00, 0x00 ], answer, nil)
         }
     }
     
     func verifyCertificate(certificate : [UInt8], remaining: [UInt8], certificateAuthorizationReference: [UInt8] ) async throws -> APDUResponse {
         logger.logDelimiter(#function)
+        
+        onEvent?(.CHIP_VERIFY_CERTIFICATE)
         
         let cert = Utils.wrapDO1(b: 0x7F21, arr: Utils.join([
             Utils.wrapDO1(b: 0x5F37, arr: certificate),

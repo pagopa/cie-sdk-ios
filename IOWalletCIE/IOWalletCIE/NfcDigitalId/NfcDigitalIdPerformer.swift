@@ -12,24 +12,21 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
     private var ioDigitalId: IOWalletDigitalId
     private var activeContinuation: CheckedContinuation<T, Error>?
     private var performer: ((NfcDigitalId) async throws -> T)?
+    private var onEvent: IOWalletDigitalIdOnEvent?
     
     private var session: NFCTagReaderSession!
     private var cieTag: NFCISO7816Tag!
     private var tag: NFCTag!
     
+    
     var logger: NfcDigitalIdLogger {
         return ioDigitalId.logger
     }
     
-    required public init(
-        ioWallet: IOWalletDigitalId) {
-            self.ioDigitalId = ioWallet
-        }
-    
-    
-    init(ioWallet: IOWalletDigitalId, performer: ((NfcDigitalId) async throws -> T)?) {
+    init(ioWallet: IOWalletDigitalId, onEvent: IOWalletDigitalIdOnEvent?, performer: ((NfcDigitalId) async throws -> T)?) {
         self.ioDigitalId = ioWallet
         self.performer = performer
+        self.onEvent = onEvent
     }
     
     public func perform() async throws -> T {
@@ -103,6 +100,8 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         
         let tag = tags.first!
         
+        onEvent?(.ON_TAG_DISCOVERED)
+        
         var cieTag: NFCISO7816Tag
         switch tags.first! {
             case let .iso7816(tag):
@@ -112,6 +111,9 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 self.session.invalidate(errorMessage: ioDigitalId.alertMessages[AlertMessageKey.invalidCard]!)
                 activeContinuation?.resume(throwing: NfcDigitalIdError.invalidTag)
                 activeContinuation = nil
+                
+                onEvent?(.ON_TAG_DISCOVERED_NOT_CIE)
+                
                 return
         }
         
@@ -125,11 +127,13 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 
                 try await self.session.connect(to: self.tag)
                 
+                onEvent?(.CONNECTED)
+                
                 logger.logDelimiter("end session.connect", prominent: true)
                 
                 self.session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingInProgress]!
                 
-                let nfcDigitalId = NfcDigitalId(tag: self.cieTag, logger: logger)
+                let nfcDigitalId = NfcDigitalId(tag: self.cieTag, logger: logger, onEvent: onEvent)
                 
                 let result = try await self.performer!(nfcDigitalId)
                 

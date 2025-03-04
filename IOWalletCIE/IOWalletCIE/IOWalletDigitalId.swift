@@ -7,19 +7,6 @@
 
 import CoreNFC
 
-enum AlertMessageKey : String {
-    case readingInstructions
-    case moreTags
-    case readingInProgress
-    case readingSuccess
-    case invalidCard
-    case tagLost
-    case cardLocked
-    case wrongPin1AttemptLeft
-    case wrongPin2AttemptLeft
-    case genericError
-}
-
 public class IOWalletDigitalId : @unchecked Sendable {
     public enum LogMode: String {
         case enabled = "ENABLED"
@@ -76,8 +63,34 @@ public class IOWalletDigitalId : @unchecked Sendable {
         self.initAlertMessages()
     }
     
-    public func performAuthentication(forUrl url: String, withPin pin: String) async throws -> String {
-        return try await NfcDigitalIdPerformer(ioWallet: self, performer: {
+//    public func performAuthentication(forUrl url: String, withPin pin: String, _ response: any IOWalletDigitalIdResponse<String>) {
+//        do {
+//            Task {
+//                let url = try await performAuthentication(forUrl: url, withPin: pin, response)
+//                
+//                response.onSuccess(value: url)
+//            }
+//        }
+//        catch {
+//            response.onError(error: error)
+//        }
+//    }
+//    
+//    public func readCieType(_ response: any IOWalletDigitalIdResponse<CIEType>) {
+//        do {
+//            Task {
+//                let url = try await performReadCieType(response)
+//                
+//                response.onSuccess(value: url)
+//            }
+//        }
+//        catch {
+//            response.onError(error: error)
+//        }
+//    }
+    
+    public func performAuthentication(forUrl url: String, withPin pin: String, _ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> String {
+        return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
             defer {
@@ -90,8 +103,8 @@ public class IOWalletDigitalId : @unchecked Sendable {
         }).perform()
     }
     
-    public func performReadCieType() async throws -> CIEType {
-        return try await NfcDigitalIdPerformer(ioWallet: self, performer: {
+    public func performReadCieType(_ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> CIEType {
+        return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
             defer {

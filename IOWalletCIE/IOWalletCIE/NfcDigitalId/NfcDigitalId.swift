@@ -12,14 +12,17 @@ class NfcDigitalId {
     
     var tag: APDUDeliveryProtocol
     var logger: NfcDigitalIdLogger
+    var onEvent: IOWalletDigitalIdOnEvent?
     
-    init(tag: NFCISO7816Tag, logger: NfcDigitalIdLogger) {
+    init(tag: NFCISO7816Tag, logger: NfcDigitalIdLogger, onEvent: IOWalletDigitalIdOnEvent?) {
         self.tag = APDUDeliveryClear(tag: tag)
         self.logger = logger
+        self.onEvent = onEvent
     }
 
     func performCieTypeReading() async throws -> CIEType {
         try await selectIAS()
+        
         try await selectCIE()
         
         try await selectMainFile(id: [])

@@ -11,6 +11,7 @@
 extension NfcDigitalId {
     func selectIAS() async throws -> APDUResponse {
         logger.logDelimiter(#function)
+        onEvent?(.SELECT_IAS)
         
         let iasAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x30, 0x80, 0x00, 0x00, 0x00, 0x09, 0x81, 0x60, 0x01]
         return try await selectApplication(iasAid)
@@ -23,9 +24,15 @@ extension NfcDigitalId {
         return try await select(0x00, 0x00, id: id)
     }
     
+    func selectRoot() async throws -> APDUResponse {
+        onEvent?(.SELECT_ROOT)
+        return try await selectMainFile(id: [0x3f, 0x00])
+    }
+    
     func readCIEType() async throws -> CIEType {
-        try await selectMainFile(id: [0x3f, 0x00])
         
+        try await selectRoot()
+      
         let atrId: [UInt8] = [0x2f, 0x01]
         
         let atr = try await selectFileAndRead(id: atrId)
@@ -37,12 +44,16 @@ extension NfcDigitalId {
     
     func selectCIE() async throws -> APDUResponse {
         logger.logDelimiter(#function)
+        onEvent?(.SELECT_CIE)
         let cieAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x00, 0x39]
         return try await selectApplication(cieAid)
     }
     
     func getServiceId() async throws -> String {
         logger.logDelimiter(#function)
+        
+        onEvent?(.GET_SERVICE_ID)
+        
         let serviceId: [UInt8] = [0x10, 0x01]
         
         try await selectIAS()
@@ -65,6 +76,7 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         let CIE_PIN_ID: UInt8 = 0x81
         return try await requireSecureMessaging {
+            onEvent?(.VERIFY_PIN)
             return try await tag.sendApdu([0x00, 0x20, 0x00, CIE_PIN_ID], pin, nil)
         }
     }
@@ -74,6 +86,8 @@ extension NfcDigitalId {
         let certificateId: [UInt8] = [0x10, 0x03]
         
         return try await requireSecureMessaging {
+            onEvent?(.READ_CERTIFICATE)
+            
             return try await selectFileAndRead(id: certificateId)
         }
     }
@@ -82,7 +96,11 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         logger.logData([algorithm].hexEncodedString, name: "algorithm")
         logger.logData([keyId].hexEncodedString, name: "keyId")
+        
         return try await requireSecureMessaging {
+        
+            onEvent?(.SELECT_KEY)
+            
             let request = Utils.join([
                 Utils.wrapDO(b: 0x84, arr: [keyId]),
                 Utils.wrapDO(b: 0x80, arr: [algorithm])
@@ -101,6 +119,8 @@ extension NfcDigitalId {
         logger.logData(data, name: "data")
         
         return try await requireSecureMessaging {
+            onEvent?(.SIGN)
+            
             return try await tag.sendApdu([0x00, 0x88, 0x00, 0x00], data, nil).data
         }
     }

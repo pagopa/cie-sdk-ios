@@ -17,6 +17,8 @@ extension NfcDigitalId {
         logger.logDelimiter("selectFile")
         logger.logData(id, name: "fileId")
         
+        onEvent?(.SELECT_FOR_READ_FILE)
+        
         let directory: UInt8 = 0x02
         let template: UInt8 = 0x04
         
@@ -24,6 +26,9 @@ extension NfcDigitalId {
     }
     
     func readBinary(_ packetSize: UInt8) async throws -> [UInt8] {
+        
+        onEvent?(.READ_FILE)
+        
         var result: [UInt8] = []
         
         var offset: UInt16 = 0

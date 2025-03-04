@@ -26,16 +26,26 @@ extension NfcDigitalId {
     
     func getDiffieHellmanG() async throws ->  [UInt8]  {
         logger.logDelimiter(#function)
+        
+        onEvent?(.DH_INIT_GET_G)
+        
         return try await getDiffieHellmanParameter(Constants.GET_DH_G_PARAM)
     }
     
     func getDiffieHellmanP() async throws ->  [UInt8]  {
         logger.logDelimiter(#function)
+        
+        onEvent?(.DH_INIT_GET_P)
+        
+        
         return try await getDiffieHellmanParameter(Constants.GET_DH_P_PARAM)
     }
     
     func getDiffieHellmanQ() async throws ->  [UInt8]  {
         logger.logDelimiter(#function)
+        
+        onEvent?(.DH_INIT_GET_Q)
+        
         return try await getDiffieHellmanParameter(Constants.GET_DH_Q_PARAM)
     }
     
@@ -48,7 +58,7 @@ extension NfcDigitalId {
     }
     
     
-    func generateDiffieHellmanRSA(_ diffieHellmanParameters: DiffieHellmanParameters) throws ->  BoringSSLRSA {
+    func generateDiffieHellmanRSA(_ diffieHellmanParameters: DiffieHellmanParameters) throws -> BoringSSLRSA {
         while(true) {
             do {
                 let privateExponent = diffieHellmanParameters.randomPrivateExponent()
@@ -59,7 +69,13 @@ extension NfcDigitalId {
                 guard let nfcError = error as? NfcDigitalIdError else {
                     throw error
                 }
-                print(nfcError)
+                
+                switch(nfcError) {
+                    case .sslError(_, _):
+                        break
+                    default:
+                        throw error
+                }
             }
         }
     }
@@ -71,6 +87,9 @@ extension NfcDigitalId {
     
     func setDiffieHellmanKey(diffieHellmanPublic: PublicKeyValue) async throws ->  APDUResponse {
         logger.logDelimiter(#function)
+        
+        onEvent?(.SET_D_H_PUBLIC_KEY)
+        
         return try await setDiffieHellmanKey(algorithm: 0x9B, keyId: 0x81, publicKey: diffieHellmanPublic.modulus)
     }
     
@@ -97,12 +116,17 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         let data = try await getDiffieHellmanValue(Constants.GET_PUBLIC_KEY_DATA)
         
+        onEvent?(.GET_ICC_PUBLIC_KEY)
+        
         return try ICCPublicKeyDER(data: data).value
     }
     
     
     func getDiffieHellmanExternalParameters() async throws -> DiffieHellmanExternalParameters {
         logger.logDelimiter(#function)
+        
+        onEvent?(.GET_D_H_EXTERNAL_PARAMETERS)
+        
         let data = try await getDiffieHellmanValue(Constants.GET_KEY_DATA)
         
         return try DiffieHellmanExternalParametersDER(data: data).value
@@ -129,6 +153,8 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         logger.logData([algorithm], name: "algorithm")
         logger.logData([keyId], name: "keyId")
+        
+        onEvent?(.CHIP_SET_KEY)
         
         let request = Utils.join([
             Utils.wrapDO(b: 0x80, arr: [algorithm]),
