@@ -5,6 +5,8 @@
 //  Created by Antonio Caparello on 25/02/25.
 //
 
+import CoreNFC
+
 enum AlertMessageKey : String {
     case readingInstructions
     case moreTags
@@ -18,7 +20,7 @@ enum AlertMessageKey : String {
     case genericError
 }
 
-public class IOWalletDigitalId {
+public class IOWalletDigitalId : @unchecked Sendable {
     public enum LogMode: String {
         case enabled = "ENABLED"
         case localFile = "FILE"
@@ -30,13 +32,19 @@ public class IOWalletDigitalId {
     
     var alertMessages : [AlertMessageKey : String]
     
+    private var _idpUrl: String = "https://idserver.servizicie.interno.gov.it/idp/Authn/SSL/Login2?"
+    
     public var idpUrl: String {
         get {
-            return ""
+            return _idpUrl
         }
         set {
-            print(newValue)
+            _idpUrl = newValue
         }
+    }
+    
+    public static func isNFCEnabled() -> Bool {
+        NFCTagReaderSession.readingAvailable
     }
     
     public func setAlertMessage(key: String, value: String) {
@@ -77,7 +85,7 @@ public class IOWalletDigitalId {
             }
             self.logger.logDelimiter("begin nfcDigitalId.performAuthentication", prominent: true)
             
-            return try await nfcDigitalId.performAuthentication(forUrl: url, withPin: pin)
+            return try await nfcDigitalId.performAuthentication(forUrl: url, withPin: pin, idpUrl: self.idpUrl)
             
         }).perform()
     }

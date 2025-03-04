@@ -5,6 +5,8 @@
 //  Created by Antonio Caparello on 25/02/25.
 //
 
+import Foundation
+
 
 extension Data {
     struct HexEncodingOptions: OptionSet {

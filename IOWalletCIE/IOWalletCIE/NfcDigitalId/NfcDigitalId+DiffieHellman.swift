@@ -48,10 +48,20 @@ extension NfcDigitalId {
     }
     
     
-    func generateDiffieHellmanRSA(_ diffieHellmanParameters: DiffieHellmanParameters) -> BoringSSLRSA {
-        let privateExponent = diffieHellmanParameters.randomPrivateExponent()
-        
-        return BoringSSLRSA(modulus: diffieHellmanParameters.p, exponent: privateExponent)
+    func generateDiffieHellmanRSA(_ diffieHellmanParameters: DiffieHellmanParameters) throws ->  BoringSSLRSA {
+        while(true) {
+            do {
+                let privateExponent = diffieHellmanParameters.randomPrivateExponent()
+                
+                return try BoringSSLRSA(modulus: diffieHellmanParameters.p, exponent: privateExponent)
+            }
+            catch {
+                guard let nfcError = error as? NfcDigitalIdError else {
+                    throw error
+                }
+                print(nfcError)
+            }
+        }
     }
     
     func generateDiffieHellmanPublic(_ diffieHellmanParameters: DiffieHellmanParameters, _ rsa: BoringSSLRSA) -> PublicKeyValue {

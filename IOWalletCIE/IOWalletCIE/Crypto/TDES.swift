@@ -5,6 +5,7 @@
 //  Created by Antonio Caparello on 25/02/25.
 //
 import CommonCrypto
+import Foundation
 
 class TDES {
     

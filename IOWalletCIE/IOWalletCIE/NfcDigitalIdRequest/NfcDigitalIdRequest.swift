@@ -13,8 +13,13 @@ import Foundation
 class NfcDigitalIdRequest {
     
     let deepLinkInfo:  [String: String?]
+    private let idpUrl: String
+    private let logger: NfcDigitalIdLogger
     
-    init(_ url: String) throws {
+    init(_ url: String, idpUrl: String, logger: NfcDigitalIdLogger) throws {
+        self.idpUrl = idpUrl
+        self.logger = logger
+        
         guard let deepLinkInfo = NfcDigitalIdRequest.getDeepLinkInfo(url) else {
             throw NfcDigitalIdError.missingDeepLinkParameters
         }
@@ -27,7 +32,7 @@ class NfcDigitalIdRequest {
     }
     
     private func authorizedUrl(_ serverCode: String) -> String {
-        return "\(deepLinkInfo["nextUrl"]!!)?\(deepLinkInfo["name"]!!)=\(deepLinkInfo["value"]!!)?login=1&codice=\(serverCode)"
+        return "\(deepLinkInfo["nextUrl"]!!)?\(deepLinkInfo["name"]!!)=\(deepLinkInfo["value"]!!)&login=1&codice=\(serverCode)"
     }
     
     private static func validateDeepLinkInfo(_ deepLinkInfo:  [String: String?]) -> Bool {
@@ -63,7 +68,7 @@ class NfcDigitalIdRequest {
             URLQueryItem(name: "generaCodice", value: "1"),
         ]
         
-        return "https://idserver.servizicie.interno.gov.it/idp/Authn/SSL/Login2?\(components.query!)"
+        return "\(idpUrl)\(components.query!)"
     }
     
     private static func getDeepLinkInfo(_ url: String) -> [String: String?]? {
@@ -76,6 +81,7 @@ class NfcDigitalIdRequest {
     }
     
     func performAuthentication(certificate: [UInt8], privateKey: NfcDigitalIdPrivateKey) async throws -> String {
+        logger.logDelimiter(#function)
         let response = try await perform(certificate: certificate, privateKey: privateKey)
         
         guard let body = response.body,
@@ -83,6 +89,8 @@ class NfcDigitalIdRequest {
         else {
             throw NfcDigitalIdError.idpEmptyBody
         }
+        
+        logger.logData(bodyString, name: "body")
         
         let codePrefix = "codice:"
         
@@ -96,7 +104,10 @@ class NfcDigitalIdRequest {
     }
     
     private func perform(certificate: [UInt8], privateKey: NfcDigitalIdPrivateKey) async throws -> HTTPClient.Response {
+        logger.logDelimiter(#function)
         let url = try idpUrl(deepLinkInfo)
+        
+        logger.logData(url, name: "IDP Url")
         
         let key = NIOSSLPrivateKey(customPrivateKey: NIOSSLNfcDigitalIdPrivateKey(privateKey))
         
@@ -116,8 +127,12 @@ class NfcDigitalIdRequest {
         
         var response = try await httpClient.post(url: url).get()
         
+        logger.logData("\(response)", name: "IDP Response")
+        
         if let redirectRequest = response.createRedirectRequest() {
+            logger.logData("\(redirectRequest)", name: "IDP Redirect Request")
             let redirectResponse = try await httpClient.execute(request: redirectRequest).get()
+            logger.logData("\(redirectResponse)", name: "IDP Redirect Response")
             response = redirectResponse
         }
         

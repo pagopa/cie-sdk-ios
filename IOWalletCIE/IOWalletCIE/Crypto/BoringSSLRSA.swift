@@ -6,6 +6,7 @@
 //
 
 internal import CNIOBoringSSL
+import Foundation
 
 class BoringSSLRSA {
     
@@ -14,12 +15,12 @@ class BoringSSLRSA {
     var keyPriv: OpaquePointer!
     
     
-    init(modulus: [UInt8], exponent: [UInt8]) {
+    init(modulus: [UInt8], exponent: [UInt8]) throws {
         self.modulus = modulus
         self.exponent = exponent
         
         let keySize = modulus.count
-        keyPriv = CNIOBoringSSL_RSA_new()
+//        keyPriv = CNIOBoringSSL_RSA_new()
         
         var n = CNIOBoringSSL_BN_new()
         var e = CNIOBoringSSL_BN_new()
@@ -37,7 +38,15 @@ class BoringSSLRSA {
             e = CNIOBoringSSL_BN_bin2bn(exponentPtr.baseAddress, exponent.count, e)
         })
         
-        CNIOBoringSSL_RSA_set0_key(keyPriv, n, e, d)
+       
+        keyPriv = CNIOBoringSSL_RSA_new_public_key_large_e(n, e)
+        
+        let sslError = CNIOBoringSSL_ERR_get_error()
+        
+        if (sslError != 0) {
+            throw NfcDigitalIdError.sslError(sslError, "RSA")
+        }
+        
     }
     
     func free() {
@@ -54,6 +63,9 @@ class BoringSSLRSA {
             let signSize = CNIOBoringSSL_RSA_public_encrypt(data.count, dataPtr.baseAddress, out, keyPriv, RSA_NO_PADDING)
             
             if (signSize != modulus.count) {
+                let sslError = CNIOBoringSSL_ERR_get_error()
+                print(sslError)
+                print(Utils.intToBin(Int(sslError), pad: 8).hexEncodedString)
                 print("error?")
             }
             

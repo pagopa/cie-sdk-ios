@@ -8,12 +8,14 @@
 import CoreNFC
 
 
-class NfcDigitalIdPerformer<T>: NSObject {
+class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
     private var ioDigitalId: IOWalletDigitalId
     private var activeContinuation: CheckedContinuation<T, Error>?
-    var performer: ((NfcDigitalId) async throws -> T)?
+    private var performer: ((NfcDigitalId) async throws -> T)?
     
-    private var session: NFCTagReaderSession?
+    private var session: NFCTagReaderSession!
+    private var cieTag: NFCISO7816Tag!
+    private var tag: NFCTag!
     
     var logger: NfcDigitalIdLogger {
         return ioDigitalId.logger
@@ -24,9 +26,6 @@ class NfcDigitalIdPerformer<T>: NSObject {
             self.ioDigitalId = ioWallet
         }
     
-    public static func isNFCEnabled() -> Bool {
-        NFCTagReaderSession.readingAvailable
-    }
     
     init(ioWallet: IOWalletDigitalId, performer: ((NfcDigitalId) async throws -> T)?) {
         self.ioDigitalId = ioWallet
@@ -93,8 +92,11 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
             // Restart polling in 500ms
             let retryInterval = DispatchTimeInterval.milliseconds(500)
             session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.moreTags]!
+            
+            
             Task(priority: .userInitiated) {
-                session.restartPolling()
+                self.session?.restartPolling()
+                return 0
             }
             return
         }
@@ -107,28 +109,31 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 cieTag = tag
             default:
                 logger.logError(tags.first.debugDescription)
-                session.invalidate(errorMessage: ioDigitalId.alertMessages[AlertMessageKey.invalidCard]!)
+                self.session.invalidate(errorMessage: ioDigitalId.alertMessages[AlertMessageKey.invalidCard]!)
                 activeContinuation?.resume(throwing: NfcDigitalIdError.invalidTag)
                 activeContinuation = nil
                 return
         }
         
-        Task { [cieTag] in
+        self.cieTag = cieTag
+        self.tag = tag
+        
+        Task {
             do {
                 
                 logger.logDelimiter("begin session.connect", prominent: true)
                 
-                try await session.connect(to: tag)
+                try await self.session.connect(to: self.tag)
                 
                 logger.logDelimiter("end session.connect", prominent: true)
                 
-                session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingInProgress]!
+                self.session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingInProgress]!
                 
-                let nfcDigitalId = NfcDigitalId(tag: cieTag, logger: logger)
+                let nfcDigitalId = NfcDigitalId(tag: self.cieTag, logger: logger)
                 
-                let result = try await performer!(nfcDigitalId)
+                let result = try await self.performer!(nfcDigitalId)
                 
-                session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingSuccess]!
+                self.session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingSuccess]!
                 
                 activeContinuation?.resume(returning: result)
                 activeContinuation = nil
@@ -159,7 +164,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 
                 logger.logError(errorMessage)
                 
-                session.invalidate(errorMessage: errorMessage)
+                self.session.invalidate(errorMessage: errorMessage)
                 activeContinuation?.resume(throwing: error)
                 activeContinuation = nil
             }

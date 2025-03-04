@@ -8,7 +8,7 @@
 internal import NIOSSL
 internal import NIOCore
 
-class NIOSSLNfcDigitalIdPrivateKey : NIOSSLCustomPrivateKey, Hashable {
+class NIOSSLNfcDigitalIdPrivateKey : @unchecked Sendable, NIOSSLCustomPrivateKey, Hashable {
     
     let privateKey: NfcDigitalIdPrivateKey
     

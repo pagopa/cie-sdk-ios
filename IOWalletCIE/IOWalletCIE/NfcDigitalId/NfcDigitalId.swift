@@ -31,14 +31,16 @@ class NfcDigitalId {
         return type
     }
     
-    func performAuthentication(forUrl url: String, withPin pin: String) async throws -> String {
-        let request = try NfcDigitalIdRequest(url)
+    func performAuthentication(forUrl url: String, withPin pin: String, idpUrl: String) async throws -> String {
+        let request = try NfcDigitalIdRequest(url, idpUrl: idpUrl, logger: logger)
         
         logger.log("[PARAMETERS] : \(request.deepLinkInfo.map({"'\($0)': '\($1 ?? "")'"}).joined(separator: ", "))")
         
         try await performNfcAuthentication(withPin: pin)
         
         let certificate = try await readCertificate()
+        
+        logger.logData(certificate, name: "CIE Certificate")
         
         let privateKey = NfcDigitalIdPrivateKey(tag: self)
         
@@ -64,7 +66,7 @@ class NfcDigitalId {
         
         let diffieHellmanExternalAuth = try await getDiffieHellmanExternalParameters()
         
-        let diffieHellmanRsa = generateDiffieHellmanRSA(diffieHellmanParameters)
+        let diffieHellmanRsa = try generateDiffieHellmanRSA(diffieHellmanParameters)
         
         let diffieHellmanPublicKey = generateDiffieHellmanPublic(diffieHellmanParameters, diffieHellmanRsa)
         

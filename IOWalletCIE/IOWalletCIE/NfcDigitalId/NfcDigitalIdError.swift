@@ -17,6 +17,7 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
     case secureMessagingRequired
     case chipAuthenticationFailed
     case commonCryptoError(CCCryptorStatus, String)
+    case sslError(UInt32, String)
     case tlsUnsupportedAlgorithm
     case tlsHashingFailed
     case idpEmptyBody
@@ -56,6 +57,8 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
             case .chipAuthenticationFailed:
                 return "Chip authentication failed"
             case .commonCryptoError(let status, let functionName):
+                return "Error in \(functionName) \(status)"
+            case .sslError(let status, let functionName):
                 return "Error in \(functionName) \(status)"
             case .tlsUnsupportedAlgorithm:
                 return "TLS Unsupported Algorithm"

@@ -9,45 +9,28 @@
 
 
 extension NfcDigitalId {
-    func selectIAS() async throws  {
+    func selectIAS() async throws -> APDUResponse {
         logger.logDelimiter(#function)
         
-        do {
-            let iasAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x30, 0x80, 0x00, 0x00, 0x00, 0x09, 0x81, 0x60, 0x01]
-            try await selectApplication(iasAid)
-        }
-        catch {
-            guard let nfcError = error as? NfcDigitalIdError else {
-                throw error
-            }
-            
-            //handle only responseerror -> when SW != 0x9000
-            switch(nfcError) {
-                case .responseError(_, _):
-                    break
-                default:
-                    throw error
-            }
-          
-            try await selectMainFile(id: [])
-            
-            let type = try await readCIEType()
-            
-            logger.logData("\(type)", name: "CIEType")
-        }
+        let iasAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x30, 0x80, 0x00, 0x00, 0x00, 0x09, 0x81, 0x60, 0x01]
+        return try await selectApplication(iasAid)
     }
     
     func selectMainFile(id: [UInt8]) async throws -> APDUResponse {
         logger.logDelimiter(#function)
+        logger.logData(id, name: "id")
         
         return try await select(0x00, 0x00, id: id)
     }
     
     func readCIEType() async throws -> CIEType {
-        //Select main file with id
-        try await selectMainFile(id: [0x02, 0x3f])
+        try await selectMainFile(id: [0x3f, 0x00])
         
-        let atr = try await selectFileAndRead(id: [0x2f, 0x01])
+        let atrId: [UInt8] = [0x2f, 0x01]
+        
+        let atr = try await selectFileAndRead(id: atrId)
+        
+        logger.logData(atr, name: "ATR")
         
         return CIEType.fromATR(atr)
     }

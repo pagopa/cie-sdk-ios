@@ -17,7 +17,7 @@ extension NfcDigitalId {
     }
     
     
-    func buildEndEntityCert( extAuthParameters: DiffieHellmanExternalParameters) -> (endEntityCert: [UInt8], signature: [UInt8], CA_CAR: [UInt8], CHR: [UInt8]) {
+    func buildEndEntityCert( extAuthParameters: DiffieHellmanExternalParameters) throws -> (endEntityCert: [UInt8], signature: [UInt8], CA_CAR: [UInt8], CHR: [UInt8]) {
         
         let CA_module: [UInt8] = extAuthParameters.modulus
         let certificateHolderAuthorization: [UInt8] = extAuthParameters.certificateHolderAuthorization
@@ -70,7 +70,7 @@ extension NfcDigitalId {
         
         let CA_privExp = Constants.DH_EXT_AUTH_PRIVATE_EXP
         
-        let caRsaSign = BoringSSLRSA(modulus: CA_module, exponent: CA_privExp)
+        let caRsaSign = try BoringSSLRSA(modulus: CA_module, exponent: CA_privExp)
         
         let certSign = caRsaSign.pure(toSign)
         
@@ -83,7 +83,7 @@ extension NfcDigitalId {
         return try await requireSecureMessaging({
             let shaSize = 32
             
-            let (endEntityCert, certSign, CA_CAR, CHR) = self.buildEndEntityCert(extAuthParameters: extAuthParameters)
+            let (endEntityCert, certSign, CA_CAR, CHR) = try self.buildEndEntityCert(extAuthParameters: extAuthParameters)
             
             let psoVerifyAlgo: UInt8 = 0x41
             let CIE_KEY_ExtAuth_ID: UInt8 = 0x84
@@ -98,7 +98,7 @@ extension NfcDigitalId {
             
             let challenge = try await self.getChallenge()
             
-            let challengeResponse = self.buildChallengeResponse(challenge.data, diffieHellmanPublicKey.modulus, iccPublicKey.modulus, diffieHellmanParameters.g, diffieHellmanParameters.p, diffieHellmanParameters.q)
+            let challengeResponse = try self.buildChallengeResponse(challenge.data, diffieHellmanPublicKey.modulus, iccPublicKey.modulus, diffieHellmanParameters.g, diffieHellmanParameters.p, diffieHellmanParameters.q)
             
             let challengeResponseResponse = try await self.answerChallenge(challengeResponse)
             
@@ -114,7 +114,7 @@ extension NfcDigitalId {
             
             let respWithoutICCSN = sendIfdResp[8..<sendIfdResp.count].map({$0})
             
-            let intAuthRsa = BoringSSLRSA(modulus: chipPublicKey.modulus, exponent: chipPublicKey.exponent!)
+            let intAuthRsa = try BoringSSLRSA(modulus: chipPublicKey.modulus, exponent: chipPublicKey.exponent!)
             
             defer {
                 intAuthRsa.free()
@@ -161,7 +161,7 @@ extension NfcDigitalId {
         })
     }
     
-    func buildChallengeResponse(_ challenge: [UInt8], _ dh_pubKey: [UInt8], _ dh_ICCPubKey: [UInt8], _ dh_g: [UInt8],  _ dh_p: [UInt8],  _ dh_q: [UInt8]) -> [UInt8] {
+    func buildChallengeResponse(_ challenge: [UInt8], _ dh_pubKey: [UInt8], _ dh_ICCPubKey: [UInt8], _ dh_g: [UInt8],  _ dh_p: [UInt8],  _ dh_q: [UInt8]) throws ->  [UInt8] {
         
         let snIFD: [UInt8] = [ 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 ]
         
@@ -191,7 +191,7 @@ extension NfcDigitalId {
             [0xBC]
         ])
         
-        let certRSA = BoringSSLRSA(modulus: Constants.DAPP_KEY_MODULUS, exponent: Constants.DAPP_KEY_PRIVATE_EXPONENT)
+        let certRSA = try BoringSSLRSA(modulus: Constants.DAPP_KEY_MODULUS, exponent: Constants.DAPP_KEY_PRIVATE_EXPONENT)
         
         let signature = certRSA.pure(toSign)
         
