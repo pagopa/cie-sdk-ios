@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  cie-sdk-ios: 8824adea41f3966602e7ae538968a9c7db2a4d99
+  cie-sdk-ios: 30e5ef48ec176d36afc8511c50cc2e18e28aafa1
 
 PODFILE CHECKSUM: 0b7c9fb1425977a33c64cf8da3e0a55f11ec1270
 

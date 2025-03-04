@@ -12,7 +12,7 @@
     "acapadev": "antonio.caparello@digitouch.it"
   },
   "source": {
-    "git": "/Users/username/repos/digitouch/pagopa1/cie-sdk-ios/.git",
+    "git": "https://github.com/pagopa/cie-sdk-ios.git",
     "branch": "develop"
   },
   "platforms": {
