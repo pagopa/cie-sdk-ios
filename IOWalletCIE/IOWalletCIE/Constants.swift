@@ -9,6 +9,9 @@
 internal import SwiftASN1
 
 class Constants {
+    
+    static let sha256Size = 32
+    
     static let securityContainer: ASN1Identifier = ASN1Identifier(tagWithNumber: 4100, tagClass: .contextSpecific)
     static let keyManagementContainer: ASN1Identifier = ASN1Identifier(tagWithNumber: 73, tagClass: .application)
     static let modulus: ASN1Identifier = ASN1Identifier(tagWithNumber: 1, tagClass: .contextSpecific)

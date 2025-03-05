@@ -26,8 +26,8 @@ public enum IOWalletDigitalIdEvent {
     case CHIP_SET_KEY
     case CHIP_VERIFY_CERTIFICATE
     case CHIP_SET_CAR
-    case GET_CHALLENGE
-    case SEND_CHALLENGE_RESPONSE
+    case CHIP_GET_CHALLENGE
+    case CHIP_ANSWER_CHALLENGE
     case SELECT_KEY
     case VERIFY_PIN
     case SIGN
