@@ -8,17 +8,23 @@
 
 internal import SwiftASN1
 
+
 extension NfcDigitalId {
     
-    func getDiffieHellmanValue(_ id: [UInt8]) async throws -> [UInt8] {
+    func getDiffieHellmanValue(_ id: DiffieHellmanValue) async throws -> [UInt8] {
         logger.logDelimiter(#function)
-        logger.logData(id, name: "id")
-        let response = try await tag.sendApdu(Constants.GET_DH_EF, id, nil)
+        logger.logData(id.description, name: "id")
+        
+        let response = try await tag.sendApdu([
+            0x00,
+            0xCB, //GET_DATA
+            0x3F, 0xFF //DOUP EF.DH
+        ], id.bytes, nil)
         
         return response.data
     }
     
-    func getDiffieHellmanParameter(_ id: [UInt8]) async throws -> [UInt8] {
+    func getDiffieHellmanParameter(_ id: DiffieHellmanValue) async throws -> [UInt8] {
         let data = try await getDiffieHellmanValue(id)
         
         return try DiffieHellmanParameterDER(data: data).value
@@ -29,7 +35,7 @@ extension NfcDigitalId {
         
         onEvent?(.DH_INIT_GET_G)
         
-        return try await getDiffieHellmanParameter(Constants.GET_DH_G_PARAM)
+        return try await getDiffieHellmanParameter(.g)
     }
     
     func getDiffieHellmanP() async throws ->  [UInt8]  {
@@ -38,7 +44,7 @@ extension NfcDigitalId {
         onEvent?(.DH_INIT_GET_P)
         
         
-        return try await getDiffieHellmanParameter(Constants.GET_DH_P_PARAM)
+        return try await getDiffieHellmanParameter(.p)
     }
     
     func getDiffieHellmanQ() async throws ->  [UInt8]  {
@@ -46,7 +52,7 @@ extension NfcDigitalId {
         
         onEvent?(.DH_INIT_GET_Q)
         
-        return try await getDiffieHellmanParameter(Constants.GET_DH_Q_PARAM)
+        return try await getDiffieHellmanParameter(.q)
     }
     
     func getDiffieHellmanParameters() async throws -> DiffieHellmanParameters {
@@ -96,8 +102,6 @@ extension NfcDigitalId {
     }
     
     func performKeyExchange(
-        _ diffieHellmanParameters: DiffieHellmanParameters,
-        diffieHellmanPublic: RSAKeyValue,
         _ rsa: BoringSSLRSA,
         _ iccPublicKey: RSAKeyValue
     ) async throws -> APDUDeliverySecureMessaging {
@@ -122,7 +126,8 @@ extension NfcDigitalId {
     
     func getICCPublicKey() async throws -> RSAKeyValue {
         logger.logDelimiter(#function)
-        let data = try await getDiffieHellmanValue(Constants.GET_PUBLIC_KEY_DATA)
+        
+        let data = try await getDiffieHellmanValue(.iccPublicKey)
         
         onEvent?(.GET_ICC_PUBLIC_KEY)
         
@@ -135,15 +140,9 @@ extension NfcDigitalId {
         
         onEvent?(.GET_D_H_EXTERNAL_PARAMETERS)
         
-        let data = try await getDiffieHellmanValue(Constants.GET_KEY_DATA)
+        let data = try await getDiffieHellmanValue(.externalParameters)
         
         return try DiffieHellmanExternalParametersDER(data: data).value
     }
-    
-    
-    
-    
-    
-    
     
 }

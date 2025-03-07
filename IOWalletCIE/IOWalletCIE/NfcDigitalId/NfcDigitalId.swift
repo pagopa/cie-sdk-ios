@@ -77,11 +77,20 @@ class NfcDigitalId {
         
         let iccPublicKey = try await getICCPublicKey()
         
-        self.tag = try await performKeyExchange(diffieHellmanParameters, diffieHellmanPublic: diffieHellmanPublicKey, diffieHellmanRsa, iccPublicKey)
+        self.tag = try await performKeyExchange(
+            diffieHellmanRsa,
+            iccPublicKey
+        )
 
         diffieHellmanRsa.free()
         
-        self.tag = try await performChipAuthentication(chipPublicKey: chipAuthenticationPublicKey, extAuthParameters: diffieHellmanExternalAuth, diffieHellmanPublicKey: diffieHellmanPublicKey, diffieHellmanParameters: diffieHellmanParameters, iccPublicKey: iccPublicKey)
+        self.tag = try await performChipAuthentication(
+            chipPublicKey: chipAuthenticationPublicKey,
+            extAuthParameters: diffieHellmanExternalAuth,
+            diffieHellmanPublicKey: diffieHellmanPublicKey,
+            diffieHellmanParameters: diffieHellmanParameters,
+            iccPublicKey: iccPublicKey
+        )
         
         try await verifyPin(pin)
     }

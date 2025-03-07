@@ -28,7 +28,7 @@ struct IASECCSignatureWithSerialNumber {
         diffieHellmanParameters: DiffieHellmanParameters
     ) throws -> IASECCPadding {
         
-        let signature = try RSAWithIASECCPadding.decrypt(modulus: myPrivateKey.modulus, exponent: myPrivateKey.exponent!, data: encryptedSignature, hashSize: Constants.sha256Size)
+        let signature = try RSAWithIASECCPadding.decrypt(keyValue: myPrivateKey, data: encryptedSignature, hashSize: Constants.sha256Size)
         
         let hashForTerminal = IASECCSignatureWithSerialNumber.iasEccHash(
             random: signature.recovery,
@@ -55,8 +55,8 @@ struct IASECCSignatureWithSerialNumber {
     
     static func generate(random: [UInt8], myPublicKey: RSAKeyValue, myPrivateKey: RSAKeyValue, serialNumber: [UInt8], data: [UInt8], otherPublicKey: RSAKeyValue, diffieHellmanParameters: DiffieHellmanParameters) throws -> IASECCSignatureWithSerialNumber {
         let hash = iasEccHash(random: random, myPublicKey: myPublicKey, serialNumber: serialNumber, data: data, otherPublicKey: otherPublicKey, diffieHellmanParameters: diffieHellmanParameters)
-        
-        let encryptedSignature = try RSAWithIASECCPadding.encrypt(modulus: myPrivateKey.modulus, exponent: myPrivateKey.exponent!, blob: IASECCPadding(data: random, hash: hash))
+       
+        let encryptedSignature = try RSAWithIASECCPadding.encrypt(keyValue: myPrivateKey, blob: IASECCPadding(data: random, hash: hash))
         
         return IASECCSignatureWithSerialNumber(serialNumber: serialNumber, encryptedSignature: encryptedSignature)
     }

@@ -92,7 +92,7 @@ enum SecurityEnvironmentAlgorithm : UInt8 {
     case diffieHellmanRSASHA256 = 0x9B //'9B' ≡ DH asymmetric authentication algorithm (privacy) with SHA-256
     case clientServerRSAPKCS1 = 2 //'02' ≡ algorithm identifier for IFC/ICC authentication RSA PKCS#1 -SHA-1 with not data formatting
     
-   
+    
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"
     }
@@ -106,6 +106,70 @@ enum SecurityEnvironmentKeyId: UInt8 {
     
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
+}
+
+
+
+enum DiffieHellmanValue: String {
+    //3.4.6.5 Domain Parameters for Key agreement DH
+    case g = "97"
+    case p = "98"
+    case q = "99"
+    
+    
+    case iccPublicKey = "91" //‘9100’ TL pair to indicate retrieval of K.ICC
+    
+    case externalParameters = "7F49" //RSA public key '7F49'
+    
+    private var length: UInt8 {
+        switch(self) {
+            case .g, .p, .q, .iccPublicKey:
+                return 0x00
+            case .externalParameters:
+                return 0x80
+        }
+    }
+    
+    private var valueWithLength: [UInt8] {
+        return Utils.join([
+            [UInt8](hex: self.rawValue) ?? [],
+            [self.length]
+        ])
+    }
+    
+    private var inside: [UInt8] {
+        switch(self) {
+            case .g, .p, .q:
+                return Utils.wrapDO(b: 0x70, arr:
+                                        Utils.join([
+                                            [0xBF],
+                                            Utils.wrapDO1(b: 0xA101, arr:
+                                                            Utils.wrapDO(b: 0xA3, arr:
+                                                                            valueWithLength
+                                                                        ))
+                                        ]))
+            case .iccPublicKey:
+                return Utils.wrapDO(b: 0xA6, arr: valueWithLength)
+                
+            case .externalParameters:
+                return Utils.wrapDO(b: 0x70, arr:
+                                        Utils.join([
+                                            [0xBF],
+                                            Utils.wrapDO1(b: 0xA004, arr:
+                                                            valueWithLength
+                                                         )
+                                        ]))
+        }
+        
+    }
+    
+    var bytes: [UInt8] {
+        return Utils.wrapDO(b: 0x4D, arr: self.inside)
+    }
+    
+    var description: String {
+        return "\(self) (\(self.rawValue))"
     }
 }
 
@@ -126,54 +190,7 @@ class Constants {
     static let rootId: ASN1Identifier = ASN1Identifier(tagWithNumber: 16, tagClass: .application)
     static let iccRootId: ASN1Identifier = ASN1Identifier(tagWithNumber: 6, tagClass: .contextSpecific)
     
-    static let GET_DH_EF: [UInt8] = [
-        0x00,
-        0xCB, //GET_DATA
-        0x3F, 0xFF //DOUP EF.DH
-    ]
-    
-    static let GET_DH_PARAM: [UInt8] = [
-        0x4D, 0x0A, 0x70, 0x08, 0xBF, 0xA1, 0x01, 0x04, 0xA3, 0x02,
-    ]
-    
-    static let G_PARAM: [UInt8] = [
-        0x97,
-        0x00
-    ]
-    
-    static let P_PARAM: [UInt8] = [
-        0x98,
-        0x00
-    ]
-    
-    static let Q_PARAM: [UInt8] = [
-        0x99,
-        0x00
-    ]
-    
-    static let GET_DH_G_PARAM = Utils.join([GET_DH_PARAM, G_PARAM])
-    static let GET_DH_P_PARAM = Utils.join([GET_DH_PARAM, P_PARAM])
-    static let GET_DH_Q_PARAM = Utils.join([GET_DH_PARAM, Q_PARAM])
-    
-    
-    static let GET_KEY_DATA: [UInt8] = [
-        0x4D,
-        0x09,
-        0x70,
-        0x07,
-        0xBF,
-        0xA0,
-        0x04,
-        0x03,
-        0x7F,
-        0x49,
-        0x80
-    ]
-    
-    static let GET_PUBLIC_KEY_DATA: [UInt8] = [
-        0x4D, 0x04, 0xA6, 0x02, 0x91, 0x00
-    ]
-    
+   
     static let DH_EXT_AUTH_PRIVATE_EXP: [UInt8] = [
         0x18, 0x6B, 0x31, 0x48, 0x8C, 0x25, 0xDC, 0xF8, 0x5D, 0x95, 0x3D, 0x36, 0x30, 0xC0, 0xD0, 0x73,
         0xBA, 0x1C, 0x6A, 0xA2, 0x45, 0x81, 0xAD, 0x25, 0x4F, 0x3B, 0x67, 0x19, 0xC5, 0xD7, 0x2C, 0xCA,

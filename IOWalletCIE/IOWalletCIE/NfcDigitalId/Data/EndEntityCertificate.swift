@@ -100,7 +100,7 @@ struct EndEntityCertificate {
 
         //IAS ECC v1_0_1UK.pdf 7.2.5.7 CERTSIGN
         
-        let signature = try RSAWithIASECCPadding.encrypt(modulus: extAuthParameters.modulus, exponent: Constants.DH_EXT_AUTH_PRIVATE_EXP, blob: IASECCPadding(data: certificateRemainder, hash: certificateHash))
+        let signature = try RSAWithIASECCPadding.encrypt(keyValue: extAuthParameters.privateKey, blob: IASECCPadding(data: certificateRemainder, hash: certificateHash))
         
         self.certificate = certificate
         self.signature = signature
