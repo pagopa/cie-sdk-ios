@@ -92,24 +92,24 @@ extension NfcDigitalId {
         }
     }
     
-    func selectKey(algorithm: UInt8, keyId: UInt8) async throws -> APDUResponse {
+    func selectKey(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId) async throws -> APDUResponse {
         logger.logDelimiter(#function)
-        logger.logData([algorithm].hexEncodedString, name: "algorithm")
-        logger.logData([keyId].hexEncodedString, name: "keyId")
+        logger.logData([algorithm.rawValue].hexEncodedString, name: "algorithm")
+        logger.logData([keyId.rawValue].hexEncodedString, name: "keyId")
         
         return try await requireSecureMessaging {
         
             onEvent?(.SELECT_KEY)
             
             let request = Utils.join([
-                Utils.wrapDO(b: 0x84, arr: [keyId]),
-                Utils.wrapDO(b: 0x80, arr: [algorithm])
+                Utils.wrapDO(b: 0x84, arr: [keyId.rawValue]),
+                Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue])
             ])
             return try await tag.sendApdu([0x00, 0x22, 0x41, 0xA4], request, nil)
         }
     }
     
-    func selectKeyAndSign(algorithm: UInt8, keyId: UInt8, data: [UInt8]) async throws -> [UInt8] {
+    func selectKeyAndSign(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId, data: [UInt8]) async throws -> [UInt8] {
         try await selectKey(algorithm: algorithm, keyId: keyId)
         return try await sign(data: data)
     }

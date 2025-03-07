@@ -20,7 +20,6 @@ class BoringSSLRSA {
         self.exponent = exponent
         
         let keySize = modulus.count
-//        keyPriv = CNIOBoringSSL_RSA_new()
         
         var n = CNIOBoringSSL_BN_new()
         var e = CNIOBoringSSL_BN_new()
@@ -53,20 +52,21 @@ class BoringSSLRSA {
         CNIOBoringSSL_RSA_free(keyPriv)
     }
     
-    func pure(_ data: [UInt8]) -> [UInt8] {
+    func pure(_ data: [UInt8]) throws -> [UInt8] {
         let outSize = CNIOBoringSSL_RSA_size(keyPriv)
         
         let out = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(outSize))
         
-        return [UInt8](data.withUnsafeBytes({
+        return try [UInt8](data.withUnsafeBytes({
             dataPtr in
             let signSize = CNIOBoringSSL_RSA_public_encrypt(data.count, dataPtr.baseAddress, out, keyPriv, RSA_NO_PADDING)
             
             if (signSize != modulus.count) {
                 let sslError = CNIOBoringSSL_ERR_get_error()
-                print(sslError)
-                print(Utils.intToBin(Int(sslError), pad: 8).hexEncodedString)
-                print("error?")
+                
+                if (sslError != 0) {
+                    throw NfcDigitalIdError.sslError(sslError, "RSA")
+                }
             }
             
             return Data.init(bytes: out, count: Int(outSize))

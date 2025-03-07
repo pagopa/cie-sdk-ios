@@ -21,84 +21,90 @@ struct EndEntityCertificate {
     }
 
     func verifyAndSetCertificate(_ nfcDigitalId: NfcDigitalId) async throws {
-        let psoVerifyAlgo: UInt8 = 0x41
-        let CIE_KEY_ExtAuth_ID: UInt8 = 0x84
-
+        //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 2 of the table)
         try await nfcDigitalId.setChipAuthenticationKey(
-            algorithm: psoVerifyAlgo, keyId: CIE_KEY_ExtAuth_ID)
+            algorithm: .psoVerifySHA256, keyId: .CIE_KEY_ExtAuth_ID)
 
+        //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 3 of the table)
         try await nfcDigitalId.verifyCertificate(
-            certificate: self.signature, remaining: self.pkRem,
+            certificateSignature: self.signature, remaining: self.pkRem,
             certificateAuthorizationReference: self.certificateAuthorizationReference)
 
+        //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 4 of the table)
+        //IAS ECC v1_0_1UK.pdf 5.2.3.2.2 Setting the cryptographic context
         try await nfcDigitalId.setCertificateHolderReference(
             certificateHolderReference: self.certificateHolderReference)
+        
+        //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 5 of the table)
+        
     }
 
     init(extAuthParameters: DiffieHellmanExternalParameters) throws {
         self.extAuthParameters = extAuthParameters
-
-        let CA_module: [UInt8] = extAuthParameters.modulus
-        let certificateHolderAuthorization: [UInt8] = extAuthParameters
-            .certificateHolderAuthorization
-        let certificateHolderReference: [UInt8] = extAuthParameters.certificateHolderReference
-
-        let CA_AID = certificateHolderAuthorization[0..<6].map({ $0 })
-        let CA_CAR = certificateHolderReference[4..<certificateHolderReference.count].map({ $0 })
-
-        let module = Constants.DAPP_KEY_MODULUS
-        let pubExp = Constants.DAPP_KEY_PUBLIC_EXPONENT
-
-        let shaOID: UInt8 = 0x04
-        let CPI: UInt8 = 0x8A
-
-        let snIFD: [UInt8] = [0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
-
-        let baseCHR: [UInt8] = [0x00, 0x00, 0x00, 0x00]
-
-        let baseOID: [UInt8] = [0x2A, 0x81, 0x22, 0xF4, 0x2A, 0x02, 0x04, 0x01]
-
+        
+        //IAS ECC v1_0_1UK.pdf 7.2.5.1 CPI
+        let CPI: UInt8 = 0x8A //0x8A -> 10001010
+        
+        //1                             -> Application Dependant [IAS ECC]
+        //  0                           -> RFU
+        //      0                       -> RFU
+        //          0                   -> RFU
+        //              1               -> YES -> Device authentication with privacy protection
+        //                  0           -> NO -> Asymmetric Role authentication
+        //                      1   0   -> 2048bits key size
+        
+        
+        //IAS ECC v1_0_1UK.pdf 7.2.5.2 CAR
+        let CAR = extAuthParameters.certificateHolderReference[4..<extAuthParameters.certificateHolderReference.count].map({ $0 })
+        
+        //IAS ECC v1_0_1UK.pdf 7.2.5.3 CHR -> pad bytes + terminal serial number
         let CHR = Utils.join([
-            baseCHR,
-            snIFD,
+            [0x00, 0x00, 0x00, 0x00],
+            Constants.terminalSerialNumber,
         ])
 
+        let IFD_Key_Device_Authentication_Role: UInt8 = 0x01
+        let APPLICATION_AID = extAuthParameters
+            .certificateHolderAuthorization[0..<6].map({ $0 })
+        
+        //IAS ECC v1_0_1UK.pdf 7.2.5.4 CHA -> aid of the application (6 most significative bytes) + role
         let CHA = Utils.join([
-            CA_AID,
-            [01],
+            APPLICATION_AID,
+            [IFD_Key_Device_Authentication_Role],
         ])
 
-        let OID = Utils.join([
-            baseOID,
-            [shaOID],
+        //IAS ECC v1_0_1UK.pdf 7.2.5.6 Object Identifier
+        let sha256OID: UInt8 = 0x04
+        let deviceAuthenticationOID: [UInt8] = [0x2A, 0x81, 0x22, 0xF4, 0x2A, 0x02, 0x04, 0x01]
+        
+        let deviceAuthenticationSHA256OID = Utils.join([
+            deviceAuthenticationOID,
+            [sha256OID],
         ])
 
-        let endEntityCert = Utils.join([[CPI], CA_CAR, CHR, CHA, OID, module, pubExp])
-
-        let endEntityCertBa = endEntityCert[0..<module.count - Constants.sha256Size - 2].map({ $0 })
-
-        let endEntityCertDigest = Utils.calcSHA256Hash(endEntityCert)
-
-        let toSign = Utils.join([
-            [0x6A],
-            endEntityCertBa,
-            endEntityCertDigest,
-            [0xBC],
+        //IAS ECC v1_0_1UK.pdf 7.2.5 Format -> Note: [IAS ECC] will only support the non self-descriptive format
+        let certificate = Utils.join([
+            [CPI],
+            CAR,
+            CHR,
+            CHA,
+            deviceAuthenticationSHA256OID,
+            Constants.DAPP_KEY_MODULUS,
+            Constants.DAPP_KEY_PUBLIC_EXPONENT
         ])
 
-        let CA_privExp = Constants.DH_EXT_AUTH_PRIVATE_EXP
+        //IAS ECC v1_0_1UK.pdf 7.2.5.8 PKREM
+        let certificateRemainder = certificate[0..<Constants.DAPP_KEY_MODULUS.count - Constants.sha256Size - 2].map({ $0 })
 
-        let caRsaSign = try BoringSSLRSA(modulus: CA_module, exponent: CA_privExp)
+        let certificateHash = Utils.calcSHA256Hash(certificate)
 
-        defer {
-            caRsaSign.free()
-        }
-
-        let certSign = caRsaSign.pure(toSign)
-
-        self.certificate = endEntityCert
-        self.signature = certSign
-        self.certificateAuthorizationReference = CA_CAR
+        //IAS ECC v1_0_1UK.pdf 7.2.5.7 CERTSIGN
+        
+        let signature = try RSAWithIASECCPadding.encrypt(modulus: extAuthParameters.modulus, exponent: Constants.DH_EXT_AUTH_PRIVATE_EXP, blob: IASECCPadding(data: certificateRemainder, hash: certificateHash))
+        
+        self.certificate = certificate
+        self.signature = signature
+        self.certificateAuthorizationReference = CAR
         self.certificateHolderReference = CHR
     }
 }

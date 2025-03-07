@@ -71,7 +71,7 @@ class NfcDigitalId {
         
         let diffieHellmanRsa = try generateDiffieHellmanRSA(diffieHellmanParameters)
         
-        let diffieHellmanPublicKey = generateDiffieHellmanPublic(diffieHellmanParameters, diffieHellmanRsa)
+        let diffieHellmanPublicKey = try generateDiffieHellmanPublic(diffieHellmanParameters, diffieHellmanRsa)
         
         try await setDiffieHellmanKey(diffieHellmanPublic: diffieHellmanPublicKey)
         

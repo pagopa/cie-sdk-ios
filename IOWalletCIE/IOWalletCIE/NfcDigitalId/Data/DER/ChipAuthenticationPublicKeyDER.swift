@@ -10,7 +10,7 @@
 internal import SwiftASN1
 
 class ChipAuthenticationPublicKeyDER : DERObject {
-    var value: PublicKeyValue {
+    var value: RSAKeyValue {
         get throws {
             return try DER.sequence(node, identifier: .sequence) {
                 sequence in
@@ -35,7 +35,7 @@ class ChipAuthenticationPublicKeyDER : DERObject {
                 exponentValue = try getPrimitive(from: exponent)
                 
                 
-                return PublicKeyValue(modulus: modulusValue.removeLeadingZeros().map({$0}), exponent: exponentValue.removeLeadingZeros().map({$0}))
+                return RSAKeyValue(modulus: modulusValue.removeLeadingZeros().map({$0}), exponent: exponentValue.removeLeadingZeros().map({$0}))
             }
         }
     }

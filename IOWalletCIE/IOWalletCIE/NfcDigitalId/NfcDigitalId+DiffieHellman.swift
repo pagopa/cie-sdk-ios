@@ -80,22 +80,30 @@ extension NfcDigitalId {
         }
     }
     
-    func generateDiffieHellmanPublic(_ diffieHellmanParameters: DiffieHellmanParameters, _ rsa: BoringSSLRSA) -> PublicKeyValue {
-        return PublicKeyValue(modulus: rsa.pure(diffieHellmanParameters.g), exponent: nil)
+    func generateDiffieHellmanPublic(
+        _ diffieHellmanParameters: DiffieHellmanParameters,
+        _ rsa: BoringSSLRSA
+    ) throws -> RSAKeyValue {
+        return RSAKeyValue(modulus: try rsa.pure(diffieHellmanParameters.g), exponent: nil)
     }
     
-    
-    func setDiffieHellmanKey(diffieHellmanPublic: PublicKeyValue) async throws ->  APDUResponse {
+    func setDiffieHellmanKey(diffieHellmanPublic: RSAKeyValue) async throws ->  APDUResponse {
         logger.logDelimiter(#function)
         
         onEvent?(.SET_D_H_PUBLIC_KEY)
         
-        return try await setDiffieHellmanKey(algorithm: 0x9B, keyId: 0x81, publicKey: diffieHellmanPublic.modulus)
+        return try await setDiffieHellmanKey(algorithm: .PKdScheme, keyId: .CIE_KEY_Sign_ID, publicKey: diffieHellmanPublic.modulus)
     }
     
-    func performKeyExchange(_ diffieHellmanParameters: DiffieHellmanParameters, diffieHellmanPublic: PublicKeyValue, _ rsa: BoringSSLRSA, _ iccPublicKey: PublicKeyValue) async throws -> APDUDeliverySecureMessaging {
+    func performKeyExchange(
+        _ diffieHellmanParameters: DiffieHellmanParameters,
+        diffieHellmanPublic: RSAKeyValue,
+        _ rsa: BoringSSLRSA,
+        _ iccPublicKey: RSAKeyValue
+    ) async throws -> APDUDeliverySecureMessaging {
+        
         logger.logDelimiter(#function)
-        let secret = rsa.pure(iccPublicKey.modulus)
+        let secret = try rsa.pure(iccPublicKey.modulus)
         
         let diffENC: [UInt8] = [0x00, 0x00, 0x00, 0x01]
         let diffMAC: [UInt8] = [0x00, 0x00, 0x00, 0x02]
@@ -112,7 +120,7 @@ extension NfcDigitalId {
     }
     
     
-    func getICCPublicKey() async throws -> PublicKeyValue {
+    func getICCPublicKey() async throws -> RSAKeyValue {
         logger.logDelimiter(#function)
         let data = try await getDiffieHellmanValue(Constants.GET_PUBLIC_KEY_DATA)
         
@@ -132,14 +140,14 @@ extension NfcDigitalId {
         return try DiffieHellmanExternalParametersDER(data: data).value
     }
     
-    func setDiffieHellmanKey(algorithm: UInt8, keyId: UInt8, publicKey: [UInt8]) async throws -> APDUResponse {
+    func setDiffieHellmanKey(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId, publicKey: [UInt8]) async throws -> APDUResponse {
         logger.logDelimiter(#function)
-        logger.logData([algorithm], name: "algorithm")
-        logger.logData([keyId], name: "keyId")
+        logger.logData([algorithm.rawValue], name: "algorithm")
+        logger.logData([keyId.rawValue], name: "keyId")
         logger.logData(publicKey, name: "publicKey")
         let request = Utils.join([
-            Utils.wrapDO(b: 0x80, arr: [algorithm]),
-            Utils.wrapDO(b: 0x83, arr: [keyId]),
+            Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue]),
+            Utils.wrapDO(b: 0x83, arr: [keyId.rawValue]),
             Utils.wrapDO(b: 0x91, arr: publicKey)
         ])
         
@@ -149,19 +157,22 @@ extension NfcDigitalId {
         
     }
     
-    func setChipAuthenticationKey(algorithm: UInt8, keyId: UInt8) async throws -> APDUResponse {
+    func setChipAuthenticationKey(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId) async throws -> APDUResponse {
         logger.logDelimiter(#function)
-        logger.logData([algorithm], name: "algorithm")
-        logger.logData([keyId], name: "keyId")
+        logger.logData([algorithm.rawValue], name: "algorithm")
+        logger.logData([keyId.rawValue], name: "keyId")
         
         onEvent?(.CHIP_SET_KEY)
         
         let request = Utils.join([
-            Utils.wrapDO(b: 0x80, arr: [algorithm]),
-            Utils.wrapDO(b: 0x83, arr: [keyId])
+            Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue]),
+            Utils.wrapDO(b: 0x83, arr: [keyId.rawValue])
         ])
         
-        return try await manageSecurityEnvironment(p1: 0x81, p2: 0xB6, data: request)
+        //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 2 of the table)
+        let CRT_DST: UInt8 = 0xB6
+        
+        return try await manageSecurityEnvironment(p1: 0x81, p2: CRT_DST, data: request)
     }
     
     func manageSecurityEnvironment(p1: UInt8, p2: UInt8, data: [UInt8]) async throws -> APDUResponse {
