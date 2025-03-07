@@ -40,4 +40,9 @@ extension Array<UInt8> {
         // Return a subarray up to and including the last non-zero index
         return self[firstNonZeroIndex..<self.count]
     }
+    
+    var hexDump: String {
+        return HexDump.hexDumpStringForBytes(bytes: self)
+    }
+    
 }

@@ -83,7 +83,16 @@ struct NfcDigitalIdLogger {
     func logData(_ data: [UInt8], name: String? = nil) {
         guard mode != .disabled else { return }
         
-        let dataStr = "[\(name == nil ? "DATA" : name!)]: " + data.hexEncodedString + "\n"
+        let dataAsString: String
+        
+        if (data.count < 8) {
+            dataAsString = data.hexEncodedString
+        }
+        else {
+            dataAsString = data.hexDump
+        }
+        
+        let dataStr = "[\(name == nil ? "DATA" : name!)]: \n" + dataAsString + "\n"
         
         log(dataStr)
     }
