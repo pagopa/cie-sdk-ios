@@ -8,16 +8,105 @@
 
 internal import SwiftASN1
 
+
+enum SecurityEnvironmentControlReference : UInt8 {
+    //    case MSE_SET = 1
+    //    case UQ_COM_DEC_INTAUT = 64
+    //    case UQ_VER_ENC_EXTAUT = 128
+    
+    case MSE_SET_EXTERNAL_AUTH = 0x81 //MSE_SET | UQ_VER_ENC_EXTAUT
+    case MSE_SET_INTERNAL_AUTH = 0x41 //MSE_SET | UQ_COM_DEC_INTAUT
+    
+    var description: String {
+        return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
+    
+}
+
+//IAS ECC v1_0_1UK.pdf 3.5.6.1 Control Reference Templates list
+/*
+ 'A4' Data objects for an Authentication Template (AT)
+ 'A6' Data objects for a Key Agreement Template (KAT)
+ 'AA' Data objects for a Hash Template (HT)
+ 'B4' Data objects for a Cryptographic Checksum Template (CCT)
+ 'B6' Data objects for an Digital Signature Template (DST)
+ 'B8' Data objects for an Confidentiality Template (CT)
+ */
+enum SecurityEnvironmentControlReferenceTemplate: UInt8 {
+    case authentication = 0xA4 //Authentication Template (AT)
+    case keyAgreement = 0xA6 //Key Agreement Template (KAT)
+    case digitalSignature = 0xB6 //Digital Signature Template (DST)
+    
+    var description: String {
+        return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
+}
+
+enum FileId : String {
+    case root = "3f00"
+    
+    case service = "1001"
+    case chipCertificate = "1003"
+    case chipPublicKey = "1004"
+    case atr = "2f01"
+    
+    case ias = "A0000000308000000009816001"
+    case cie = "A00000000039"
+    
+    case empty = ""
+    
+    var bytes: [UInt8] {
+        guard let data = [UInt8](hex: self.rawValue) else {
+            return []
+        }
+        return data
+    }
+    
+    var description: String {
+        return "\(self) (\(self.rawValue))"
+    }
+}
+
+enum DirectoryId: UInt8 {
+    case root = 0x00
+    case standard = 0x02
+    case application = 0x04
+    
+    var description: String {
+        return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
+}
+
+enum FileTemplateId: UInt8 {
+    case root = 0x00
+    case standard = 0x04
+    case application = 0x0c
+    
+    var description: String {
+        return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
+}
+
 enum SecurityEnvironmentAlgorithm : UInt8 {
-    case psoVerifySHA256 = 0x41
-    case PKdScheme = 0x9B
-    case CIE_Sign_Algorithm = 2
+    case iso97962RSASHA256 = 0x41 //'41' ≡ algorithm identifier for signature using ISO 9796-2 scheme 1 – SHA-256
+    case diffieHellmanRSASHA256 = 0x9B //'9B' ≡ DH asymmetric authentication algorithm (privacy) with SHA-256
+    case clientServerRSAPKCS1 = 2 //'02' ≡ algorithm identifier for IFC/ICC authentication RSA PKCS#1 -SHA-1 with not data formatting
+    
+   
+    var description: String {
+        return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
+    
 }
 
 enum SecurityEnvironmentKeyId: UInt8 {
-    case CIE_KEY_ExtAuth_ID = 0x84
-    case CIE_KEY_Sign_ID = 0x81
-    case chipAuthenticationKeyId = 0x82 //Identify correct name
+    case sign = 0x81
+    case internalAuth = 0x82
+    case externalAuth = 0x84
+    
+    var description: String {
+        return "\(self) (\([self.rawValue].hexEncodedString))"
+    }
 }
 
 class Constants {

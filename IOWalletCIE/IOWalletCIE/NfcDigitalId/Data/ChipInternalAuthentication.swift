@@ -1,11 +1,12 @@
 //
-//  ChipAuthentication.swift
+//  ChipInternalAuthentication.swift
 //  IOWalletCIE
 //
 //  Created by Antonio Caparello on 05/03/25.
 //
 
-struct ChipAuthentication {
+//IAS ECC v1_0_1UK.pdf 5.2.3.5 Internal authentication of the ICC
+struct ChipInternalAuthentication {
     private let nfcDigitalId: NfcDigitalId
 
     init(_ nfcDigitalId: NfcDigitalId) {
@@ -23,7 +24,7 @@ struct ChipAuthentication {
         let terminalChallenge = Utils.generateRandomUInt8Array(8)
 
         let encryptedTerminalChallengeSignatureWithSerial = try await nfcDigitalId.selectKeyAndSign(
-            algorithm: .PKdScheme, keyId: .chipAuthenticationKeyId, data: terminalChallenge)
+            algorithm: .diffieHellmanRSASHA256, keyId: .internalAuth, data: terminalChallenge)
 
         //encryptedTerminalChallengeSignatureWithSerial == SN.ICC | SIG.ICC
         

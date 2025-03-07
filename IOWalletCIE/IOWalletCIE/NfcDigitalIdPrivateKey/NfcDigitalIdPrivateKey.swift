@@ -102,10 +102,7 @@ class NfcDigitalIdPrivateKey {
             throw NfcDigitalIdError.tlsUnsupportedAlgorithm
         }
         
-//        let CIE_Sign_Algorithm: UInt8 = 2
-//        let CIE_KEY_Sign_ID: UInt8 = 0x81
-        
-        return try await tag.selectKeyAndSign(algorithm: .CIE_Sign_Algorithm, keyId: .CIE_KEY_Sign_ID, data: digestInfo)
+        return try await tag.selectKeyAndSign(algorithm: .clientServerRSAPKCS1, keyId: .sign, data: digestInfo)
     }
     
     

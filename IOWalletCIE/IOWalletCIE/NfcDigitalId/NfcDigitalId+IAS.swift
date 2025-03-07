@@ -13,29 +13,26 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         onEvent?(.SELECT_IAS)
         
-        let iasAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x30, 0x80, 0x00, 0x00, 0x00, 0x09, 0x81, 0x60, 0x01]
-        return try await selectApplication(iasAid)
+        return try await selectApplication(applicationId: .ias)
     }
     
-    func selectMainFile(id: [UInt8]) async throws -> APDUResponse {
+    func selectRootFile(id: FileId) async throws -> APDUResponse {
         logger.logDelimiter(#function)
-        logger.logData(id, name: "id")
+        logger.logData(id.description, name: "id")
         
-        return try await select(0x00, 0x00, id: id)
+        return try await select(.root, .root, id: id)
     }
     
     func selectRoot() async throws -> APDUResponse {
         onEvent?(.SELECT_ROOT)
-        return try await selectMainFile(id: [0x3f, 0x00])
+        return try await selectRootFile(id: .root)
     }
     
     func readCIEType() async throws -> CIEType {
         
         try await selectRoot()
       
-        let atrId: [UInt8] = [0x2f, 0x01]
-        
-        let atr = try await selectFileAndRead(id: atrId)
+        let atr = try await selectFileAndRead(id: .atr)
         
         logger.logData(atr, name: "ATR")
         
@@ -44,9 +41,10 @@ extension NfcDigitalId {
     
     func selectCIE() async throws -> APDUResponse {
         logger.logDelimiter(#function)
+        
         onEvent?(.SELECT_CIE)
-        let cieAid: [UInt8] = [0xA0, 0x00, 0x00, 0x00, 0x00, 0x39]
-        return try await selectApplication(cieAid)
+        
+        return try await selectApplication(applicationId: .cie)
     }
     
     func getServiceId() async throws -> String {
@@ -54,12 +52,10 @@ extension NfcDigitalId {
         
         onEvent?(.GET_SERVICE_ID)
         
-        let serviceId: [UInt8] = [0x10, 0x01]
-        
         try await selectIAS()
         try await selectCIE()
         
-        try await selectFile(id: serviceId)
+        try await selectFile(id: .service)
         
         let response = try await readBinary(offset: 0, le: [0x0c])
         
@@ -83,45 +79,13 @@ extension NfcDigitalId {
     
     func readCertificate() async throws -> [UInt8] {
         logger.logDelimiter(#function)
-        let certificateId: [UInt8] = [0x10, 0x03]
         
         return try await requireSecureMessaging {
             onEvent?(.READ_CERTIFICATE)
             
-            return try await selectFileAndRead(id: certificateId)
+            return try await selectFileAndRead(id: .chipCertificate)
         }
     }
     
-    func selectKey(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId) async throws -> APDUResponse {
-        logger.logDelimiter(#function)
-        logger.logData([algorithm.rawValue].hexEncodedString, name: "algorithm")
-        logger.logData([keyId.rawValue].hexEncodedString, name: "keyId")
-        
-        return try await requireSecureMessaging {
-        
-            onEvent?(.SELECT_KEY)
-            
-            let request = Utils.join([
-                Utils.wrapDO(b: 0x84, arr: [keyId.rawValue]),
-                Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue])
-            ])
-            return try await tag.sendApdu([0x00, 0x22, 0x41, 0xA4], request, nil)
-        }
-    }
     
-    func selectKeyAndSign(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId, data: [UInt8]) async throws -> [UInt8] {
-        try await selectKey(algorithm: algorithm, keyId: keyId)
-        return try await sign(data: data)
-    }
-    
-    func sign(data: [UInt8]) async throws -> [UInt8] {
-        logger.logDelimiter(#function)
-        logger.logData(data, name: "data")
-        
-        return try await requireSecureMessaging {
-            onEvent?(.SIGN)
-            
-            return try await tag.sendApdu([0x00, 0x88, 0x00, 0x00], data, nil).data
-        }
-    }
 }

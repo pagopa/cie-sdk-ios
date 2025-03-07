@@ -1,12 +1,12 @@
 //
-//  ChipChallenge.swift
+//  ChipExternalAuthentication.swift
 //  IOWalletCIE
 //
 //  Created by Antonio Caparello on 05/03/25.
 //
 
 //5.2.3.3 External authentication of the IFD
-struct ChipChallenge {
+struct ChipExternalAuthentication {
     private let nfcDigitalId: NfcDigitalId
     private let challenge: [UInt8]
 

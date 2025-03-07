@@ -92,7 +92,7 @@ extension NfcDigitalId {
         
         onEvent?(.SET_D_H_PUBLIC_KEY)
         
-        return try await setDiffieHellmanKey(algorithm: .PKdScheme, keyId: .CIE_KEY_Sign_ID, publicKey: diffieHellmanPublic.modulus)
+        return try await internalKeyAgreement(algorithm: .diffieHellmanRSASHA256, keyId: .sign, publicKey: diffieHellmanPublic.modulus)
     }
     
     func performKeyExchange(
@@ -140,53 +140,9 @@ extension NfcDigitalId {
         return try DiffieHellmanExternalParametersDER(data: data).value
     }
     
-    func setDiffieHellmanKey(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId, publicKey: [UInt8]) async throws -> APDUResponse {
-        logger.logDelimiter(#function)
-        logger.logData([algorithm.rawValue], name: "algorithm")
-        logger.logData([keyId.rawValue], name: "keyId")
-        logger.logData(publicKey, name: "publicKey")
-        let request = Utils.join([
-            Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue]),
-            Utils.wrapDO(b: 0x83, arr: [keyId.rawValue]),
-            Utils.wrapDO(b: 0x91, arr: publicKey)
-        ])
-        
-        let mseSetInternalAuth: UInt8 = 0x41 //P1_MSE_SET | UQ_COM_DEC_INTAUT
-        
-        return try await manageSecurityEnvironment(p1: mseSetInternalAuth, p2: 0xA6, data: request)
-        
-    }
     
-    func setChipAuthenticationKey(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId) async throws -> APDUResponse {
-        logger.logDelimiter(#function)
-        logger.logData([algorithm.rawValue], name: "algorithm")
-        logger.logData([keyId.rawValue], name: "keyId")
-        
-        onEvent?(.CHIP_SET_KEY)
-        
-        let request = Utils.join([
-            Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue]),
-            Utils.wrapDO(b: 0x83, arr: [keyId.rawValue])
-        ])
-        
-        //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 2 of the table)
-        let CRT_DST: UInt8 = 0xB6
-        
-        return try await manageSecurityEnvironment(p1: 0x81, p2: CRT_DST, data: request)
-    }
     
-    func manageSecurityEnvironment(p1: UInt8, p2: UInt8, data: [UInt8]) async throws -> APDUResponse {
-        logger.logDelimiter(#function)
-        logger.logData([p1], name: "p1")
-        logger.logData([p2], name: "p2")
-        logger.logData(data, name: "data")
-        return try await tag.sendApdu([
-            0x00,
-            0x22,
-            p1,
-            p2
-        ], data, nil)
-    }
+    
     
     
     

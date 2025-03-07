@@ -25,7 +25,7 @@ class NfcDigitalId {
         
         try await selectCIE()
         
-        try await selectMainFile(id: [])
+        try await selectRootFile(id: .empty)
                 
         let type = try await readCIEType()
                 
@@ -47,7 +47,7 @@ class NfcDigitalId {
         
         let privateKey = NfcDigitalIdPrivateKey(tag: self)
         
-        logger.logDelimiter("request.perfromAuthentication", prominent: true)
+        logger.logDelimiter("request.performAuthentication", prominent: true)
         
         return try await request.performAuthentication(certificate: certificate, privateKey: privateKey)
     }

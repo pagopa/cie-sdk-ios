@@ -22,8 +22,8 @@ struct EndEntityCertificate {
 
     func verifyAndSetCertificate(_ nfcDigitalId: NfcDigitalId) async throws {
         //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 2 of the table)
-        try await nfcDigitalId.setChipAuthenticationKey(
-            algorithm: .psoVerifySHA256, keyId: .CIE_KEY_ExtAuth_ID)
+        try await nfcDigitalId.prepareForEndEntityCertificateValidation(
+            algorithm: .iso97962RSASHA256, keyId: .externalAuth)
 
         //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 3 of the table)
         try await nfcDigitalId.verifyCertificate(
@@ -32,7 +32,7 @@ struct EndEntityCertificate {
 
         //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 4 of the table)
         //IAS ECC v1_0_1UK.pdf 5.2.3.2.2 Setting the cryptographic context
-        try await nfcDigitalId.setCertificateHolderReference(
+        try await nfcDigitalId.prepareForExternalAuthCertificateValidation(
             certificateHolderReference: self.certificateHolderReference)
         
         //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 5 of the table)

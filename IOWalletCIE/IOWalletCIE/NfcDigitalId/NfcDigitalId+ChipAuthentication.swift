@@ -12,47 +12,38 @@ extension NfcDigitalId {
         
         onEvent?(.READ_CHIP_PUBLIC_KEY)
         
-        let dappKeyId: [UInt8] = [0x10, 0x04]
+        let chipPublicKey = try await selectFileAndRead(id: .chipPublicKey)
         
-        let dappKey = try await selectFileAndRead(id: dappKeyId)
-        
-        return try ChipAuthenticationPublicKeyDER(data: dappKey).value
+        return try ChipAuthenticationPublicKeyDER(data: chipPublicKey).value
     }
     
-    func performChipAuthentication(chipPublicKey: RSAKeyValue, extAuthParameters: DiffieHellmanExternalParameters, diffieHellmanPublicKey: RSAKeyValue, diffieHellmanParameters: DiffieHellmanParameters, iccPublicKey: RSAKeyValue) async throws -> APDUDeliverySecureMessaging {
+    func performChipAuthentication(
+        chipPublicKey: RSAKeyValue,
+        extAuthParameters: DiffieHellmanExternalParameters,
+        diffieHellmanPublicKey: RSAKeyValue,
+        diffieHellmanParameters: DiffieHellmanParameters,
+        iccPublicKey: RSAKeyValue
+    ) async throws -> APDUDeliverySecureMessaging {
+        
         logger.logDelimiter(#function)
         return try await requireSecureMessaging({
             
             try await EndEntityCertificate(extAuthParameters: extAuthParameters).verifyAndSetCertificate(self)
             
-            let challengeBa = try await ChipChallenge(self).perform(diffieHellmanPublicKey: diffieHellmanPublicKey, iccPublicKey: iccPublicKey, dhParameters: diffieHellmanParameters)
+            let sequenceFirstPart = try await ChipExternalAuthentication(self).perform(diffieHellmanPublicKey: diffieHellmanPublicKey, iccPublicKey: iccPublicKey, dhParameters: diffieHellmanParameters)
             
-            let rndIFDBa = try await ChipAuthentication(self).perform(chipPublicKey: chipPublicKey, diffieHellmanPublicKey: diffieHellmanPublicKey, diffieHellmanParameters: diffieHellmanParameters, iccPublicKey: iccPublicKey)
+            let sequenceLastPart = try await ChipInternalAuthentication(self).perform(chipPublicKey: chipPublicKey, diffieHellmanPublicKey: diffieHellmanPublicKey, diffieHellmanParameters: diffieHellmanParameters, iccPublicKey: iccPublicKey)
             
             let secureMessagingTag = self.tag.me as! APDUDeliverySecureMessaging
             
             //The secure messaging for integrity for the subsequent command is computed with the correct starting value for
             //SSC = RND.ICC (4 least significant bytes) || RND.IFD (4 least significant bytes)
             
-            return secureMessagingTag.withSequence(sequence: Utils.join([challengeBa, rndIFDBa]))
+            return secureMessagingTag.withSequence(sequence: Utils.join([sequenceFirstPart, sequenceLastPart]))
         })
     }
     
-    func setCertificateHolderReference(certificateHolderReference: [UInt8]) async throws -> APDUResponse {
-        logger.logDelimiter(#function)
-        return try await requireSecureMessaging {
-            onEvent?(.CHIP_SET_CAR)
-            
-            //0x83 -> Name of PuK.IFD.CS_AUT (C.H.R. see §7.2.5.3)
-            let request = Utils.wrapDO(b: 0x83, arr: certificateHolderReference)
-            
-            //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 4 of the table)
-            //in the document the P2 parameter is specified as 'B6'. In the original iOS library in IAS.mm at line 517 the P2 is defined as 'A4'.
-            //both works so better follow the specifics?
-            
-            return try await manageSecurityEnvironment(p1: 0x81, p2: 0xB6, data: request)
-        }
-    }
+   
     
     func getChallenge() async throws -> APDUResponse{
         logger.logDelimiter(#function)
