@@ -48,35 +48,6 @@ public enum CIEType: Sendable {
             }
         }
         
-        
-        
-        
-        //        if atrStr.contains(ST_ATR.hexEncodedString) {
-        //            return .CIE_ST
-        //        }
-        //        if atrStr.contains(NXP_ATR.hexEncodedString) {
-        //            return .CIE_NXP
-        //        }
-        //        if atrStr.contains(Gemalto2_ATR.hexEncodedString) {
-        //            return .CIE_Gemalto
-        //        }
-        //        if atrStr.contains(Gemalto_ATR.hexEncodedString) {
-        //            return .CIE_Gemalto
-        //        }
-        
-        
-        //        if atr.starts(with: NXP_ATR) {
-        //            return .CIE_NXP
-        //        }
-        //        if atr.starts(with: Gemalto2_ATR) {
-        //            return .CIE_Gemalto
-        //        }
-        //        if atr.starts(with: Gemalto_ATR) {
-        //            return .CIE_Gemalto
-        //        }
-        //        if atr.starts(with: ST_ATR) {
-        //            return .CIE_ST
-        //        }
         return .CIE_Unknown
     }
 }
