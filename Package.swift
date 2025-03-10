@@ -27,7 +27,7 @@ let package = Package(
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
                 .product(name: "SwiftASN1", package: "swift-asn1")
             ],
-            path: "IOWalletCIE"
+            path: "IOWalletCIE/IOWalletCIE"
         ),
 
     ]
