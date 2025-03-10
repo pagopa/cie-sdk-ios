@@ -175,7 +175,7 @@
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				63DEC19A2DEB29469E56BAE6 /* [CP] Embed Pods Frameworks */,
+				83C15F6F01F217C5868072C6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -194,6 +194,7 @@
 				607FACE11AFB9204008FA782 /* Sources */,
 				607FACE21AFB9204008FA782 /* Frameworks */,
 				607FACE31AFB9204008FA782 /* Resources */,
+				5A11C394B9AC8EEA68A247E6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -270,22 +271,36 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		63DEC19A2DEB29469E56BAE6 /* [CP] Embed Pods Frameworks */ = {
+		5A11C394B9AC8EEA68A247E6 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-cie-sdk-ios_Example/Pods-cie-sdk-ios_Example-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/cie-sdk-ios/IOWalletCIE.framework/IOWalletCIE",
+				"${PODS_ROOT}/Target Support Files/Pods-cie-sdk-ios_Tests/Pods-cie-sdk-ios_Tests-resources.sh",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IOWalletCIE.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-cie-sdk-ios_Example/Pods-cie-sdk-ios_Example-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-cie-sdk-ios_Tests/Pods-cie-sdk-ios_Tests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		83C15F6F01F217C5868072C6 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-cie-sdk-ios_Example/Pods-cie-sdk-ios_Example-resources.sh",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-cie-sdk-ios_Example/Pods-cie-sdk-ios_Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B3B347A94A30C61C06FD2237 /* [CP] Check Pods Manifest.lock */ = {
