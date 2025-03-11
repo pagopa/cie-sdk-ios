@@ -14,8 +14,6 @@ struct NfcDigitalIdLogger {
     private let mode: IOWalletDigitalId.LogMode
     private var filename: String?
     
-    private let separator: String = String(repeating: "-", count: 20)
-    
     lazy private var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
@@ -28,16 +26,19 @@ struct NfcDigitalIdLogger {
     }
     
     func logDelimiter(_ message: String, prominent: Bool = false) {
-        var printMessage: String
-    
-        if prominent {
-            printMessage = "\n||||\(separator) \(message) \(separator)||||\n"
-        }
-        else {
-            printMessage = "\(separator) \(message) \(separator)"
-        }
         
-        log(printMessage)
+        let maxLength = 75
+        
+        let remaining = maxLength - message.count
+        
+        let leftCount = remaining / 2
+        let rightCount = remaining - leftCount
+        
+        let separatorLeft = String(repeating: prominent ? "=" : "-", count: max(0, leftCount))
+        
+        let separatorRight = String(repeating: prominent ? "=" : "-", count: max(0, rightCount))
+        
+        log("\(separatorLeft)\(message)\(separatorRight)")
     }
     
     func log(_ message: String, error: Bool = false) {

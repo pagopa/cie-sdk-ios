@@ -90,8 +90,6 @@ class NfcDigitalIdRequest {
             throw NfcDigitalIdError.idpEmptyBody
         }
         
-        logger.logData(bodyString, name: "body")
-        
         let codePrefix = "codice:"
         
         if (!bodyString.contains(codePrefix)) {
@@ -127,18 +125,42 @@ class NfcDigitalIdRequest {
         
         var response = try await httpClient.post(url: url).get()
         
-        logger.logData("\(response)", name: "IDP Response")
+        logger.logHttpResponse(response, name: "IDP Response")
         
         if let redirectRequest = response.createRedirectRequest() {
+            
             logger.logData("\(redirectRequest)", name: "IDP Redirect Request")
+            
             let redirectResponse = try await httpClient.execute(request: redirectRequest).get()
-            logger.logData("\(redirectResponse)", name: "IDP Redirect Response")
             response = redirectResponse
+            
+            logger.logHttpResponse(response, name: "IDP Response (Redirect)")
         }
         
         try await httpClient.shutdown()
         try await loopGroup.shutdownGracefully()
         
         return response
+    }
+    
+}
+
+extension NfcDigitalIdLogger {
+    func logHttpResponse(_ response: HTTPClient.Response, name: String? = nil) {
+        if let name = name,
+           !name.isEmpty {
+            self.logDelimiter(name)
+        }
+        
+        self.logData("\(response.host)", name: "host")
+        self.logData("\(response.status)", name: "status")
+        self.logData("\(response.headers)", name: "headers")
+        
+        if let body = response.body,
+           let bodyData = body.getData(at: 0, length: body.readableBytes)
+        {
+            self.logData([UInt8](bodyData), name: "body")
+        }
+        
     }
 }
