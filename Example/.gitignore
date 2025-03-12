@@ -64,3 +64,5 @@ fastlane/test_output
 
 archives/
 build/
+Pods/
+DerivedData/
