@@ -25,14 +25,14 @@ TODO: Add long description of the pod here.
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'acapadev' => 'antonio.caparello@digitouch.it' }
-  s.source           = { :git => 'https://github.com/pagopa/cie-sdk-ios.git', branch: 'develop' }
+  s.source           = { :git => 'ssh://git@github.com/pagopa/cie-sdk-ios.git', branch: 'develop' }
  
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '13.0'
 
-  s.prepare_command = './build.sh'
+  s.prepare_command = './.build.sh'
 
-  s.ios.vendored_frameworks = "archives/IOWalletCIE.xcframework"
+  s.ios.vendored_frameworks = ".archives/IOWalletCIE.xcframework"
 
 end

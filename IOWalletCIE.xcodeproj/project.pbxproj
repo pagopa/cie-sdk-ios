@@ -12,27 +12,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3DCFB9122D771481001050C3 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		3DEAC59D2D6E1181005D056D /* IOWalletCIE.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOWalletCIE.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3DEAC5A22D6E1181005D056D /* Exceptions for "IOWalletCIE" folder in "IOWalletCIE" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			publicHeaders = (
-				IOWalletCIE.h,
-			);
-			target = 3DEAC59C2D6E1181005D056D /* IOWalletCIE */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3DEAC59F2D6E1181005D056D /* IOWalletCIE */ = {
+		3DEAC59F2D6E1181005D056D /* Sources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				3DEAC5A22D6E1181005D056D /* Exceptions for "IOWalletCIE" folder in "IOWalletCIE" target */,
-			);
-			path = IOWalletCIE;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -53,8 +39,7 @@
 		3DEAC5932D6E1181005D056D = {
 			isa = PBXGroup;
 			children = (
-				3DCFB9122D771481001050C3 /* Package.swift */,
-				3DEAC59F2D6E1181005D056D /* IOWalletCIE */,
+				3DEAC59F2D6E1181005D056D /* Sources */,
 				3DEAC59E2D6E1181005D056D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -94,7 +79,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				3DEAC59F2D6E1181005D056D /* IOWalletCIE */,
+				3DEAC59F2D6E1181005D056D /* Sources */,
 			);
 			name = IOWalletCIE;
 			packageProductDependencies = (

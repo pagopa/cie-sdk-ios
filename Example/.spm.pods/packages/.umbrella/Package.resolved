@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "cie-sdk-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:pagopa/cie-sdk-ios.git",
-      "state" : {
-        "branch" : "feature/refactoring",
-        "revision" : "441e865545e9bd92714b37bbdc039dc56bcc0b1f"
-      }
-    },
-    {
       "identity" : "swift-algorithms",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-algorithms.git",

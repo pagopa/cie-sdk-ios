@@ -11,7 +11,7 @@ fi
 # If the parameter is false, check if IOWalletCIE.xcframework exists
 if [ "$param" == "false" ]; then
 
-  if [ -d "archives/IOWalletCIE.xcframework" ]; then
+  if [ -d ".archives/IOWalletCIE.xcframework" ]; then
     echo "IOWalletCIE.xcframework exists."
     exit 0
   else
@@ -22,28 +22,27 @@ fi
 echo "building xcframework"
 
 # Remove the old /archives folder
-rm -rf archives
+rm -rf .archives
 
-cd IOWalletCIE
 
 # iOS Simulators
 xcodebuild archive \
     -scheme IOWalletCIE \
     -destination "generic/platform=iOS Simulator" \
-    -archivePath "../archives/IOWalletCIE-iOS-simulator.xcarchive" \
+    -archivePath ".archives/IOWalletCIE-iOS-simulator.xcarchive" \
     -configuration Release \
     -sdk iphonesimulator
 
 # iOS Devices
 xcodebuild archive \
     -scheme IOWalletCIE \
-    -archivePath "../archives/IOWalletCIE-iOS.xcarchive" \
+    -archivePath ".archives/IOWalletCIE-iOS.xcarchive" \
     -destination "generic/platform=iOS" \
     -configuration Release \
     -sdk iphoneos 
     
 # Build IOWalletCIE.xcframework
 xcodebuild -create-xcframework \
-    -framework "../archives/IOWalletCIE-iOS.xcarchive/Products/Library/Frameworks/IOWalletCIE.framework" \
-    -framework "../archives/IOWalletCIE-iOS-simulator.xcarchive/Products/Library/Frameworks/IOWalletCIE.framework" \
-    -output "../archives/IOWalletCIE.xcframework"
+    -framework ".archives/IOWalletCIE-iOS.xcarchive/Products/Library/Frameworks/IOWalletCIE.framework" \
+    -framework ".archives/IOWalletCIE-iOS-simulator.xcarchive/Products/Library/Frameworks/IOWalletCIE.framework" \
+    -output ".archives/IOWalletCIE.xcframework"

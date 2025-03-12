@@ -62,5 +62,5 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 
-archives/
+.archives/
 DerivedData/

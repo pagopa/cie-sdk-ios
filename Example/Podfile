@@ -5,7 +5,7 @@ platform :ios, '13.0'
 target 'cie-sdk-ios_Example' do
   #pod 'cie-sdk-ios', :path => '../'
 
-  spm_pkg "IOWalletCIE", :url => "git@github.com:pagopa/cie-sdk-ios.git", :branch => "feature/refactoring"
+  spm_pkg "IOWalletCIE", :relative_path => "../../../cie-sdk-ios/"
 
   target 'cie-sdk-ios_Tests' do
     inherit! :search_paths

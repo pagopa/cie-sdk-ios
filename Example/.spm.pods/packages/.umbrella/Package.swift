@@ -4,6 +4,6 @@ import PackageDescription
 let package = Package(
   name: "_umbrella_",
   dependencies: [
-    .package(url: "git@github.com:pagopa/cie-sdk-ios.git", branch: "feature/refactoring")
+    .package(path: "/Users/username/repos/digitouch/pagopa1/cie-sdk-ios")
   ]
 )

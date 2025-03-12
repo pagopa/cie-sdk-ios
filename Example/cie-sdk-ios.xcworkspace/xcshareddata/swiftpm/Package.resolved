@@ -1,5 +1,5 @@
 {
-  "originHash" : "ca8112be3f0e9fab89ee0d4f8605ed24d411ab0f396f35dfcd20cd5327bd77f5",
+  "originHash" : "d78853502e5ce1812e6f3950eb4c1db2c169aef38aa3f41b31f4a22be65713f1",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "333f51104b75d1a5b94cb3b99e4c58a3b442c9f7",
         "version" : "1.25.2"
-      }
-    },
-    {
-      "identity" : "cie-sdk-ios",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:pagopa/cie-sdk-ios.git",
-      "state" : {
-        "branch" : "feature/refactoring",
-        "revision" : "441e865545e9bd92714b37bbdc039dc56bcc0b1f"
       }
     },
     {
