@@ -125,7 +125,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.infoLabel.text = error.localizedDescription
+                    if let nfcDigitalIdError = error as? NfcDigitalIdError {
+                        self.infoLabel.text = nfcDigitalIdError.description
+                    }
+                    else {
+                        self.infoLabel.text = error.localizedDescription
+                    }
                 }
             }
         }
@@ -157,7 +162,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.infoLabel.text = error.localizedDescription
+                    if let nfcDigitalIdError = error as? NfcDigitalIdError {
+                        self.infoLabel.text = nfcDigitalIdError.description
+                    }
+                    else {
+                        self.infoLabel.text = error.localizedDescription
+                    }
                 }
             }
         }

@@ -55,8 +55,6 @@ GEM
     cocoapods-plugins (1.0.0)
       nap
     cocoapods-search (1.0.1)
-    cocoapods-spm (0.1.14)
-      xcodeproj (>= 1.23.0)
     cocoapods-trunk (1.6.0)
       nap (>= 0.8, < 2.0)
       netrc (~> 0.11)
@@ -104,8 +102,7 @@ PLATFORMS
   x86_64-darwin-23
 
 DEPENDENCIES
-  cocoapods
-  cocoapods-spm
+  cocoapods (~> 1.16.2)
 
 BUNDLED WITH
    2.5.6
