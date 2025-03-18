@@ -103,7 +103,7 @@ public class IOWalletDigitalId : @unchecked Sendable {
         }).perform()
     }
     
-    public func performReadCieType(_ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> CIEType {
+    public func performReadAtr(_ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> [UInt8] {
         return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
@@ -113,7 +113,7 @@ public class IOWalletDigitalId : @unchecked Sendable {
             
             self.logger.logDelimiter("begin nfcDigitalId.performCieTypeReading", prominent: true)
             
-            return try await nfcDigitalId.performCieTypeReading()
+            return try await nfcDigitalId.performReadAtr()
             
         }).perform()
     }

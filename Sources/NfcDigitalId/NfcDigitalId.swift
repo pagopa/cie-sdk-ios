@@ -20,18 +20,16 @@ class NfcDigitalId {
         self.onEvent = onEvent
     }
 
-    func performCieTypeReading() async throws -> CIEType {
+    func performReadAtr() async throws -> [UInt8] {
         try await selectIAS()
         
         try await selectCIE()
         
         try await selectRootFile(id: .empty)
                 
-        let type = try await readCIEType()
+        let atr = try await readATR()
                 
-        logger.logData("\(type)", name: "CIEType")
-      
-        return type
+        return atr
     }
     
     func performAuthentication(forUrl url: String, withPin pin: String, idpUrl: String) async throws -> String {

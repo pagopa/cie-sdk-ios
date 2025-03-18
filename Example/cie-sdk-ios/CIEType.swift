@@ -1,12 +1,13 @@
 //
 //  CIEType.swift
-//  IOWalletCIE
+//  cie-sdk-ios
 //
-//  Created by Antonio Caparello on 04/03/25.
+//  Created by Antonio Caparello on 17/03/25.
 //
 
+import Foundation
 
-public enum CIEType: Sendable {
+enum CIEType: Sendable {
     case CIE_Unknown
     case CIE_Gemalto
     case CIE_NXP
@@ -49,5 +50,30 @@ public enum CIEType: Sendable {
         }
         
         return .CIE_Unknown
+    }
+}
+
+extension Data {
+    struct HexEncodingOptions: OptionSet {
+        public let rawValue: Int
+        
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+        
+        public static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
+    }
+    
+    func hexEncodedString(options: HexEncodingOptions = []) -> String {
+        let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
+        return map { String(format: format, $0) }.joined()
+    }
+}
+
+
+extension Array<UInt8> {
+  
+    var hexEncodedString: String {
+        return Data(self).hexEncodedString()
     }
 }

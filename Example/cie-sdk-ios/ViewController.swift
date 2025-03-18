@@ -118,10 +118,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func getCIEType() {
         Task {
             do {
-                let authenticatedUrl = try await IOWalletDigitalId(.enabled).performReadCieType()
+                let atr = try await IOWalletDigitalId(.enabled).performReadAtr()
+                
+                let cieType = CIEType.fromATR(atr)
                 
                 DispatchQueue.main.async {
-                    self.infoLabel.text = "\(authenticatedUrl)"
+                    self.infoLabel.text = "\(cieType)\n\(atr.hexEncodedString)"
                 }
             } catch {
                 DispatchQueue.main.async {

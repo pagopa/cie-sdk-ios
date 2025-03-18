@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0238A5647506E8E7EA29EAAC /* Pods_cie_sdk_ios_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 622CE1DED6508B0B7AA66594 /* Pods_cie_sdk_ios_Tests.framework */; };
 		050B6C792CA76F96C746FB3D /* Pods_cie_sdk_ios_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF566ACCAFEFC677710C7553 /* Pods_cie_sdk_ios_Example.framework */; };
+		3DA718332D885BE200EC35EF /* CIEType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA718322D885BE200EC35EF /* CIEType.swift */; };
 		3DCFB93C2D77409C001050C3 /* WebViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCFB93B2D77409C001050C3 /* WebViewViewController.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
@@ -16,7 +17,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		EA9FEBA0EF557521C17FA4BF /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		EA9FEBA0EF557521C17FA4BF /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		06C451A7B8A2782B4935C827 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		20B8D7C29B6EBB5D12DFBDFA /* Pods-cie-sdk-ios_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-cie-sdk-ios_Tests.release.xcconfig"; path = "Target Support Files/Pods-cie-sdk-ios_Tests/Pods-cie-sdk-ios_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		3D29C4F02D82D06B0096FA2A /* cie-sdk-ios_Example copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "cie-sdk-ios_Example copy-Info.plist"; path = "/Users/username/repos/digitouch/pagopa1/cie-sdk-ios/Example/cie-sdk-ios_Example copy-Info.plist"; sourceTree = "<absolute>"; };
+		3DA718322D885BE200EC35EF /* CIEType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIEType.swift; sourceTree = "<group>"; };
 		3DCFB93B2D77409C001050C3 /* WebViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewViewController.swift; sourceTree = "<group>"; };
 		3DEAC7212D6F19A6005D056D /* cie-sdk-ios.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "cie-sdk-ios.entitlements"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* cie-sdk-ios_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "cie-sdk-ios_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,7 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA9FEBA0EF557521C17FA4BF /* BuildFile in Frameworks */,
+				EA9FEBA0EF557521C17FA4BF /* (null) in Frameworks */,
 				050B6C792CA76F96C746FB3D /* Pods_cie_sdk_ios_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,6 +103,7 @@
 		607FACD21AFB9204008FA782 /* Example for cie-sdk-ios */ = {
 			isa = PBXGroup;
 			children = (
+				3DA718322D885BE200EC35EF /* CIEType.swift */,
 				3DCFB93B2D77409C001050C3 /* WebViewViewController.swift */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				607FACD71AFB9204008FA782 /* ViewController.swift */,
@@ -361,6 +364,7 @@
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				3DCFB93C2D77409C001050C3 /* WebViewViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
+				3DA718332D885BE200EC35EF /* CIEType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

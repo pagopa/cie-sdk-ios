@@ -28,7 +28,7 @@ extension NfcDigitalId {
         return try await selectRootFile(id: .root)
     }
     
-    func readCIEType() async throws -> CIEType {
+    func readATR() async throws -> [UInt8] {
         
         try await selectRoot()
       
@@ -36,7 +36,7 @@ extension NfcDigitalId {
         
         logger.logData(atr, name: "ATR")
         
-        return CIEType.fromATR(atr)
+        return atr
     }
     
     func selectCIE() async throws -> APDUResponse {
