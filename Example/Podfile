@@ -1,8 +1,9 @@
-use_frameworks!
+
 
 platform :ios, '13.0'
 
 target 'cie-sdk-ios_Example' do
+  use_frameworks!
   #pod 'cie-sdk-ios', :path => '../'
 
   spm_pkg "IOWalletCIE", :relative_path => "../../../cie-sdk-ios/"

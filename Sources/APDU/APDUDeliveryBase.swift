@@ -19,8 +19,6 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
     
     var tag: NFCISO7816Tag
     
-    //internal let tag: NFCISO7816Tag
-    
     var packetSize: Int  {
         return 0xFF
     }
@@ -33,7 +31,11 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
         return APDUResponse(try await self.tag.sendCommand(apdu: apdu))
     }
     
-    func sendRawApdu(_ apdu: [UInt8]) async throws -> APDUResponse {
+    func sendRawApdu(_ apdu: APDURequest) async throws -> APDUResponse {
+        return try await sendRawApdu(apdu.raw)
+    }
+    
+    private func sendRawApdu(_ apdu: [UInt8]) async throws -> APDUResponse {
         guard let apdu = NFCISO7816APDU(data: Data(apdu)) else {
             throw NfcDigitalIdError.errorBuildingApdu
         }
@@ -44,9 +46,7 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
         
         let response = try await sendApduUnchecked(apduHead, data, le)
         
-        if (!response.isSuccess) {
-            try response.throwError()
-        }
+        try response.throwErrorIfNeeded()
         
         return response
     }
@@ -55,11 +55,11 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
         preconditionFailure("This method must be overridden")
     }
     
-    func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> [UInt8] {
+    func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> APDURequest {
         preconditionFailure("This method must be overridden")
     }
     
-    func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: [UInt8], offset: Int) {
+    func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: APDURequest, offset: Int) {
         preconditionFailure("This method must be overridden")
     }
     

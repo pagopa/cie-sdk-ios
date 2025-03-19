@@ -25,7 +25,7 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
     case scanNotSupported
     case invalidTag
     case sendCommandForResponse
-    case responseError(UInt8, UInt8)
+    case responseError(APDUStatus)
     case genericError
     case wrongPin(Int)
     case cardBlocked
@@ -34,8 +34,8 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
         switch self {
             case .scanNotSupported:
                 return "This device doesn't support tag scanning"
-            case .responseError(let sw1, let sw2):
-                return APDUResponse.decodeError(sw1: sw1, sw2: sw2)
+            case .responseError(let apduStatus):
+                return apduStatus.description
             case .invalidTag:
                 return "Error reading tag"
             case .sendCommandForResponse:

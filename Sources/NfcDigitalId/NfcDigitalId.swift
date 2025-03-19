@@ -21,12 +21,14 @@ class NfcDigitalId {
     }
 
     func performReadAtr() async throws -> [UInt8] {
-        try await selectIAS()
         
-        try await selectCIE()
+        try await initializeCIE()
+        
+//      try await selectIAS()
+//      try await selectCIE()
         
         try await selectRootFile(id: .empty)
-                
+        
         let atr = try await readATR()
                 
         return atr
@@ -58,8 +60,10 @@ class NfcDigitalId {
         
         logger.logData(serviceId, name: "serviceId")
         
-        try await selectIAS()
-        try await selectCIE()
+        try await initializeCIE()
+        
+//        try await selectIAS()
+//        try await selectCIE()
         
         let diffieHellmanParameters = try await getDiffieHellmanParameters()
         

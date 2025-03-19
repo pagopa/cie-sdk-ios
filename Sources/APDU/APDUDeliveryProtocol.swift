@@ -19,15 +19,15 @@ protocol APDUDeliveryProtocol {
     
     func sendRawApdu(_ apdu: NFCISO7816APDU) async throws -> APDUResponse
     
-    func sendRawApdu(_ apdu: [UInt8]) async throws -> APDUResponse
+    func sendRawApdu(_ apdu: APDURequest) async throws -> APDUResponse
     
     func sendApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) async throws -> APDUResponse
     
     func sendApduUnchecked(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) async throws -> APDUResponse
     
-    func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> [UInt8]
+    func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> APDURequest
     
-    func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: [UInt8], offset: Int)
+    func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: APDURequest, offset: Int)
     
     func getResponse(_ response: APDUResponse) async throws -> APDUResponse
 }

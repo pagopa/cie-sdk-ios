@@ -30,21 +30,22 @@ extension NfcDigitalId {
         var offset: UInt16 = 0
         var chunkSize: UInt8 = packetSize
 
-        while true {
+        readingLoop: while true {
             let response = try await readBinary(offset: offset, le: [chunkSize])
-
-            if response.isStatus(0x6B, 0x00) {
-                return result
-            } else if response.isWrongLength() {
-                chunkSize = response.sw2
-                continue
-            } else if response.isStatus(0x62, 0x82) {
-                result.append(contentsOf: response.data)
-                break
-            } else if !response.isSuccess {
-                try response.throwError()
+            
+            switch(response.status) {
+                case .wrongParametersP1P2:
+                    return result
+                case .endOfFileRecordReachedBeforeReadingLeBytes:
+                    result.append(contentsOf: response.data)
+                    break readingLoop
+                case .wrongLe(let len):
+                    chunkSize = len
+                    continue readingLoop
+                default:
+                    try response.throwErrorIfNeeded()
             }
-
+            
             result.append(contentsOf: response.data)
 
             offset += UInt16(response.data.count)

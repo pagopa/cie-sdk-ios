@@ -39,24 +39,11 @@ class APDUDeliveryClear : APDUDeliveryBase {
         }
     }
     
-    override func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> [UInt8] {
-        if !data.isEmpty {
-            return Utils.join([
-                apduHead,
-                Utils.intToBin(data.count),
-                data,
-                (le == nil) ? [] : le!
-            ])
-            
-        } else {
-            return Utils.join([
-                apduHead,
-                (le == nil) ? [] : le!
-            ])
-        }
+    override func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> APDURequest {
+        return APDURequest(head: apduHead, data: data, le: le ?? [])
     }
     
-    override func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: [UInt8], offset: Int) {
+    override func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: APDURequest, offset: Int) {
         
         let cla = apduHead[0]
         
@@ -84,34 +71,27 @@ class APDUDeliveryClear : APDUDeliveryBase {
             result.append(contentsOf: response.data)
         }
         
-        while(true) {
-            if (response.sw1 == 0x61) {
-                let len = Int(response.sw2)
-                
-                let getResponse = [
-                    0x00, 0xC0, 0x00, 0x00, UInt8(len)
-                ]
-                
-                response = try await self.sendRawApdu(getResponse)
-                
-                result.append(contentsOf: response.data)
-                
-                if (len != 0) {
-                    return APDUResponse(data: result, sw1: response.sw1, sw2: response.sw2)
-                }
-                
-            }
-            else if response.isSuccess {
-                break
-            }
-            else if response.isStatus(0x6b, 0x00) {
-                break
-            }
-            else if response.isStatus(0x62, 0x82) {
-                break
-            }
-            else {
-                return APDUResponse(data: result, sw1: response.sw1, sw2: response.sw2)
+        readingLoop: while(true) {
+            switch(response.status) {
+                case .bytesStillAvailable(let len):
+                    
+                    let getResponseRequest = APDURequest(head: [0x00, 0xC0, 0x00, 0x00], le: [UInt8(len)])
+                    
+                    response = try await self.sendRawApdu(getResponseRequest)
+                    
+                    result.append(contentsOf: response.data)
+                    
+                    if (len != 0) {
+                        return response.copyWith(data: result)
+                    }
+                case .wrongParametersP1P2:
+                    break readingLoop
+                case .endOfFileRecordReachedBeforeReadingLeBytes:
+                    break readingLoop
+                case .success:
+                    break readingLoop
+                default:
+                    return response.copyWith(data: result)
             }
         }
         return response

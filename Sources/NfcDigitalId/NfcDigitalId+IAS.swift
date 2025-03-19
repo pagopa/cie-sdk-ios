@@ -9,6 +9,29 @@
 
 
 extension NfcDigitalId {
+    
+    func initializeCIE() async throws {
+        do {
+            try await selectIAS()
+            
+            try await selectCIE()
+            
+            
+        } catch {
+            if let _error = error as? NfcDigitalIdError {
+                switch(_error) {
+                    case .responseError(let status):
+                        if status != .fileNotFound {
+                            throw _error
+                        }
+                        break
+                    default:
+                        throw _error
+                }
+            }
+        }
+    }
+    
     func selectIAS() async throws -> APDUResponse {
         logger.logDelimiter(#function)
         onEvent?(.SELECT_IAS)
@@ -52,8 +75,10 @@ extension NfcDigitalId {
         
         onEvent?(.GET_SERVICE_ID)
         
-        try await selectIAS()
-        try await selectCIE()
+        try await initializeCIE()
+        
+//        try await selectIAS()
+//        try await selectCIE()
         
         try await selectFile(id: .service)
         

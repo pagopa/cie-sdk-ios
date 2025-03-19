@@ -120,7 +120,7 @@ extension NfcDigitalId {
         logger.logData(sessMAC, name: "signatureKey")
         logger.logData(sequence, name: "sequence")
         
-        return APDUDeliverySecureMessaging(tag: self.tag.tag, encryptionKey: sessENC, signatureKey: sessMAC, sequence: sequence)
+        return APDUDeliverySecureMessaging(tag: self.tag.tag, cryptoKey: sessENC, signatureKey: sessMAC, sequence: sequence)
     }
     
     

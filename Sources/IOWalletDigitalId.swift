@@ -63,31 +63,6 @@ public class IOWalletDigitalId : @unchecked Sendable {
         self.initAlertMessages()
     }
     
-//    public func performAuthentication(forUrl url: String, withPin pin: String, _ response: any IOWalletDigitalIdResponse<String>) {
-//        do {
-//            Task {
-//                let url = try await performAuthentication(forUrl: url, withPin: pin, response)
-//                
-//                response.onSuccess(value: url)
-//            }
-//        }
-//        catch {
-//            response.onError(error: error)
-//        }
-//    }
-//    
-//    public func readCieType(_ response: any IOWalletDigitalIdResponse<CIEType>) {
-//        do {
-//            Task {
-//                let url = try await performReadCieType(response)
-//                
-//                response.onSuccess(value: url)
-//            }
-//        }
-//        catch {
-//            response.onError(error: error)
-//        }
-//    }
     
     public func performAuthentication(forUrl url: String, withPin pin: String, _ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> String {
         return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
