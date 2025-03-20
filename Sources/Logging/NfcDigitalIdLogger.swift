@@ -46,7 +46,7 @@ struct NfcDigitalIdLogger {
         case .enabled:
             print(message)
         case .localFile:
-            logToFile(message)
+            logToFile("\(message)\n")
         case .console:
             if #available(iOS 14, *) {
                 logToConsole("\(message)\n")

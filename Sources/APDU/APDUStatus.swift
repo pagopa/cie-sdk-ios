@@ -73,7 +73,7 @@ public enum APDUStatus : Equatable, Sendable {
         } else if sw1 == 0x6C {
             return .wrongLe(sw2)
         }
-        else if sw1 == 0xFF {
+        else if sw1 == 0xFF || sw1 == 0x63 {
             return .wrongPin(Int(sw2) - 0xC0)
         }
         

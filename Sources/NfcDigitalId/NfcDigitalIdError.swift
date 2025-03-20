@@ -69,7 +69,7 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
             case .idpCodeNotFound:
                 return "Idp Code not found"
             case .wrongPin(let remainingTries):
-                return "Wrong pin, \(remainingTries)"
+                return "Wrong pin. Remaining tries: \(remainingTries)"
             case .cardBlocked:
                 return "Card blocked"
             case .genericError:
