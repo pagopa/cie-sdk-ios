@@ -33,9 +33,9 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
     }
      
     private let iv: [UInt8] = [UInt8].init(repeating: 0x00, count: 8)
-    
-    override func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> APDURequest {
-        let apdu = try super.buildApdu(apduHead, data, le)
+        
+    override func prepareApdu(_ apdu: APDURequest) throws -> APDURequest {
+        let apdu = try super.prepareApdu(apdu)
         
         incSeq()
         
@@ -44,6 +44,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
             signatureKey: signatureKey,
             cryptoKey: cryptoKey,
             iv: iv)
+        
     }
     
     override func getResponse(_ response: APDUResponse) async throws -> APDUResponse {

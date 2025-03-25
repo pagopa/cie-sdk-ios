@@ -13,18 +13,15 @@ extension APDURequest {
         
 //        Bits b4 and b3 of the CLA byte shall be set to '1' (i.e. CLA ≡ 'xC'). It means the command header is integrated into the CC calculation.
 
-        apduHead[0] |= 0x0C
-        
-        var apduData: [UInt8] = self.data
-        var apduLe: [UInt8] = self.le
+        apduHead.instructionClass |= 0x0C
         
         var secureMessage: [UInt8] = []
         
-        if !apduData.isEmpty {
+        if !self.data.isEmpty {
             //encrypt data field
-            var cipherData = try TDES.encrypt(key: cryptoKey, message: Utils.pad(apduData, blockSize: 8), iv: iv)
+            var cipherData = try TDES.encrypt(key: cryptoKey, message: Utils.pad(self.data, blockSize: 8), iv: iv)
             
-            let isEvenInstruction = self.head[1] & 1 == 0
+            let isEvenInstruction = self.head.instruction & 1 == 0
             
             let dataCryptogram = isEvenInstruction ? APDUSecureMessageDataObject.evenCryptogram : APDUSecureMessageDataObject.oddCryptogram
             
@@ -35,12 +32,12 @@ extension APDURequest {
             secureMessage += dataCryptogram.encode(cipherData)
         }
         
-        if !apduLe.isEmpty {
+        if !self.le.isEmpty {
             //encode le field
-            secureMessage += APDUSecureMessageDataObject.le.encode(apduLe)
+            secureMessage += APDUSecureMessageDataObject.le.encode(self.le)
         }
         
-        let checksumData = Utils.pad(sequence + apduHead, blockSize: 8) + secureMessage
+        let checksumData = Utils.pad(sequence + apduHead.raw, blockSize: 8) + secureMessage
         
         //calculate checksum
         

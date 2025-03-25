@@ -13,11 +13,10 @@ class APDUDeliveryClear : APDUDeliveryBase {
         return 0xFF
     }
    
-    override func sendApduUnchecked(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) async throws -> APDUResponse {
-        if (data.count < packetSize) {
-            let apdu = try buildApdu(apduHead, data, le)
+    override func sendApduUnchecked(_ apdu: APDURequest) async throws -> APDUResponse {
+        if (apdu.data.count < packetSize) {
             
-            let response = try await self.sendRawApdu(apdu)
+            let response = try await self.prepareAndSendApdu(apdu)
             
             return try await getResponse(response)
         }
@@ -25,41 +24,39 @@ class APDUDeliveryClear : APDUDeliveryBase {
         var dataOffset = 0
         
         while true {
-            let (apdu, newDataOffset) = try buildApduAtOffset(apduHead, data, le, dataOffset: dataOffset)
+            let (apduAtOffset, newDataOffset) = try prepareApduAtOffset(apdu, dataOffset: dataOffset)
             
             dataOffset = newDataOffset
             
-            var response = try await self.sendRawApdu(apdu)
+            var response = try await self.prepareAndSendApdu(apduAtOffset)
             
             response = try await getResponse(response)
             
-            if dataOffset == data.count {
+            if dataOffset == apdu.data.count {
                 return response
             }
         }
+
     }
     
-    override func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> APDURequest {
-        return APDURequest(head: apduHead, data: data, le: le ?? [])
+    override func prepareApdu(_ apdu: APDURequest) throws -> APDURequest {
+       return apdu
     }
     
-    override func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: APDURequest, offset: Int) {
-        
-        let cla = apduHead[0]
-        
-        let dataAtOffset = data[dataOffset..<dataOffset + min(packetSize, data.count - dataOffset)].map({$0})
+    private func prepareApduAtOffset(_ apdu: APDURequest, dataOffset: Int) throws -> (apdu: APDURequest, offset: Int) {
+        let dataAtOffset = apdu.data[dataOffset..<dataOffset + min(packetSize, apdu.data.count - dataOffset)].map({$0})
         
         let offset = dataOffset + dataAtOffset.count
         
-        var apduHead = apduHead
+        var apduHead = apdu.head
         
-        if offset != data.count {
-            apduHead[0] = (UInt8)(cla | 0x10)
+        if offset != apdu.data.count {
+            apduHead.instructionClass |= 0x10
         }
         
-        let apdu = try buildApdu(apduHead, dataAtOffset, le)
+        let apduAtOffset = APDURequest(head: apduHead, data: dataAtOffset, le: apdu.le)
         
-        return (apdu, offset)
+        return (apduAtOffset, offset)
     }
     
     override func getResponse(_ response: APDUResponse) async throws -> APDUResponse {
@@ -75,8 +72,8 @@ class APDUDeliveryClear : APDUDeliveryBase {
             switch(response.status) {
                 case .bytesStillAvailable(let len):
                     
-                    let getResponseRequest = APDURequest(head: [0x00, 0xC0, 0x00, 0x00], le: [UInt8(len)])
-                    
+                    let getResponseRequest = APDURequest(instruction: .GET_RESPONSE, le: [UInt8(len)])
+               
                     response = try await self.sendRawApdu(getResponseRequest)
                     
                     result.append(contentsOf: response.data)

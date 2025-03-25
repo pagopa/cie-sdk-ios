@@ -57,7 +57,10 @@ extension NfcDigitalId {
             onEvent?(.CHIP_GET_CHALLENGE)
             
             //IAS ECC v1_0_1UK.pdf 9.5.1 GET CHALLENGE
-            return try await tag.sendApdu([ 0x00, 0x84, 0x00, 0x00 ], [] , [8])
+            return try await tag.sendApdu(
+                APDURequest(instruction: .GET_CHALLENGE,
+                            le: [8])
+            )
         }
     }
     
@@ -71,7 +74,10 @@ extension NfcDigitalId {
             
             //IAS ECC v1_0_1UK.pdf 9.5.5 EXTERNAL AUTHENTICATE for Role authentication
             
-            return try await tag.sendApdu([ 0x00, 0x82, 0x00, 0x00 ], answer, nil)
+            return try await tag.sendApdu(
+                APDURequest(instruction: .CHALLENGE_RESPONSE,
+                            data: answer)
+            )
         }
     }
     
@@ -88,12 +94,11 @@ extension NfcDigitalId {
         ]))
         
         return try await requireSecureMessaging {
-            return try await tag.sendApdu([
-                0x00,
-                0x2A,//VERIFY CERTIFICATE
-                0x00,//P1
-                0xAE //P2
-            ], cert, nil)
+            return try await tag.sendApdu(
+                APDURequest(instruction: .VERIFY_CERTIFICATE,
+                            p2: 0xAE,
+                            data: cert)
+            )
         }
         
     }

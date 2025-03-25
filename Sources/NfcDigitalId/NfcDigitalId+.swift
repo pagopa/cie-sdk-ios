@@ -55,27 +55,40 @@ extension NfcDigitalId {
         return result
     }
 
-    func readBinary(offset: UInt16, le: [UInt8]?) async throws -> APDUResponse {
+    func readBinary(offset: UInt16, le: [UInt8] = []) async throws -> APDUResponse {
         logger.logDelimiter("readBinary")
         logger.logData("\(offset)", name: "offset")
-        if let le = le {
+        if !le.isEmpty {
             logger.logData(le, name: "le")
         }
-        return try await tag.sendApduUnchecked([0x00, 0xB0, offset.high, offset.low], [], le)
+        return try await tag.sendApduUnchecked(
+            APDURequest(instruction: .READ_BINARY,
+                        p1: offset.high,
+                        p2: offset.low,
+                        data: [],
+                        le: le)
+        )
     }
 
     func select(
-        _ directory: DirectoryId, _ template: FileTemplateId, id: FileId, le: [UInt8]? = nil
+        _ directory: DirectoryId, _ template: FileTemplateId, id: FileId, le: [UInt8] = []
     ) async throws -> APDUResponse {
         logger.logDelimiter(#function)
         logger.logData(directory.description, name: "directory")
         logger.logData(template.description, name: "template")
         logger.logData(id.description, name: "fileId")
-        if let le = le {
+        if !le.isEmpty {
             logger.logData(le, name: "le")
         }
-        
-        return try await tag.sendApdu([0x00, 0xA4, directory.rawValue, template.rawValue], id.bytes, le)
+       
+        return try await tag.sendApdu(
+            APDURequest(
+                instruction: .SELECT,
+                p1: directory.rawValue,
+                p2: template.rawValue,
+                data: id.bytes,
+                le: le)
+        )
     }
     
     func selectApplication(applicationId: FileId) async throws -> APDUResponse {

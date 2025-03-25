@@ -31,10 +31,6 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
         return APDUResponse(try await self.tag.sendCommand(apdu: apdu))
     }
     
-    func sendRawApdu(_ apdu: APDURequest) async throws -> APDUResponse {
-        return try await sendRawApdu(apdu.raw)
-    }
-    
     private func sendRawApdu(_ apdu: [UInt8]) async throws -> APDUResponse {
         guard let apdu = NFCISO7816APDU(data: Data(apdu)) else {
             throw NfcDigitalIdError.errorBuildingApdu
@@ -42,25 +38,29 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
         return try await sendRawApdu(apdu)
     }
     
-    func sendApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) async throws -> APDUResponse {
-        
-        let response = try await sendApduUnchecked(apduHead, data, le)
+    func sendRawApdu(_ apdu: APDURequest) async throws -> APDUResponse {
+        return try await sendRawApdu(apdu.raw)
+    }
+    
+    func prepareAndSendApdu(_ apdu: APDURequest) async throws -> APDUResponse {
+        return try await sendRawApdu(prepareApdu(apdu))
+    }
+    
+    func sendApdu(_ apdu: APDURequest) async throws -> APDUResponse {
+        let response = try await sendApduUnchecked(apdu)
         
         try response.throwErrorIfNeeded()
         
         return response
     }
     
-    func sendApduUnchecked(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) async throws -> APDUResponse {
+    func sendApduUnchecked(_ apdu: APDURequest) async throws -> APDUResponse {
         preconditionFailure("This method must be overridden")
     }
     
-    func buildApdu(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?) throws -> APDURequest {
-        preconditionFailure("This method must be overridden")
-    }
-    
-    func buildApduAtOffset(_ apduHead: [UInt8], _ data: [UInt8], _ le: [UInt8]?, dataOffset: Int) throws -> (apdu: APDURequest, offset: Int) {
-        preconditionFailure("This method must be overridden")
+    func prepareApdu(_ apdu: APDURequest) throws -> APDURequest {
+        //This is used as hook in the sending flow to perform SecureMessaging encryption
+        return apdu
     }
     
     func getResponse(_ response: APDUResponse) async throws -> APDUResponse {

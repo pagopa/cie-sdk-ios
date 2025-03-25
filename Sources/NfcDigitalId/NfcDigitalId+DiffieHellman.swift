@@ -15,11 +15,12 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         logger.logData(id.description, name: "id")
         
-        let response = try await tag.sendApdu([
-            0x00,
-            0xCB, //GET_DATA
-            0x3F, 0xFF //DOUP EF.DH
-        ], id.bytes, nil)
+        let response = try await tag.sendApdu(
+            APDURequest(instruction: .GET_DATA,
+                        p1: 0x3F,
+                        p2: 0xFF,
+                        data: id.bytes)
+        )
         
         return response.data
     }

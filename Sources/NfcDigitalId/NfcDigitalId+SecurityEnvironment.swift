@@ -13,12 +13,12 @@ extension NfcDigitalId {
         logger.logData(cr.description, name: "CR (Control Reference)")
         logger.logData(crt.description, name: "CRT (Control Reference Template)")
         logger.logData(data, name: "data")
-        return try await tag.sendApdu([
-            0x00,
-            0x22,
-            cr.rawValue,
-            crt.rawValue
-        ], data, nil)
+        return try await tag.sendApdu(
+            APDURequest(instruction: .MANAGE_SECURITY_ENVIRONMENT,
+                        p1: cr.rawValue,
+                        p2: crt.rawValue,
+                        data: data)
+        )
     }
     
     func manageInternalSecurityEnvironment(crt: SecurityEnvironmentControlReferenceTemplate, data: [UInt8]) async throws -> APDUResponse {
@@ -118,7 +118,11 @@ extension NfcDigitalId {
         return try await requireSecureMessaging {
             onEvent?(.SIGN)
             
-            return try await tag.sendApdu([0x00, 0x88, 0x00, 0x00], data, nil).data
+            return try await tag.sendApdu(
+                APDURequest(instruction: .SIGN,
+                            data: data)
+            ).data
+            
         }
     }
 }

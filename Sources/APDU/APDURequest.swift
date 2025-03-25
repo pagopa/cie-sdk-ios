@@ -8,12 +8,13 @@
 import CoreNFC
 import Foundation
 
+
 struct APDURequest {
-    var head: [UInt8]
+    var head: APDUHead
     var data: [UInt8]
     var le: [UInt8]
     
-    init(head: [UInt8], data: [UInt8] = [], le: [UInt8] = []) {
+    init(head: APDUHead, data: [UInt8] = [], le: [UInt8] = []) {
         self.head = head
         self.data = data
         self.le = le
@@ -23,7 +24,7 @@ struct APDURequest {
         if !data.isEmpty {
             if data.count < 0x100 {
                 return Utils.join([
-                    head,
+                    head.raw,
                     Utils.intToBin(data.count),
                     data,
                     le
@@ -31,7 +32,7 @@ struct APDURequest {
             }
             else {
                 return Utils.join([
-                    head,
+                    head.raw,
                     [0x00] + Utils.intToBin(data.count, pad: 4),
                     data,
                     le
@@ -39,7 +40,7 @@ struct APDURequest {
             }
         } else {
             return Utils.join([
-                head,
+                head.raw,
                 le
             ])
         }
@@ -50,7 +51,7 @@ struct APDURequest {
             return nil
         }
         
-        self.head = [apdu.instructionClass, apdu.instructionCode, apdu.p1Parameter, apdu.p2Parameter]
+        self.head = APDUHead(apdu: apdu)
         
         if let data = apdu.data {
             self.data = [UInt8](data)

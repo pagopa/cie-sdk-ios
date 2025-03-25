@@ -112,7 +112,11 @@ extension NfcDigitalId {
         let CIE_PIN_ID: UInt8 = 0x81
         return try await requireSecureMessaging {
             onEvent?(.VERIFY_PIN)
-            return try await tag.sendApdu([0x00, 0x20, 0x00, CIE_PIN_ID], pin, nil)
+            return try await tag.sendApdu(
+                APDURequest(instruction: .VERIFY_PIN,
+                            p2: CIE_PIN_ID,
+                            data: pin)
+            )
         }
     }
     
