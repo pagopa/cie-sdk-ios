@@ -7,6 +7,11 @@
 
 
 extension NfcDigitalId {
+    /**
+     * Send APDU to retrive internal authentication key
+     *
+     * - Returns:  RSAKeyValue
+     */
     func readChipPublicKey() async throws -> RSAKeyValue {
         logger.logDelimiter(#function)
         

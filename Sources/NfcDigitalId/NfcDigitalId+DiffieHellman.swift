@@ -55,6 +55,11 @@ extension NfcDigitalId {
         return try await getDiffieHellmanParameter(.q)
     }
     
+    /**
+     * Retrives (g, p, q)  Diffie Hellman parameters
+     *
+     * - Returns: DiffieHellmanParameters (g, p, q)
+     */
     func getDiffieHellmanParameters() async throws -> DiffieHellmanParameters {
         let g = try await getDiffieHellmanG()
         let p = try await getDiffieHellmanP()
@@ -63,7 +68,11 @@ extension NfcDigitalId {
         return DiffieHellmanParameters(g: g, p: p, q: q)
     }
     
-    
+    /**
+     * Generate private exponent for DiffieHellman using (p and random exponent)
+     *
+     * - Returns: BoringSSLRSA(p, privateExponent)
+     */
     func generateDiffieHellmanRSA(_ diffieHellmanParameters: DiffieHellmanParameters) throws -> BoringSSLRSA {
         while(true) {
             do {
@@ -135,6 +144,11 @@ extension NfcDigitalId {
     }
     
     
+    /**
+     * Send APDU to retrive Diffie Hellman external authenticationl parameters
+     *
+     * - Returns: DiffieHellmanExternalParameters
+     */
     func getDiffieHellmanExternalParameters() async throws -> DiffieHellmanExternalParameters {
         logger.logDelimiter(#function)
         

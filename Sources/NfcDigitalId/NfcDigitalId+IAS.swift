@@ -10,6 +10,11 @@
 
 extension NfcDigitalId {
     
+    /**
+     * Send APDU to select IAS application
+     *
+     * - Returns: APDUResponse
+     */
     func selectIAS() async throws -> APDUResponse {
         logger.logDelimiter(#function)
         onEvent?(.SELECT_IAS)
@@ -57,6 +62,11 @@ extension NfcDigitalId {
         return atr
     }
     
+    /**
+     * Send APDU to select CIE application
+     *
+     * - Returns: APDUResponse
+     */
     func selectCIE() async throws -> APDUResponse {
         logger.logDelimiter(#function)
         
@@ -65,6 +75,11 @@ extension NfcDigitalId {
         return try await selectApplication(applicationId: .cie)
     }
     
+    /**
+     * Select IAS, CIE and read serviceId file
+     *
+     * - Returns: serviceId as hex String
+     */
     func getServiceId() async throws -> String {
         logger.logDelimiter(#function)
         
@@ -81,6 +96,11 @@ extension NfcDigitalId {
         return response.data.hexEncodedString
     }
     
+    /**
+     * Send APDU to verify pin
+     *
+     * - Returns: APDUResponse
+     */
     func verifyPin(_ pin: String) async throws -> APDUResponse {
         let pin = [UInt8](pin.data(using: .utf8)!)
         
@@ -96,6 +116,11 @@ extension NfcDigitalId {
         }
     }
     
+    /**
+     * Send APDU to read CIE certificate
+     *
+     * - Returns:  Certificate as bytes array
+     */
     func readCertificate() async throws -> [UInt8] {
         logger.logDelimiter(#function)
         
