@@ -39,20 +39,12 @@ extension NfcDigitalId {
             
             //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 4 of the table)
             //in the document the P2 parameter is specified as 'B6'. In the original iOS library in IAS.mm at line 517 the P2 is defined as 'A4'.
-            //both works so better follow the specifics?
+            //both works so better follow the specifics? -> WRONG
+            //With ST cards the P2 parameter must be 'A4'. With all other cards it works as expected with 'B6'
             
-            return try await certificateValidation(data: request)
+            return try await manageExternalSecurityEnvironment(crt: .authentication, data: request)
         }
     }
-    
-    
-    
-    func certificateValidation(data: [UInt8]) async throws -> APDUResponse {
-        logger.logDelimiter(#function)
-        
-        return try await manageExternalSecurityEnvironment(crt: .digitalSignature, data: data)
-    }
-    
     
     func internalKeyAgreement(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId, publicKey: [UInt8]) async throws -> APDUResponse {
         logger.logDelimiter(#function)
@@ -82,8 +74,7 @@ extension NfcDigitalId {
         ])
         
         //IAS ECC v1_0_1UK.pdf 7.2.6.1 Execution flow for the verification of a certificate chain (STEP 2 of the table)
-        
-        return try await certificateValidation(data: request)
+        return try await manageExternalSecurityEnvironment(crt: .digitalSignature, data: request)
     }
     
     //Internal asymmetric authentication during a PK-DH scheme for mutual authentication:
