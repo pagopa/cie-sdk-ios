@@ -12,6 +12,7 @@ extension NfcDigitalId {
         return try await readBinary(readBinaryPacketSize)
     }
 
+    
     func selectFile(id: FileId) async throws -> APDUResponse {
         logger.logDelimiter("selectFile")
         logger.logData(id.description, name: "fileId")
@@ -21,6 +22,7 @@ extension NfcDigitalId {
         return try await select(.standard, .standard, id: id)
     }
 
+    /*9.7.2 READ BINARY*/
     func readBinary(_ packetSize: UInt8) async throws -> [UInt8] {
 
         onEvent?(.READ_FILE)
@@ -39,7 +41,7 @@ extension NfcDigitalId {
                 case .endOfFileRecordReachedBeforeReadingLeBytes:
                     result.append(contentsOf: response.data)
                     break readingLoop
-                case .wrongLe(let len):
+                case .lessThanLeBytesAvailable(let len):
                     chunkSize = len
                     continue readingLoop
                 default:
@@ -70,6 +72,7 @@ extension NfcDigitalId {
         )
     }
 
+    /**IAS ECC v1_0_1UK.pdf 9.7.1 SELECT **/
     func select(
         _ directory: DirectoryId, _ template: FileTemplateId, id: FileId, le: [UInt8] = []
     ) async throws -> APDUResponse {

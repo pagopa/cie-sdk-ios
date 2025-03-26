@@ -9,7 +9,7 @@ import Foundation
 import CryptoTokenKit
 
 extension APDUResponse {
-    
+    /**7.1.8 Commands and Responses under SM - Responses*/
     func decrypt(sequence: [UInt8], signatureKey: [UInt8], cryptoKey: [UInt8], iv: [UInt8]) throws -> APDUResponse {
         //speed of native version is the same as custom one.
         /*guard let tlvRecords = try? _sequenceOfRecords(from: bytes) else {

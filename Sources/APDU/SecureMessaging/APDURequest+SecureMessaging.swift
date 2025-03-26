@@ -7,7 +7,7 @@
 
 
 extension APDURequest {
-    
+    /**7.1.8 Commands and Responses under SM - Commands*/
     func encrypt(sequence: [UInt8], signatureKey: [UInt8], cryptoKey: [UInt8], iv: [UInt8]) throws -> APDURequest {
         var apduHead = self.head
         

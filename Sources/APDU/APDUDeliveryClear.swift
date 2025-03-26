@@ -7,6 +7,7 @@
 
 import CoreNFC
 
+/**8 PROTOCOL MANAGEMENT*/
 class APDUDeliveryClear : APDUDeliveryBase {
     
     override var packetSize: Int  {
@@ -22,7 +23,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
         }
         
         var dataOffset = 0
-        
+        //8.5 Sending more than "packetSize" bytes to the ICC : command chaining and 9.2 CLASS byte coding
         while true {
             let (apduAtOffset, newDataOffset) = try prepareApduAtOffset(apdu, dataOffset: dataOffset)
             
@@ -51,6 +52,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
         var apduHead = apdu.head
         
         if offset != apdu.data.count {
+            //If the command, is a part of the chain, the bit 5 of the CLA byte shall be set to 1
             apduHead.instructionClass |= 0x10
         }
         
@@ -59,6 +61,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
         return (apduAtOffset, offset)
     }
     
+    //8.6.5 GET RESPONSE of IAS ECC Rev 1.0.1
     override func getResponse(_ response: APDUResponse) async throws -> APDUResponse {
         
         var response: APDUResponse = response
@@ -68,6 +71,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
             result.append(contentsOf: response.data)
         }
         
+        //8.6.4 Command returning more than 256 bytes
         readingLoop: while(true) {
             switch(response.status) {
                 case .bytesStillAvailable(let len):

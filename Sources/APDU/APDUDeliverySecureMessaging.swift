@@ -7,12 +7,14 @@
 
 import CoreNFC
 
+/**7.1 The Secure Messaging layer of IAS ECC*/
 class APDUDeliverySecureMessaging : APDUDeliveryClear {
     internal var cryptoKey: [UInt8]
     internal var signatureKey: [UInt8]
     internal var sequence: [UInt8]
     
     override var packetSize: Int  {
+        //packetSize is limited to ‘E7’ = 231 bytes (included), so that the data protected in integrity & confidentiality with the secure messaging does not exceed 256 bytes.
         return 0xE7
     }
     

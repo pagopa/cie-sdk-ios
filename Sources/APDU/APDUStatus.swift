@@ -71,7 +71,7 @@ public enum APDUStatus : Equatable, Sendable {
         } else if sw1 == 0x64 {
             return .stateOfVolatileMemoryUnchanged(sw2)
         } else if sw1 == 0x6C {
-            return .wrongLe(sw2)
+            return .lessThanLeBytesAvailable(sw2)
         }
         else if sw1 == 0xFF || sw1 == 0x63 {
             return .wrongPin(Int(sw2) - 0xC0)
@@ -82,7 +82,7 @@ public enum APDUStatus : Equatable, Sendable {
     
     case stateOfVolatileMemoryUnchanged(UInt8)
     case bytesStillAvailable(UInt8)
-    case wrongLe(UInt8)
+    case lessThanLeBytesAvailable(UInt8)
     case cardBlocked
     case wrongPin(Int)
     case unknownError(String)
@@ -138,8 +138,8 @@ public enum APDUStatus : Equatable, Sendable {
                 return "State of non-volatile memory unchanged (SW2=\(sw2))"
             case .bytesStillAvailable(let sw2):
                 return "SW2 indicates the number of response bytes still available - (\(sw2) bytes still available)"
-            case .wrongLe(let sw2):
-                return "Wrong length Le: SW2 indicates the exact length - (exact length :\(sw2))"
+            case .lessThanLeBytesAvailable(let sw2):
+                return "If less than ‘Le’ bytes are available. SW2 indicates the exact length - (exact length :\(sw2))"
             case .cardBlocked:
                 return "Card blocked"
             case .wrongPin(let remainingTries):
