@@ -181,6 +181,42 @@ To integrate cie-sdk-ios into your Xcode project using CocoaPods, specify it in 
 pod 'cie-sdk-ios'
 ```
 
+### Installation with CocoaPods (using cocoapods-spm) in Podspec
+
+
+To integrate cie-sdk-ios into your CocoaPods Pod with [cocoapods-spm](https://github.com/trinhngocthuyen/cocoapods-spm), specify it in your Podspec:
+
+```ruby
+s.spm_dependency "IOWalletCIE/IOWalletCIE"
+```
+
+In the Podfile of the utilizing app specify
+
+```ruby
+spm_pkg "IOWalletCIE", :url => "https://github.com/pagopa/cie-sdk-ios", up_to_next_major_version => "0.0.1"
+```
+
+In alternative, if you don't want to edit your Podfile, you can add this in the Podspec
+
+
+```ruby
+for callee in caller do
+  if callee.end_with?("`block in resolve_dependencies'")
+    #hooks resolve_spm_dependencies method in cocoapod-spm and force add to the podfile the spm_pkg
+    Pod::Installer.instance_exec{
+      patch_method :resolve_spm_dependencies do
+        UI.section "Injecting SPM dependencies" do
+          podfile.spm_pkg "IOWalletCIE", :url => "git@github.com:pagopa/cie-sdk-ios.git", :up_to_next_major_version => "0.0.1"
+        end
+        origin_resolve_spm_dependencies
+      end  
+    }
+  end
+end
+```
+
+
+
 ## License
 
 cie-sdk-ios is available under the MIT license. See the LICENSE file for more info.
