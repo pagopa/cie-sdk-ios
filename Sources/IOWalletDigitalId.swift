@@ -63,7 +63,17 @@ public class IOWalletDigitalId : @unchecked Sendable {
         self.initAlertMessages()
     }
     
-    
+    /**
+     * Perform authentication
+     * This method is used to perform Level3 CIE mTLS Authentication
+     *
+     * - Parameters:
+     *   - url: Authorization Request url retrived after navigating to "https://app-backend.io.italia.it/login?entityID=xx_servizicie&authLevel=SpidL3 " in a webview and following redirects until the string "authnRequestString" is found
+     *   - pin: PIN of the CIE used to perform authentication
+     *   - onEvent: Callback that notifies when events occur during the authentication process. (Can be null)
+     *
+     * - Returns: Authorized url to complete level3 authentication
+     */
     public func performAuthentication(forUrl url: String, withPin pin: String, _ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> String {
         return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
             nfcDigitalId in
@@ -78,15 +88,25 @@ public class IOWalletDigitalId : @unchecked Sendable {
         }).perform()
     }
     
+    
+    /**
+     * Perform ATR reading
+     * This method is used to perform ATR reading of the CIE
+     *
+     * - Parameters:
+     *   - onEvent: Callback that notifies when events occur during the reading process. (Can be null)
+     *
+     * - Returns: ATR bytes
+     */
     public func performReadAtr(_ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> [UInt8] {
         return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
             defer {
-                self.logger.logDelimiter("end nfcDigitalId.performCieTypeReading", prominent: true)
+                self.logger.logDelimiter("end nfcDigitalId.performReadAtr", prominent: true)
             }
             
-            self.logger.logDelimiter("begin nfcDigitalId.performCieTypeReading", prominent: true)
+            self.logger.logDelimiter("begin nfcDigitalId.performReadAtr", prominent: true)
             
             return try await nfcDigitalId.performReadAtr()
             
