@@ -1,6 +1,6 @@
 //
 //  APDUStatus.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 18/03/25.
 //

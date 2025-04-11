@@ -1,6 +1,6 @@
 //
 //  NfcDigitalId.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 25/02/25.
 //
@@ -12,9 +12,9 @@ class NfcDigitalId {
 
     var tag: APDUDeliveryProtocol
     var logger: NfcDigitalIdLogger
-    var onEvent: IOWalletDigitalIdOnEvent?
+    var onEvent: CieDigitalIdOnEvent?
 
-    init(tag: NFCISO7816Tag, logger: NfcDigitalIdLogger, onEvent: IOWalletDigitalIdOnEvent?) {
+    init(tag: NFCISO7816Tag, logger: NfcDigitalIdLogger, onEvent: CieDigitalIdOnEvent?) {
         self.tag = APDUDeliveryClear(tag: tag)
         self.logger = logger
         self.onEvent = onEvent

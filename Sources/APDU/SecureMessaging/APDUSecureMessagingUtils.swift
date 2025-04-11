@@ -1,6 +1,6 @@
 //
 //  APDUSecureMessagingUtils.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 19/03/25.
 //

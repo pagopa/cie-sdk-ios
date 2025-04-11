@@ -33,6 +33,6 @@ TODO: Add long description of the pod here.
 
   s.prepare_command = './.build.sh'
 
-  s.ios.vendored_frameworks = ".archives/IOWalletCIE.xcframework"
+  s.ios.vendored_frameworks = ".archives/CieSDK.xcframework"
 
 end

@@ -8,7 +8,7 @@
 
 import UIKit
 
-import IOWalletCIE
+import CieSDK
 
 @preconcurrency import WebKit
 
@@ -46,7 +46,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     func setupUI() {
         
         titleLabel = UILabel()
-        titleLabel.text = "IOWalletCIE NfcDigitalIdAuthentication Example"
+        titleLabel.text = "CieSDK NfcDigitalIdAuthentication Example"
         titleLabel.font = .monospacedDigitSystemFont(ofSize: 18, weight: .bold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.numberOfLines = 0
@@ -149,7 +149,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func getCIEType() {
         Task {
             do {
-                let atr = try await IOWalletDigitalId(.localFile).performReadAtr()
+                let atr = try await CieDigitalId(.localFile).performReadAtr()
                 
                 let cieType = CIEType.fromATR(atr)
                 
@@ -185,7 +185,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         
         Task {
             do {
-                let authenticatedUrl = try await IOWalletDigitalId(.localFile).performAuthentication(forUrl: foundUrl, withPin: pin)
+                let authenticatedUrl = try await CieDigitalId(.localFile).performAuthentication(forUrl: foundUrl, withPin: pin)
                 
                 DispatchQueue.main.async {
                     self.infoLabel.text = authenticatedUrl
@@ -214,7 +214,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         if let files = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path),
            let fileName = files.filter({
                item in
-               return item.contains("IOWalletCIE")
+               return item.contains("CieSDK")
            })
             .sorted().last
         {

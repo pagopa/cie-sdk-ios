@@ -1,6 +1,6 @@
-# cie-sdk-ios
+# CieSDK iOS
 
-cie-sdk-ios is an utility library to perform mTLS authentication using CIE ([Carta d'Identità Elettronica](https://www.cartaidentita.interno.gov.it/en/))
+CieSDK iOS is an utility library to perform mTLS authentication using CIE ([Carta d'Identità Elettronica](https://www.cartaidentita.interno.gov.it/en/))
 
 ## Features
 
@@ -9,18 +9,18 @@ cie-sdk-ios is an utility library to perform mTLS authentication using CIE ([Car
 
 ## Classes
 
-### IOWalletDigitalId
+### CieSDKDigitalId
 
 | Method | Description | Default |
 | --- | --- | --- |
-| init | Create IOWalletDigitalId instance. Can pass LogMode | ```.disabled``` |
+| init | Create CieSDKDigitalId instance. Can pass LogMode | ```.disabled``` |
 | idpUrl | Set idpUrl | ```"https://idserver.servizicie.interno.gov.it/idp/Authn/SSL/Login2?"``` |
 | isNFCEnabled | Returns true if device can read NFC cards. False otherwise | - |
 | setAlertMessage | set custom messages to show inside native iOS NFC reading view | - |
 | performAuthentication | perform CIE mTLS Authentication and return authorizationUrl | - |
 | performReadAtr | perform CIE ATR Reading and return ATR bytes | - |
 
-### IOWalletDigitalId.LogMode
+### CieSDKDigitalId.LogMode
 
 | Name | Description |
 | --- | --- |
@@ -29,7 +29,7 @@ cie-sdk-ios is an utility library to perform mTLS authentication using CIE ([Car
 | console | Logs to system console | 
 | disabled | No logs |
 
-### IOWalletDigitalIdEvent
+### CieSDKDigitalIdEvent
 
 | Event | Description |
 | --- | --- |
@@ -170,7 +170,7 @@ dependencies: [
 To integrate cie-sdk-ios into your Xcode project using CocoaPods with [cocoapods-spm](https://github.com/trinhngocthuyen/cocoapods-spm), specify it in your Podfile:
 
 ```ruby
-spm_pkg "IOWalletCIE", :url => "https://github.com/pagopa/cie-sdk-ios", up_to_next_major_version => "0.0.1"
+spm_pkg "CieSDK", :url => "https://github.com/pagopa/cie-sdk-ios", up_to_next_major_version => "0.0.1"
 ```
 
 ### Installation with CocoaPods
@@ -187,13 +187,13 @@ pod 'cie-sdk-ios'
 To integrate cie-sdk-ios into your CocoaPods Pod with [cocoapods-spm](https://github.com/trinhngocthuyen/cocoapods-spm), specify it in your Podspec:
 
 ```ruby
-s.spm_dependency "IOWalletCIE/IOWalletCIE"
+s.spm_dependency "CieSDK/CieSDK"
 ```
 
 In the Podfile of the utilizing app specify
 
 ```ruby
-spm_pkg "IOWalletCIE", :url => "https://github.com/pagopa/cie-sdk-ios", up_to_next_major_version => "0.0.1"
+spm_pkg "CieSDK", :url => "https://github.com/pagopa/cie-sdk-ios", up_to_next_major_version => "0.0.1"
 ```
 
 In alternative, if you don't want to edit your Podfile, you can add this in the Podspec
@@ -206,7 +206,7 @@ for callee in caller do
     Pod::Installer.instance_exec{
       patch_method :resolve_spm_dependencies do
         UI.section "Injecting SPM dependencies" do
-          podfile.spm_pkg "IOWalletCIE", :url => "git@github.com:pagopa/cie-sdk-ios.git", :up_to_next_major_version => "0.0.1"
+          podfile.spm_pkg "CieSDK", :url => "git@github.com:pagopa/cie-sdk-ios.git", :up_to_next_major_version => "0.0.1"
         end
         origin_resolve_spm_dependencies
       end  

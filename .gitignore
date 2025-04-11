@@ -66,3 +66,6 @@ fastlane/test_output
 DerivedData/
 
 .spm.pods
+
+.swiftpm
+*/.swiftpm

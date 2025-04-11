@@ -1,6 +1,6 @@
 //
 //  ChipExternalAuthentication.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 05/03/25.
 //

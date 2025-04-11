@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3DEAC59D2D6E1181005D056D /* IOWalletCIE.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOWalletCIE.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3DEAC59D2D6E1181005D056D /* CieSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CieSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -47,7 +47,7 @@
 		3DEAC59E2D6E1181005D056D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3DEAC59D2D6E1181005D056D /* IOWalletCIE.framework */,
+				3DEAC59D2D6E1181005D056D /* CieSDK.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,9 +65,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		3DEAC59C2D6E1181005D056D /* IOWalletCIE */ = {
+		3DEAC59C2D6E1181005D056D /* CieSDK */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3DEAC5A32D6E1181005D056D /* Build configuration list for PBXNativeTarget "IOWalletCIE" */;
+			buildConfigurationList = 3DEAC5A32D6E1181005D056D /* Build configuration list for PBXNativeTarget "CieSDK" */;
 			buildPhases = (
 				3DEAC5982D6E1181005D056D /* Headers */,
 				3DEAC5992D6E1181005D056D /* Sources */,
@@ -81,13 +81,13 @@
 			fileSystemSynchronizedGroups = (
 				3DEAC59F2D6E1181005D056D /* Sources */,
 			);
-			name = IOWalletCIE;
+			name = CieSDK;
 			packageProductDependencies = (
 				3DEAC6112D6E1359005D056D /* AsyncHTTPClient */,
 				3DEAC63E2D6E174B005D056D /* SwiftASN1 */,
 			);
-			productName = IOWalletCIE;
-			productReference = 3DEAC59D2D6E1181005D056D /* IOWalletCIE.framework */;
+			productName = CieSDK;
+			productReference = 3DEAC59D2D6E1181005D056D /* CieSDK.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -105,7 +105,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 3DEAC5972D6E1181005D056D /* Build configuration list for PBXProject "IOWalletCIE" */;
+			buildConfigurationList = 3DEAC5972D6E1181005D056D /* Build configuration list for PBXProject "CieSDK" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -123,7 +123,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3DEAC59C2D6E1181005D056D /* IOWalletCIE */,
+				3DEAC59C2D6E1181005D056D /* CieSDK */,
 			);
 		};
 /* End PBXProject section */
@@ -174,7 +174,7 @@
 				MERGED_BINARY_TYPE = automatic;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.app.io.IOWalletCIE;
+				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.app.io.CieSDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -210,7 +210,7 @@
 				MERGED_BINARY_TYPE = automatic;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.app.io.IOWalletCIE;
+				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.app.io.CieSDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -351,7 +351,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3DEAC5972D6E1181005D056D /* Build configuration list for PBXProject "IOWalletCIE" */ = {
+		3DEAC5972D6E1181005D056D /* Build configuration list for PBXProject "CieSDK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3DEAC5A62D6E1181005D056D /* Debug */,
@@ -360,7 +360,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3DEAC5A32D6E1181005D056D /* Build configuration list for PBXNativeTarget "IOWalletCIE" */ = {
+		3DEAC5A32D6E1181005D056D /* Build configuration list for PBXNativeTarget "CieSDK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3DEAC5A42D6E1181005D056D /* Debug */,

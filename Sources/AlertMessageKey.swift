@@ -1,6 +1,6 @@
 //
 //  AlertMessageKey.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 04/03/25.
 //

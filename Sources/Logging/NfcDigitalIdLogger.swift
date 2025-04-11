@@ -1,6 +1,6 @@
 //
 //  NfcDigitalIdLogger.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 26/02/25.
 //
@@ -11,7 +11,7 @@ import OSLog
 
 struct NfcDigitalIdLogger {
     
-    private let mode: IOWalletDigitalId.LogMode
+    private let mode: CieDigitalId.LogMode
     private var filename: String?
     
     lazy private var dateFormatter: DateFormatter = {
@@ -20,9 +20,9 @@ struct NfcDigitalIdLogger {
         return formatter
     }()
 
-    init(mode: IOWalletDigitalId.LogMode = .disabled) {
+    init(mode: CieDigitalId.LogMode = .disabled) {
         self.mode = mode
-        self.filename = dateFormatter.string(from: Date()) + "-IOWalletCIE"
+        self.filename = dateFormatter.string(from: Date()) + "-CieSDK"
     }
     
     func logDelimiter(_ message: String, prominent: Bool = false) {
@@ -67,7 +67,7 @@ struct NfcDigitalIdLogger {
     fileprivate func logToFile(_ msg: String) {
         do {
             let data = msg.data(using: String.Encoding.utf8)!
-            try data.append(to: filename ?? "-IOWalletCIE")
+            try data.append(to: filename ?? "-CieSDK")
         } catch {
             print("Error writing log to file")
         }
@@ -120,7 +120,7 @@ struct NfcDigitalIdLogger {
 extension NfcDigitalIdLogger {
     
     private var logger: Logger {
-        Logger(subsystem: Bundle.main.bundleIdentifier ?? "IOWalletCIE", category: "IOWalletCIE")
+        Logger(subsystem: Bundle.main.bundleIdentifier ?? "CieSDK", category: "CieSDK")
     }
     
     fileprivate func logToConsole(_ msg: String, error: Bool = false) {

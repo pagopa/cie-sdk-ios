@@ -1,6 +1,6 @@
 //
 //  NfcDigitalIdUser.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 04/03/25.
 //
@@ -9,10 +9,10 @@ import CoreNFC
 
 
 class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
-    private var ioDigitalId: IOWalletDigitalId
+    private var cieDigitalId: CieDigitalId
     private var activeContinuation: CheckedContinuation<T, Error>?
     private var performer: ((NfcDigitalId) async throws -> T)?
-    private var onEvent: IOWalletDigitalIdOnEvent?
+    private var onEvent: CieDigitalIdOnEvent?
     
     private var session: NFCTagReaderSession!
     private var cieTag: NFCISO7816Tag!
@@ -20,11 +20,11 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
     
     
     var logger: NfcDigitalIdLogger {
-        return ioDigitalId.logger
+        return cieDigitalId.logger
     }
     
-    init(ioWallet: IOWalletDigitalId, onEvent: IOWalletDigitalIdOnEvent?, performer: ((NfcDigitalId) async throws -> T)?) {
-        self.ioDigitalId = ioWallet
+    init(cieDigitalId: CieDigitalId, onEvent: CieDigitalIdOnEvent?, performer: ((NfcDigitalId) async throws -> T)?) {
+        self.cieDigitalId = cieDigitalId
         self.performer = performer
         self.onEvent = onEvent
     }
@@ -41,7 +41,7 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
                 activeContinuation = continuation
                 
                 session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
-                session?.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
+                session?.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
                 session?.begin()
             }
             
@@ -88,7 +88,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         if tags.count > 1 {
             // Restart polling in 500ms
             let retryInterval = DispatchTimeInterval.milliseconds(500)
-            session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.moreTags]!
+            session.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.moreTags]!
             
             
             Task(priority: .userInitiated) {
@@ -108,7 +108,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 cieTag = tag
             default:
                 logger.logError(tags.first.debugDescription)
-                self.session.invalidate(errorMessage: ioDigitalId.alertMessages[AlertMessageKey.invalidCard]!)
+                self.session.invalidate(errorMessage: cieDigitalId.alertMessages[AlertMessageKey.invalidCard]!)
                 activeContinuation?.resume(throwing: NfcDigitalIdError.invalidTag)
                 activeContinuation = nil
                 
@@ -131,13 +131,13 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 
                 logger.logDelimiter("end session.connect", prominent: true)
                 
-                self.session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingInProgress]!
+                self.session.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInProgress]!
                 
                 let nfcDigitalId = NfcDigitalId(tag: self.cieTag, logger: logger, onEvent: onEvent)
                 
                 let result = try await self.performer!(nfcDigitalId)
                 
-                self.session.alertMessage = ioDigitalId.alertMessages[AlertMessageKey.readingSuccess]!
+                self.session.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingSuccess]!
                 
                 activeContinuation?.resume(returning: result)
                 activeContinuation = nil
@@ -148,14 +148,14 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                         switch(error) {
                             case .wrongPin(let remainingTries):
                                 if remainingTries > 1 {
-                                    errorMessage = ioDigitalId.alertMessages[AlertMessageKey.wrongPin2AttemptLeft]!
+                                    errorMessage = cieDigitalId.alertMessages[AlertMessageKey.wrongPin2AttemptLeft]!
                                 }
                                 else {
-                                    errorMessage = ioDigitalId.alertMessages[AlertMessageKey.wrongPin1AttemptLeft]!
+                                    errorMessage = cieDigitalId.alertMessages[AlertMessageKey.wrongPin1AttemptLeft]!
                                 }
                                 
                             case .cardBlocked:
-                                errorMessage = ioDigitalId.alertMessages[AlertMessageKey.cardLocked]!
+                                errorMessage = cieDigitalId.alertMessages[AlertMessageKey.cardLocked]!
                             default:
                                 errorMessage = error.description
                         }

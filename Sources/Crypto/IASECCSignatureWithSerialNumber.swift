@@ -1,6 +1,6 @@
 //
 //  IASECCSignatureWithSerialNumber.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 07/03/25.
 //

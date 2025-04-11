@@ -1,6 +1,6 @@
 //
 //  NfcDigitalIdRequest.swift
-//  IOWalletCIE
+//  CieSDK
 //
 //  Created by Antonio Caparello on 25/02/25.
 //

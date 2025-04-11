@@ -1,13 +1,13 @@
 //
-//  IOWalletDigitalId.swift
-//  IOWalletCIE
+//  CieDigitalId.swift
+//  CieSDK
 //
 //  Created by Antonio Caparello on 25/02/25.
 //
 
 import CoreNFC
 
-public class IOWalletDigitalId : @unchecked Sendable {
+public class CieDigitalId : @unchecked Sendable {
     public enum LogMode: String {
         case enabled = "ENABLED"
         case localFile = "FILE"
@@ -74,8 +74,8 @@ public class IOWalletDigitalId : @unchecked Sendable {
      *
      * - Returns: Authorized url to complete level3 authentication
      */
-    public func performAuthentication(forUrl url: String, withPin pin: String, _ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> String {
-        return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
+    public func performAuthentication(forUrl url: String, withPin pin: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> String {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
             defer {
@@ -98,8 +98,8 @@ public class IOWalletDigitalId : @unchecked Sendable {
      *
      * - Returns: ATR bytes
      */
-    public func performReadAtr(_ onEvent: IOWalletDigitalIdOnEvent? = nil) async throws -> [UInt8] {
-        return try await NfcDigitalIdPerformer(ioWallet: self, onEvent: onEvent, performer: {
+    public func performReadAtr(_ onEvent: CieDigitalIdOnEvent? = nil) async throws -> [UInt8] {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
             defer {

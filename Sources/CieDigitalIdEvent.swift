@@ -1,13 +1,13 @@
 //
-//  IOWalletDigitalIdEvent.swift
-//  IOWalletCIE
+//  CieDigitalIdEvent.swift
+//  CieSDK
 //
 //  Created by Antonio Caparello on 04/03/25.
 //
 
-public typealias IOWalletDigitalIdOnEvent = (IOWalletDigitalIdEvent) -> Void
+public typealias CieDigitalIdOnEvent = (CieDigitalIdEvent) -> Void
 
-public enum IOWalletDigitalIdEvent {
+public enum CieDigitalIdEvent {
     case ON_TAG_DISCOVERED
     case ON_TAG_DISCOVERED_NOT_CIE
     case CONNECTED
