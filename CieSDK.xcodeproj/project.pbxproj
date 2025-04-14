@@ -376,16 +376,16 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/swift-server/async-http-client.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.25.2;
+				kind = revision;
+				revision = 333f51104b75d1a5b94cb3b99e4c58a3b442c9f7;
 			};
 		};
 		3DEAC63D2D6E174B005D056D /* XCRemoteSwiftPackageReference "swift-asn1" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-asn1.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.1;
+				kind = revision;
+				revision = ae33e5941bb88d88538d0a6b19ca0b01e6c76dcf;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
