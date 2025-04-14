@@ -5,7 +5,7 @@
 //  Created by Antonio Caparello on 07/03/25.
 //
 
-
+//ISO\IEC 9796-2 is an encoding standard allowing partial or total message recovery
 struct IASECCPadding {
     
     let recovery: [UInt8]
@@ -31,12 +31,13 @@ struct IASECCPadding {
         self.hash = hash
     }
     
-    init(data: [UInt8], hash: [UInt8]) {
-        self.recovery = data
+    init(recovery: [UInt8], hash: [UInt8]) {
+        self.recovery = recovery
         self.hash = hash
     }
     
     func encode() -> [UInt8] {
+        //µ(m) = 6A|m[1]|hash(m)|BC
         return Utils.join([
             [IASECCPadding.header],
             recovery,

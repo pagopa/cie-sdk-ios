@@ -8,6 +8,7 @@
 import CryptoTokenKit
 
 
+/**IAS ECC v1_0_1UK.pdf 7.1.6 SM Data Objects**/
 /*
  '97' Le (to protect using CC) Tle
  '99' Status-Info (to protect using CC) Tsw

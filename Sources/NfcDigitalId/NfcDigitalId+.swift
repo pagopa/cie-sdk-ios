@@ -19,7 +19,7 @@ extension NfcDigitalId {
 
         onEvent?(.SELECT_FOR_READ_FILE)
 
-        return try await select(.standard, .standard, id: id)
+        return try await select(.file, .file, id: id)
     }
 
     /*9.7.2 READ BINARY*/

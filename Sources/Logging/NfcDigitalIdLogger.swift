@@ -109,7 +109,7 @@ struct NfcDigitalIdLogger {
             msg = "\(message) \n"
         }
         
-        msg += response.asString()
+        msg += response.description
         
         log(msg)
     }

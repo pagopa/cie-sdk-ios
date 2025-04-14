@@ -29,8 +29,8 @@ extension NfcDigitalId {
                             throw _error
                         }
                         logger.logError(status.description)
-                        logger.log("selectIAS fileNotFound. Will use selectRootFile with empty fileId")
-                        return try await selectRootFile(id: .empty)
+                        logger.log("selectIAS fileNotFound. Will use selectStandardFile with empty fileId")
+                        return try await selectStandardFile(id: .empty)
                     default:
                         throw _error
                 }
@@ -39,16 +39,16 @@ extension NfcDigitalId {
         }
     }
     
-    func selectRootFile(id: FileId) async throws -> APDUResponse {
+    func selectStandardFile(id: FileId) async throws -> APDUResponse {
         logger.logDelimiter(#function)
         logger.logData(id.description, name: "id")
         
-        return try await select(.root, .root, id: id)
+        return try await select(.standard, .standard, id: id)
     }
     
     func selectRoot() async throws -> APDUResponse {
         onEvent?(.SELECT_ROOT)
-        return try await selectRootFile(id: .root)
+        return try await selectStandardFile(id: .root)
     }
     
     func readATR() async throws -> [UInt8] {

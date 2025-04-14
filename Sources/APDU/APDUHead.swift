@@ -6,7 +6,20 @@
 //
 import CoreNFC
 
-struct APDUHead {
+struct APDUHead : CustomStringConvertible, CustomDebugStringConvertible {
+    var description: String {
+        return raw.hexEncodedString
+    }
+    
+    var debugDescription: String {
+        return """
+CLA: \(String(instructionClass, radix: 16, uppercase: true))
+INS: \(String(instruction, radix: 16, uppercase: true))
+P1: \(String(p1, radix: 16, uppercase: true))
+P2: \(String(p2, radix: 16, uppercase: true))
+"""
+    }
+    
     var instructionClass: UInt8
     var instruction: UInt8
     var p1: UInt8
@@ -34,5 +47,7 @@ struct APDUHead {
             p2
         ]
     }
+    
+    
     
 }

@@ -8,7 +8,14 @@
 import Foundation
 
 
-struct APDUResponse {
+struct APDUResponse : CustomStringConvertible, CustomDebugStringConvertible {
+    var description: String {
+        return "[APDU RESPONSE]: \([sw1, sw2].hexEncodedString)\n[APDU RESPONSE DATA]: \(data.hexEncodedString)\n[APDU STATUS]:\(status.description)"
+    }
+    
+    var debugDescription: String {
+        return description
+    }
     
     private var sw1 : UInt8
     private var sw2 : UInt8
@@ -48,9 +55,5 @@ struct APDUResponse {
 extension APDUResponse {
     init(_ apduResponse: (Data, UInt8, UInt8)) {
         self.init(data: [UInt8](apduResponse.0), sw1: apduResponse.1, sw2: apduResponse.2)
-    }
-    
-    func asString() -> String {
-        return "[APDU RESPONSE]: \([sw1, sw2].hexEncodedString)\n[APDU RESPONSE DATA]: \(data.hexEncodedString)\n[APDU STATUS]:\(status.description)"
     }
 }

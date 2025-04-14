@@ -66,3 +66,4 @@ archives/
 build/
 Pods/
 DerivedData/
+.swiftpm

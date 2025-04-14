@@ -14,6 +14,7 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
     internal var sequence: [UInt8]
     
     override var packetSize: Int  {
+        /**IAS ECC v1_0_1UK.pdf 8.6.3.3 READ BINARY with Secure messaging**/
         //packetSize is limited to ‘E7’ = 231 bytes (included), so that the data protected in integrity & confidentiality with the secure messaging does not exceed 256 bytes.
         return 0xE7
     }
@@ -61,8 +62,10 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
             iv: iv)
     }
     
+    
+    /**IAS ECC v1_0_1UK.pdf 7.1.5 Send Sequence Counter (SSC)**/
     func incSeq() {
-        
+        //The SSC is an 8-byte number used for initial chaining vector (ICV) calculation before MAC computations. The SSC is incremented by 1 before each MAC computation. The SSC wraps around, i.e. when the value ‘FF FF FF FF FF FF FF FF’ is reached, the next SSC value is ‘00 00 00 00 00 00 00 00’.
         var i: Int = sequence.count - 1
         
         while(i >= 0) {

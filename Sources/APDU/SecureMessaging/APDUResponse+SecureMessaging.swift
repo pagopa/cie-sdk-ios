@@ -11,11 +11,6 @@ import CryptoTokenKit
 extension APDUResponse {
     /**7.1.8 Commands and Responses under SM - Responses*/
     func decrypt(sequence: [UInt8], signatureKey: [UInt8], cryptoKey: [UInt8], iv: [UInt8]) throws -> APDUResponse {
-        //speed of native version is the same as custom one.
-        /*guard let tlvRecords = try? _sequenceOfRecords(from: bytes) else {
-            throw NfcDigitalIdError.errorDecodingAsn1
-        }*/
-        
         guard let tlvRecords = TKBERTLVRecord.sequenceOfRecords(from: Data(self.data)) else {
             throw NfcDigitalIdError.errorDecodingAsn1
         }
@@ -97,58 +92,5 @@ extension APDUResponse {
         
         return APDUResponse(data: clearData, sw1: sw1, sw2: sw2)
     }
-    
-    /*struct _TLVRecord {
-     let tag: TKTLVTag
-     let value: ArraySlice<UInt8>
-     let data: ArraySlice<UInt8>
-     }
-     
-     //speed of native version is the same..
-     func _sequenceOfRecords(from bytes: [UInt8]) throws -> [_TLVRecord] {
-     var result: [_TLVRecord] = []
-     var index: Int = 0
-     
-     while(index < bytes.count) {
-     
-     let tag = bytes[index]
-     let len1 = Int(bytes[index + 1])
-     
-     let valueLen: Int
-     let offset: Int
-     
-     var value: ArraySlice<UInt8>
-     var data: ArraySlice<UInt8>
-     
-     if (len1 > 0x80) {
-     var lenLen = Int(len1 - 0x80);
-     if (lenLen == 1) {
-     valueLen = Int(bytes[index + 2])
-     }
-     else if (lenLen == 2) {
-     valueLen = Int((Int(bytes[index + 2]) << 8) | Int(bytes[index + 3]))
-     }
-     else {
-     throw NfcDigitalIdError.errorDecodingAsn1
-     }
-     
-     offset = lenLen + 2
-     }
-     else {
-     valueLen = len1
-     offset = 2
-     }
-     
-     data = bytes[index..<index + offset + valueLen]
-     
-     value = bytes[index + offset..<index + offset + valueLen]
-     
-     index += offset + valueLen
-     
-     let v = _TLVRecord(tag: TKTLVTag(tag), value: value, data: data)
-     result.append(v)
-     }
-     return result
-     }*/
     
 }

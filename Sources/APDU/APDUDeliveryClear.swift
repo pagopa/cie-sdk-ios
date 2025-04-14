@@ -52,6 +52,7 @@ class APDUDeliveryClear : APDUDeliveryBase {
         var apduHead = apdu.head
         
         if offset != apdu.data.count {
+            /**IAS ECC v1_0_1UK.pdf 8.5.2 Description of the command chaining**/
             //If the command, is a part of the chain, the bit 5 of the CLA byte shall be set to 1
             apduHead.instructionClass |= 0x10
         }

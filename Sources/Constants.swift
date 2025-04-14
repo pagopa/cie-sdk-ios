@@ -8,13 +8,16 @@
 
 internal import SwiftASN1
 
-
+/**IAS ECC v1_0_1UK.pdf  10.6.2 CRT Templates dedicated to Card Security Context (CSE)**/
 enum SecurityEnvironmentControlReference : UInt8 {
     //    case MSE_SET = 1
     //    case UQ_COM_DEC_INTAUT = 64
     //    case UQ_VER_ENC_EXTAUT = 128
     
+    /**External asymmetric authentication link with a role to select a key in the current SE:**/
     case MSE_SET_EXTERNAL_AUTH = 0x81 //MSE_SET | UQ_VER_ENC_EXTAUT
+    
+    /**Internal asymmetric authentication during a PK-DH scheme for mutual authentication:**/
     case MSE_SET_INTERNAL_AUTH = 0x41 //MSE_SET | UQ_COM_DEC_INTAUT
     
     var description: String {
@@ -42,18 +45,20 @@ enum SecurityEnvironmentControlReferenceTemplate: UInt8 {
     }
 }
 
+/**cie_3.0_-_specifiche_chip.pdf **/
+/**8 Allegato A: Tabella File System**/
 enum FileId : String {
-    case root = "3f00"
+    case root            = "3f00" //MF
+    case service         = "1001" //DF_CIE\EF.ID_Servizi
+    case chipCertificate = "1003" //DF_CIE\EF.Cert_CIE
+    case chipPublicKey   = "1004" //DF_CIE\EF.Int.Kpub
+    case atr             = "2f01" //ROOT\EF.ATR
     
-    case service = "1001"
-    case chipCertificate = "1003"
-    case chipPublicKey = "1004"
-    case atr = "2f01"
+    //Those are not present in the "cie_3.0_-_specifiche_chip.pdf" and can be found here : https://forum.italia.it/t/lettura-cie-tramite-apdu/4506
+    case ias             = "A0000000308000000009816001" //IAS_ECC
+    case cie             = "A00000000039" //DF_CIE
     
-    case ias = "A0000000308000000009816001"
-    case cie = "A00000000039"
-    
-    case empty = ""
+    case empty           = ""
     
     var bytes: [UInt8] {
         guard let data = [UInt8](hex: self.rawValue) else {
@@ -67,31 +72,42 @@ enum FileId : String {
     }
 }
 
+/**IAS ECC v1_0_1UK.pdf 9.7.1 SELECT**/
+/**Table 30 - Selection, file and life cycle commands P1 possible values**/
 enum DirectoryId: UInt8 {
-    case root = 0x00
-    case standard = 0x02
-    case application = 0x04
+    //                           Meaning                         BITS
+    case standard       = 0x00 //Select Root                     0 0 0 0 0 0 0 0
+    case file           = 0x02 //Select EF under the current DF  0 0 0 0 0 0 0 1
+    case application    = 0x04 //Select by DF name (ADF or root) 0 0 0 0 0 1 0 0
     
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"
     }
 }
 
+/**IAS ECC v1_0_1UK.pdf 9.7.1 SELECT**/
+/**Table 31 - Selection, file and life cycle commands P2 possible values**/
 enum FileTemplateId: UInt8 {
-    case root = 0x00
-    case standard = 0x04
-    case application = 0x0c
+    //                           Meaning                         BITS
+    case standard       = 0x00 //First or only occurrence        0 0 0 0 0 0 0 0
+    case file           = 0x04 //Return FCP template             0 0 0 0 0 1 0 0
+    case application    = 0x0c //No data in response field       0 0 0 0 1 1 0 0
     
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"
     }
 }
+
 
 enum SecurityEnvironmentAlgorithm : UInt8 {
+    /**IAS ECC v1_0_1UK.pdf 10.6.2.3 Digital signature template (CRT DST)**/
     case iso97962RSASHA256 = 0x41 //'41' ≡ algorithm identifier for signature using ISO 9796-2 scheme 1 – SHA-256
-    case diffieHellmanRSASHA256 = 0x9B //'9B' ≡ DH asymmetric authentication algorithm (privacy) with SHA-256
-    case clientServerRSAPKCS1 = 2 //'02' ≡ algorithm identifier for IFC/ICC authentication RSA PKCS#1 -SHA-1 with not data formatting
     
+    /**IAS ECC v1_0_1UK.pdf 10.6.1.1 Authentication template (CRT AT)**/
+    case diffieHellmanRSASHA256 = 0x9B //'9B' ≡ DH asymmetric authentication algorithm (privacy) with SHA-256
+    
+    /**IAS ECC v1_0_1UK.pdf 10.6.2.1 Authentication template (CRT AT)**/
+    case clientServerRSAPKCS1 = 2 //'02' ≡ algorithm identifier for IFC/ICC authentication RSA PKCS#1 -SHA-1 with not data formatting
     
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"
@@ -99,10 +115,12 @@ enum SecurityEnvironmentAlgorithm : UInt8 {
     
 }
 
+/**cie_3.0_-_specifiche_chip.pdf **/
+/**8 Allegato A: Tabella File System**/
 enum SecurityEnvironmentKeyId: UInt8 {
-    case sign = 0x81
-    case internalAuth = 0x82
-    case externalAuth = 0x84
+    case sign           = 0x81 /**PrK ref = 81h (local PrK 1)**/
+    case internalAuth   = 0x82 /**PrK ref = 82h (local PrK 2)**/
+    case externalAuth   = 0x84 /**PrK ref = 84h (local PrK 4)**/
     
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"

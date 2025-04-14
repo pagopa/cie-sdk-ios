@@ -10,8 +10,8 @@ extension APDURequest {
     /**7.1.8 Commands and Responses under SM - Commands*/
     func encrypt(sequence: [UInt8], signatureKey: [UInt8], cryptoKey: [UInt8], iv: [UInt8]) throws -> APDURequest {
         var apduHead = self.head
-        
-//        Bits b4 and b3 of the CLA byte shall be set to '1' (i.e. CLA ≡ 'xC'). It means the command header is integrated into the CC calculation.
+        /**IAS ECC v1_0_1UK.pdf 7.1.8 Commands and Responses under SM - Commands*/
+        //Bits b4 and b3 of the CLA byte shall be set to '1' (i.e. CLA ≡ 'xC'). It means the command header is integrated into the CC calculation.
 
         apduHead.instructionClass |= 0x0C
         
