@@ -174,7 +174,7 @@
 				MERGED_BINARY_TYPE = automatic;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.app.io.CieSDK;
+				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.io.app.cie;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -210,7 +210,7 @@
 				MERGED_BINARY_TYPE = automatic;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.app.io.CieSDK;
+				PRODUCT_BUNDLE_IDENTIFIER = it.pagopa.io.app.cie;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
