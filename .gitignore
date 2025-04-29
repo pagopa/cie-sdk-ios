@@ -69,3 +69,5 @@ DerivedData/
 
 .swiftpm
 */.swiftpm
+
+vendor/
