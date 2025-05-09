@@ -38,20 +38,10 @@ jobs:
           echo "Updating podspec version to ${VERSION}"
           sed -i '' "s/s.version\s*=\s*\".*\"/s.version      = \"${VERSION}\"/" CieSDK.podspec
 
-      - name: setup-ruby
-        uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf #v1.204.0
-        with:
-          ruby-version: "3.0"
-          bundler-cache: true
-
-      # This will deploy the SDK to CocoaPods and generate the xcframework
-      - name: Deploy on CocoaPods
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+      - name: Build XCFramework
         run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          bundle exec pod trunk push CieSDK.podspec --allow-warnings --verbose
-          echo "CocoaPods deployment completed for version ${VERSION}"
+          chmod +x ./.build.sh
+          ./.build.sh
 
       - name: Zip XCFramework
         run: |
@@ -67,3 +57,19 @@ jobs:
           gh release upload $VERSION ".archives/CieSDK-${VERSION}.xcframework.zip" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: setup-ruby
+        uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf #v1.204.0
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true
+
+      # This will deploy the SDK to CocoaPods and generate the xcframework
+      - name: Deploy on CocoaPods
+        env:
+          # Run this to get the token: pod trunk me --verbose
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          bundle exec pod trunk push CieSDK.podspec --allow-warnings --verbose
+          echo "CocoaPods deployment completed for version ${VERSION}"
