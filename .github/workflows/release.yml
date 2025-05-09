@@ -1,0 +1,67 @@
+name: Build and Release cbor
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release"
+        required: true
+        default: "0.0.0"
+  push:
+    tags:
+      - "*.*.*" # Trigger for every tag x.y.z
+
+jobs:
+  build-release:
+    runs-on: macos-15-xlarge
+    environment: prod
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Set up Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Extract tag version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            # Extract tag removing "refs/tags/"
+            echo "version=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update podspec version
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo "Updating podspec version to ${VERSION}"
+          sed -i '' "s/s.version\s*=\s*\".*\"/s.version      = \"${VERSION}\"/" CieSDK.podspec
+
+      - name: setup-ruby
+        uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf #v1.204.0
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true
+
+      # This will deploy the SDK to CocoaPods and generate the xcframework
+      - name: Deploy on CocoaPods
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          bundle exec pod trunk push CieSDK CieSDK.podspec --allow-warnings --verbose
+          echo "CocoaPods deployment completed for version ${VERSION}"
+
+      - name: Zip XCFramework
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          cp LICENSE .archives/
+          cd .archives
+          zip -r "CieSDK-${VERSION}.xcframework.zip" CieSDK.xcframework LICENSE
+
+      - name: Create GitHub Release and Upload Asset
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"                  
+          gh release create $VERSION --latest --generate-notes          
+          gh release upload $VERSION ".archives/CieSDK-${VERSION}.xcframework.zip" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
