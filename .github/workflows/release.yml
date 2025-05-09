@@ -1,4 +1,4 @@
-name: Build and Release cbor
+name: Build, Release and Deploy CieSDK
 
 on:
   workflow_dispatch:
@@ -46,6 +46,8 @@ jobs:
 
       # This will deploy the SDK to CocoaPods and generate the xcframework
       - name: Deploy on CocoaPods
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           bundle exec pod trunk push CieSDK.podspec --allow-warnings --verbose
