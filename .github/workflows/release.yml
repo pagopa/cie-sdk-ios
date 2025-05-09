@@ -48,7 +48,7 @@ jobs:
       - name: Deploy on CocoaPods
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          bundle exec pod trunk push CieSDK CieSDK.podspec --allow-warnings --verbose
+          bundle exec pod trunk push CieSDK.podspec --allow-warnings --verbose
           echo "CocoaPods deployment completed for version ${VERSION}"
 
       - name: Zip XCFramework
