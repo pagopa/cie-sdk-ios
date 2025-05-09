@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'cie-sdk-ios'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of cie-sdk-ios.'
+  s.summary          = 'A native SDK for reading the Italian EIC (CIE).'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,14 +18,14 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+  A native SDK for reading the Italian Electronic Identity Card (CIE).
                        DESC
 
   s.homepage         = 'https://github.com/pagopa/cie-sdk-ios'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'acapadev' => 'antonio.caparello@digitouch.it' }
-  s.source           = { :git => 'ssh://git@github.com/pagopa/cie-sdk-ios.git', branch: 'develop' }
+  s.author           = { 'PagoPA S.p.A.' => 'ioapptech@pagopa.it' }
+  s.source           = { :git => 'https://git@github.com/pagopa/cie-sdk-ios.git', tag: s.version }
  
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
