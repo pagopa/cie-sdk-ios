@@ -7,7 +7,7 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = 'cie-sdk-ios'
+  s.name             = 'CieSDK'
   s.version          = '0.1.0'
   s.summary          = 'A native SDK for reading the Italian EIC (CIE).'
 
