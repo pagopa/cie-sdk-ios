@@ -12,16 +12,31 @@ class NfcDigitalId {
 
     var tag: APDUDeliveryProtocol
     var logger: NfcDigitalIdLogger
-    var onEvent: CieDigitalIdOnEvent?
+    var onEventWithProgress: CieDigitalIdOnEvent?
 
+    private var totalEvents: Float = 1
+    private var eventsNumber: Float = 0
+    
+    internal var onEvent: ((CieDigitalIdEvent) -> Void)? { return _onEvent }
+    
+    private func _onEvent(_ event: CieDigitalIdEvent) {
+        eventsNumber += 1
+        
+        onEventWithProgress?(event, eventsNumber / totalEvents)
+    }
+    
     init(tag: NFCISO7816Tag, logger: NfcDigitalIdLogger, onEvent: CieDigitalIdOnEvent?) {
         self.tag = APDUDeliveryClear(tag: tag)
         self.logger = logger
-        self.onEvent = onEvent
+        self.onEventWithProgress = onEvent
     }
-
+    
+    
     func performReadAtr() async throws -> [UInt8] {
-
+        
+        eventsNumber = 0
+        totalEvents = 5
+        
         try await selectIAS()
         try await selectCIE()
 
@@ -33,6 +48,9 @@ class NfcDigitalId {
     func performAuthentication(forUrl url: String, withPin pin: String, idpUrl: String) async throws
         -> String
     {
+        eventsNumber = 0
+        totalEvents = 28
+        
         let request = try NfcDigitalIdRequest(url, idpUrl: idpUrl, logger: logger)
 
         logger.log(

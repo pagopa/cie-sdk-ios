@@ -24,6 +24,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
     var cieTypeButton: UIButton!
     var showLogsButton: UIButton!
     
+    var progress: UIProgressView!
+    
     var webView: WKWebView!
     
     let togglePinSecureEntry: UIButton = {
@@ -91,6 +93,13 @@ class ViewController: UIViewController, WKNavigationDelegate {
         showLogsButton.addTarget(self, action: #selector(presentLogs), for: .touchUpInside)
         view.addSubview(showLogsButton)
         
+        progress = UIProgressView()
+        progress.backgroundColor = .red
+        progress.tintColor = .blue
+        progress.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(progress)
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
@@ -100,7 +109,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
             pinTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
             pinTextField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             
-            actionButton.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 10),
+            progress.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 4),
+            progress.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            progress.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            progress.heightAnchor.constraint(equalToConstant: 5),
+            
+            actionButton.topAnchor.constraint(equalTo: progress.bottomAnchor, constant: 10),
             actionButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
             cieTypeButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
@@ -149,11 +163,23 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func getCIEType() {
         Task {
             do {
-                let atr = try await CieDigitalId(.localFile).performReadAtr()
+                let digitalId = CieDigitalId(.localFile)
+                let atr = try await digitalId.performReadAtr()  {
+                    event, progress in
+                    print(event)
+                    print(progress)
+                    
+                    digitalId.alertMessage = "\(event)"
+                    
+                    DispatchQueue.main.async {
+                        self.progress.progress = progress
+                    }
+                }
                 
                 let cieType = CIEType.fromATR(atr)
                 
                 DispatchQueue.main.async {
+                    self.progress.progress = 0.0
                     self.infoLabel.text = "\(cieType)\n\(atr.hexEncodedString)"
                 }
             } catch {
@@ -185,9 +211,22 @@ class ViewController: UIViewController, WKNavigationDelegate {
         
         Task {
             do {
-                let authenticatedUrl = try await CieDigitalId(.localFile).performAuthentication(forUrl: foundUrl, withPin: pin)
+                let digitalId = CieDigitalId(.localFile)
+                
+                let authenticatedUrl = try await digitalId.performAuthentication(forUrl: foundUrl, withPin: pin) {
+                    event, progress in
+                    print(event)
+                    print(progress)
+                    
+                    digitalId.alertMessage = "\(event)"
+                    
+                    DispatchQueue.main.async {
+                        self.progress.progress = progress
+                    }
+                }
                 
                 DispatchQueue.main.async {
+                    self.progress.progress = 0.0
                     self.infoLabel.text = authenticatedUrl
                     
                     let navigateView = WebViewViewController()
@@ -197,6 +236,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 }
             } catch {
                 DispatchQueue.main.async {
+                    self.progress.progress = 0.0
+                    
                     if let nfcDigitalIdError = error as? NfcDigitalIdError {
                         self.infoLabel.text = nfcDigitalIdError.description
                     }

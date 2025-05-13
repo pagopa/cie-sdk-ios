@@ -41,6 +41,18 @@ public class CieDigitalId : @unchecked Sendable {
         alertMessages[key] = value
     }
     
+    internal var messageDelegate: CieDigitalIdAlertMessage?
+    
+    public var alertMessage: String? {
+        willSet {
+            guard let newValue = newValue else {
+                return
+            }
+            messageDelegate?.setAlertMessage(message: newValue)
+        }
+    }
+    
+    
     private func initAlertMessages() {
         /* alert default values */
         alertMessages[AlertMessageKey.readingInstructions] = "Tieni la tua carta d’identità elettronica sul retro dell’iPhone, nella parte in alto."
@@ -114,4 +126,6 @@ public class CieDigitalId : @unchecked Sendable {
     }
 }
 
-
+internal protocol CieDigitalIdAlertMessage {
+    func setAlertMessage(message: String)
+}
