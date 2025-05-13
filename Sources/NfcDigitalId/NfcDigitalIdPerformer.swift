@@ -42,12 +42,19 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
                 
                 session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
                 session?.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
+                
+                cieDigitalId.messageDelegate = self
+                
                 session?.begin()
             }
             
+            cieDigitalId.messageDelegate = nil
+            
             session?.invalidate()
+            
             return serverUrl
         } catch {
+            cieDigitalId.messageDelegate = nil
             session?.invalidate()
             logger.logError(error.localizedDescription)
             throw error
@@ -100,7 +107,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         
         let tag = tags.first!
         
-        onEvent?(.ON_TAG_DISCOVERED)
+        onEvent?(.ON_TAG_DISCOVERED, 0.0)
         
         var cieTag: NFCISO7816Tag
         switch tags.first! {
@@ -112,7 +119,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 activeContinuation?.resume(throwing: NfcDigitalIdError.invalidTag)
                 activeContinuation = nil
                 
-                onEvent?(.ON_TAG_DISCOVERED_NOT_CIE)
+                onEvent?(.ON_TAG_DISCOVERED_NOT_CIE, 0.0)
                 
                 return
         }
@@ -127,7 +134,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 
                 try await self.session.connect(to: self.tag)
                 
-                onEvent?(.CONNECTED)
+                onEvent?(.CONNECTED, 0.1)
                 
                 logger.logDelimiter("end session.connect", prominent: true)
                 
@@ -173,5 +180,11 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 activeContinuation = nil
             }
         }
+    }
+}
+
+extension NfcDigitalIdPerformer : CieDigitalIdAlertMessage {
+    func setAlertMessage(message: String) {
+        session?.alertMessage = message
     }
 }

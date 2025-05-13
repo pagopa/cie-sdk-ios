@@ -5,7 +5,7 @@
 //  Created by Antonio Caparello on 04/03/25.
 //
 
-public typealias CieDigitalIdOnEvent = (CieDigitalIdEvent) -> Void
+public typealias CieDigitalIdOnEvent = (CieDigitalIdEvent, Float) -> Void
 
 public enum CieDigitalIdEvent {
     case ON_TAG_DISCOVERED
