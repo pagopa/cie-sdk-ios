@@ -113,8 +113,14 @@ class NfcDigitalIdRequest {
         
         tlsConfiguration.privateKey = NIOSSLPrivateKeySource.privateKey(key)
         
+        let sslCertificate = try NIOSSLCertificate.init(bytes: certificate, format: .der)
+        
+        if (!isCertificateValid(certificate: sslCertificate)) {
+            throw NfcDigitalIdError.cieCertificateNotValid
+        }
+        
         tlsConfiguration.certificateChain = [
-            NIOSSLCertificateSource.certificate(try NIOSSLCertificate.init(bytes: certificate, format: .der))
+            NIOSSLCertificateSource.certificate(sslCertificate)
         ]
         
         let loopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
@@ -123,25 +129,62 @@ class NfcDigitalIdRequest {
         
         let httpClient = HTTPClient(eventLoopGroupProvider: .shared(loopGroup), configuration: clientConfiguration)
         
-        var response = try await httpClient.post(url: url).get()
-        
-        logger.logHttpResponse(response, name: "IDP Response")
-        
-        if let redirectRequest = response.createRedirectRequest() {
+        do {
+            var response = try await httpClient.post(url: url).get()
             
-            logger.logData("\(redirectRequest)", name: "IDP Redirect Request")
+            logger.logHttpResponse(response, name: "IDP Response")
             
-            let redirectResponse = try await httpClient.execute(request: redirectRequest).get()
-            response = redirectResponse
+            if let redirectRequest = response.createRedirectRequest() {
+                
+                logger.logData("\(redirectRequest)", name: "IDP Redirect Request")
+                
+                let redirectResponse = try await httpClient.execute(request: redirectRequest).get()
+                response = redirectResponse
+                
+                logger.logHttpResponse(response, name: "IDP Response (Redirect)")
+            }
             
-            logger.logHttpResponse(response, name: "IDP Response (Redirect)")
+            try await httpClient.shutdown()
+            try await loopGroup.shutdownGracefully()
+            
+            return response
         }
-        
-        try await httpClient.shutdown()
-        try await loopGroup.shutdownGracefully()
-        
-        return response
+        catch {
+            //shutdown gracefully even when exception occurs
+            try await httpClient.shutdown()
+            try await loopGroup.shutdownGracefully()
+            
+            if (isNotValidCertificateError(error)) {
+                throw NfcDigitalIdError.certificateNotValid
+            }
+            
+            throw error
+        }
     }
+    
+    /**Check if NIOSSLError contains "CERTIFICATE_VERIFY_FAILED" message*/
+    private func isNotValidCertificateError(_ error: any Error) -> Bool {
+        if let sslError = error as? NIOSSLError,
+           case .handshakeFailed(.sslError(let errs)) = sslError {
+            let isCertificateNotValidError = errs.contains(where: {
+                err in
+                return err.description.contains("CERTIFICATE_VERIFY_FAILED")
+            })
+            
+            return isCertificateNotValidError
+        }
+        return false
+    }
+    
+    /**Call this method to check if a certificate is valid as now*/
+    private func isCertificateValid(certificate: NIOSSLCertificate) -> Bool {
+        let notValidBeforeDate = Date(timeIntervalSince1970: TimeInterval(certificate.notValidBefore))
+        let notValidAfterDate = Date(timeIntervalSince1970: TimeInterval(certificate.notValidAfter))
+        
+        let now = Date()
+        return now >= notValidBeforeDate && now <= notValidAfterDate
+    }
+
     
 }
 
