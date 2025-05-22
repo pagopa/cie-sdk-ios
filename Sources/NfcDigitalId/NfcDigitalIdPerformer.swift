@@ -71,20 +71,26 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         
         logger.logError(error.localizedDescription)
         
+        var wrappedError: NfcDigitalIdError? = nil
+        
         if let readerError = error as? NFCReaderError {
+            wrappedError = .nfcError(readerError)
             switch readerError.code {
                 case .readerSessionInvalidationErrorUserCanceled:
-                    activeContinuation?.resume(throwing: readerError)
-                    activeContinuation = nil
+                    break
                 default:
                     session.alertMessage = NFCReaderError.decodeError(readerError) ?? ""
-                    activeContinuation?.resume(throwing: error)
-                    activeContinuation = nil
             }
-        } else {
-            activeContinuation?.resume(throwing: error)
-            activeContinuation = nil
         }
+        
+        if let wrappedError = wrappedError {
+            activeContinuation?.resume(throwing: wrappedError)
+        }
+        else {
+            activeContinuation?.resume(throwing: error)
+        }
+        
+        activeContinuation = nil
         
         logger.logDelimiter("tagReaderSession didInvalidateWithError", prominent: true)
     }
@@ -149,9 +155,12 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 activeContinuation?.resume(returning: result)
                 activeContinuation = nil
             } catch {
+                var wrappedError: NfcDigitalIdError? = nil
+                
                 var errorMessage: String
                 switch error {
                     case let error as NfcDigitalIdError:
+                        wrappedError = error
                         switch(error) {
                             case .wrongPin(let remainingTries):
                                 if remainingTries > 1 {
@@ -168,6 +177,8 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                         }
                         
                     case let error as NFCReaderError:
+                        wrappedError = NfcDigitalIdError.nfcError(error)
+                        
                         errorMessage = NFCReaderError.decodeError(error) ?? error.localizedDescription
                     default:
                         errorMessage = error.localizedDescription
@@ -176,7 +187,14 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                 logger.logError(errorMessage)
                 
                 self.session.invalidate(errorMessage: errorMessage)
-                activeContinuation?.resume(throwing: error)
+                
+                if let wrappedError = wrappedError {
+                    activeContinuation?.resume(throwing: wrappedError)
+                }
+                else {
+                    activeContinuation?.resume(throwing: error)
+                }
+                
                 activeContinuation = nil
             }
         }

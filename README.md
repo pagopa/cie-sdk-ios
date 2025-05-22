@@ -84,6 +84,9 @@ CieSDK iOS is an utility library to perform mTLS authentication using CIE ([Cart
 | wrongPin(let remainingTries) | Wrong pin. Remaining tries: \(remainingTries) |
 | cardBlocked | Card blocked |
 | genericError | Generic error |
+| nfcError(let NFCReaderError) | NFCReaderError passthrough |
+| cieCertificateNotValid | Cie certificate not valid |
+| certificateNotValid | Backend certificate not valid |
 
 ### APDUStatus
 | SW | Status | Description |
