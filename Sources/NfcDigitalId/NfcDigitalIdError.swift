@@ -32,7 +32,7 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
     case cardBlocked
     
     case nfcError(NFCReaderError)
-    case cieCertificateNotValid
+    //case cieCertificateNotValid
     case certificateNotValid
     
     public var description: String {
@@ -81,8 +81,8 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
                 return "Generic error"
             case .nfcError(let nfcError):
                 return nfcError.localizedDescription
-            case .cieCertificateNotValid:
-                return "Cie certificate not valid"
+//          case .cieCertificateNotValid:
+//              return "Cie certificate not valid"
             case .certificateNotValid:
                 return "Certificate not valid"
         }

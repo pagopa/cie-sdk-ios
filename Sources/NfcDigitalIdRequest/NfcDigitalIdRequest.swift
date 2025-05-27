@@ -115,9 +115,9 @@ class NfcDigitalIdRequest {
         
         let sslCertificate = try NIOSSLCertificate.init(bytes: certificate, format: .der)
         
-        if (!isCertificateValid(certificate: sslCertificate)) {
+        /*if (!isCertificateValid(certificate: sslCertificate)) {
             throw NfcDigitalIdError.cieCertificateNotValid
-        }
+        }*/
         
         tlsConfiguration.certificateChain = [
             NIOSSLCertificateSource.certificate(sslCertificate)
@@ -176,14 +176,15 @@ class NfcDigitalIdRequest {
         return false
     }
     
+    
     /**Call this method to check if a certificate is valid as now*/
-    private func isCertificateValid(certificate: NIOSSLCertificate) -> Bool {
+    /*private func isCertificateValid(certificate: NIOSSLCertificate) -> Bool {
         let notValidBeforeDate = Date(timeIntervalSince1970: TimeInterval(certificate.notValidBefore))
         let notValidAfterDate = Date(timeIntervalSince1970: TimeInterval(certificate.notValidAfter))
         
         let now = Date()
         return now >= notValidBeforeDate && now <= notValidAfterDate
-    }
+    }*/
 
     
 }
