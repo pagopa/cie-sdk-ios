@@ -184,14 +184,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    if let nfcDigitalIdError = error as? NfcDigitalIdError {
-                        self.infoLabel.text = nfcDigitalIdError.description
-                    }
-                    else {
-                        self.infoLabel.text = error.localizedDescription
-                    }
-                    
-                    self.presentLogs()
+                    self.handleError(error)
                 }
             }
         }
@@ -236,19 +229,36 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    self.progress.progress = 0.0
-                    
-                    if let nfcDigitalIdError = error as? NfcDigitalIdError {
-                        self.infoLabel.text = nfcDigitalIdError.description
-                    }
-                    else {
-                        self.infoLabel.text = error.localizedDescription
-                    }
-                    
-                    self.presentLogs()
+                    self.handleError(error)
                 }
             }
         }
+    }
+    
+    private func handleError(_ error: any Error) {
+        self.progress.progress = 0.0
+        
+        if let nfcDigitalIdError = error as? NfcDigitalIdError {
+            if case .nfcError(let nfcReaderError) = nfcDigitalIdError {
+                switch nfcReaderError.code {
+                    case .readerTransceiveErrorTagConnectionLost,
+                            .readerTransceiveErrorTagResponseError:
+                        self.infoLabel.text = "Hai rimosso la carta troppo presto"
+                    case .readerSessionInvalidationErrorUserCanceled:
+                        self.infoLabel.text = "Annullato dall'utente"
+                    default:
+                        self.infoLabel.text = "Lettura carta non riuscita"
+                }
+            }
+            else {
+                self.infoLabel.text = nfcDigitalIdError.description
+            }
+        }
+        else {
+            self.infoLabel.text = error.localizedDescription
+        }
+        
+        self.presentLogs()
     }
     
     @objc func presentLogs() {

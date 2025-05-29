@@ -6,6 +6,7 @@
 //
 
 import CommonCrypto
+import CoreNFC
 
 public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
     case missingAuthenticationUrl
@@ -29,6 +30,10 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
     case genericError
     case wrongPin(Int)
     case cardBlocked
+    
+    case nfcError(NFCReaderError)
+    //case cieCertificateNotValid
+    case certificateNotValid
     
     public var description: String {
         switch self {
@@ -74,8 +79,12 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
                 return "Card blocked"
             case .genericError:
                 return "Generic error"
+            case .nfcError(let nfcError):
+                return nfcError.localizedDescription
+//          case .cieCertificateNotValid:
+//              return "Cie certificate not valid"
+            case .certificateNotValid:
+                return "Certificate not valid"
         }
     }
 }
-
-
