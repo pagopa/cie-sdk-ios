@@ -25,13 +25,14 @@ Pod::Spec.new do |s|
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'PagoPA S.p.A.' => 'ioapptech@pagopa.it' }
+  s.source           = { :git => 'https://git@github.com/pagopa/cie-sdk-ios.git', tag: s.version }
  
-  s.source                  = { :http => "https://github.com/pagopa/cie-sdk-ios/releases/download/" + s.version.to_s + "/CieSDK-" + s.version.to_s + ".xcframework.zip" }
-  s.ios.vendored_frameworks = "CieSDK.xcframework"
-
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '13.0'
 
+  s.prepare_command = './.build.sh'
+
+  s.ios.vendored_frameworks = ".archives/CieSDK.xcframework"
 
 end
