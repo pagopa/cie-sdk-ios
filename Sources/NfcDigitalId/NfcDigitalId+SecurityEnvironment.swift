@@ -84,17 +84,16 @@ extension NfcDigitalId {
         logger.logData(algorithm.description, name: "algorithm")
         logger.logData(keyId.description, name: "keyId")
         
-        return try await requireSecureMessaging {
-            
-            onEvent?(.SELECT_KEY)
-            
-            let request = Utils.join([
-                Utils.wrapDO(b: 0x84, arr: [keyId.rawValue]),
-                Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue])
-            ])
-            
-            return try await manageInternalSecurityEnvironment(crt: .authentication, data: request)
-        }
+        
+        onEvent?(.SELECT_KEY)
+        
+        let request = Utils.join([
+            Utils.wrapDO(b: 0x84, arr: [keyId.rawValue]),
+            Utils.wrapDO(b: 0x80, arr: [algorithm.rawValue])
+        ])
+        
+        return try await manageInternalSecurityEnvironment(crt: .authentication, data: request)
+        
     }
     
     func selectKeyAndSign(algorithm: SecurityEnvironmentAlgorithm, keyId: SecurityEnvironmentKeyId, data: [UInt8]) async throws -> [UInt8] {
@@ -106,14 +105,13 @@ extension NfcDigitalId {
         logger.logDelimiter(#function)
         logger.logData(data, name: "data")
         
-        return try await requireSecureMessaging {
-            onEvent?(.SIGN)
-            
-            return try await tag.sendApdu(
-                APDURequest(instruction: .SIGN,
-                            data: data)
-            ).data
-            
-        }
+        onEvent?(.SIGN)
+        
+        return try await tag.sendApdu(
+            APDURequest(instruction: .SIGN,
+                        data: data)
+        ).data
+        
+        
     }
 }

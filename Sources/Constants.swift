@@ -60,6 +60,10 @@ enum FileId : String {
     
     case empty           = ""
     
+    
+    case chipInternalPublicKey = "1005" //DF_CIE\EF.Servizi_Int.Kpub
+    case chipSOD = "1006" //DF_CIE\EF.SOD
+    
     var bytes: [UInt8] {
         guard let data = [UInt8](hex: self.rawValue) else {
             return []
@@ -121,6 +125,8 @@ enum SecurityEnvironmentKeyId: UInt8 {
     case sign           = 0x81 /**PrK ref = 81h (local PrK 1)**/
     case internalAuth   = 0x82 /**PrK ref = 82h (local PrK 2)**/
     case externalAuth   = 0x84 /**PrK ref = 84h (local PrK 4)**/
+    
+    case internalChallenge = 0x83
     
     var description: String {
         return "\(self) (\([self.rawValue].hexEncodedString))"
