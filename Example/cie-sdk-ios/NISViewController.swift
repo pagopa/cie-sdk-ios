@@ -18,6 +18,7 @@ class NISViewController: UIViewController {
     var challengeTextView: UITextView!
     var actionButton: UIButton!
     var showLogsButton: UIButton!
+    var shareInfoButton: UIButton!
     
     
     var progress: UIProgressView!
@@ -79,6 +80,12 @@ class NISViewController: UIViewController {
         showLogsButton.addTarget(self, action: #selector(presentLogs), for: .touchUpInside)
         view.addSubview(showLogsButton)
         
+        shareInfoButton = UIButton(type: .system)
+        shareInfoButton.setTitle("SHARE INFO", for: .normal)
+        shareInfoButton.translatesAutoresizingMaskIntoConstraints = false
+        shareInfoButton.addTarget(self, action: #selector(shareOutputFile), for: .touchUpInside)
+        view.addSubview(shareInfoButton)
+        
         progress = UIProgressView()
         progress.backgroundColor = .red
         progress.tintColor = .blue
@@ -114,11 +121,16 @@ class NISViewController: UIViewController {
             actionButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
             
+            
             showLogsButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
             showLogsButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
          
+            shareInfoButton.topAnchor.constraint(equalTo: showLogsButton.bottomAnchor, constant: 10),
+            shareInfoButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            infoLabel.topAnchor.constraint(equalTo: showLogsButton.bottomAnchor, constant: 20),
+            
+            
+            infoLabel.topAnchor.constraint(equalTo: shareInfoButton.bottomAnchor, constant: 20),
             infoLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
             infoLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             infoLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
@@ -159,13 +171,15 @@ class NISViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.infoLabel.text = """
-                        NIS: \(Data(response.nis).base64EncodedString())
+                        NIS: \(response.nis.hexEncodedString)
                         
-                        PUBLIC KEY: \(Data(response.publicKey).base64EncodedString())
+                        PUBLIC KEY: \(response.publicKey.hexEncodedString)
                         
-                        SOD: \(Data(response.sod).base64EncodedString())
+                        SOD: \(response.sod.hexEncodedString)
                         
-                        SIGNED CHALLENGE: \(Data(response.signedChallenge).base64EncodedString())
+                        CHALLENGE: \(challengeBytes.hexEncodedString)
+                        
+                        SIGNED CHALLENGE: \(response.signedChallenge.hexEncodedString)
                         """
                 }
                 
@@ -201,6 +215,51 @@ class NISViewController: UIViewController {
         }
         
         self.presentLogs()
+    }
+    
+    @objc func shareOutputFile() {
+        do {
+            try shareOutput(self.infoLabel.text)
+        }
+        catch {
+            
+        }
+        
+    }
+    
+    func shareOutput(_ output: String) throws {
+        
+        let fileName = "\(Date().timeIntervalSince1970.description).txt"
+        
+        let fileUrl = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName)
+        
+        let data = output.data(using: String.Encoding.utf8)!
+      
+        if FileManager.default.fileExists(atPath: fileUrl.path) {
+            if let fileHandle = FileHandle(forWritingAtPath: fileUrl.path) {
+                defer {
+                    fileHandle.closeFile()
+                }
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(data)
+            }
+        } else {
+            try data.write(to: fileUrl, options: .atomic)
+        }
+        
+        
+            
+            var filesToShare = [Any]()
+            
+            // Add the path of the file to the Array
+            filesToShare.append(fileUrl)
+            
+            // Make the activityViewContoller which shows the share-view
+            let activityViewController = UIActivityViewController(activityItems: filesToShare, applicationActivities: nil)
+            
+            // Show the share-view
+            self.present(activityViewController, animated: true, completion: nil)
     }
     
     @objc func presentLogs() {
