@@ -75,26 +75,6 @@ extension NfcDigitalId {
         return try await selectApplication(applicationId: .cie)
     }
     
-    /**
-     * Select IAS, CIE and read serviceId file
-     *
-     * - Returns: serviceId as hex String
-     */
-    func getServiceId() async throws -> String {
-        logger.logDelimiter(#function)
-        
-        onEvent?(.GET_SERVICE_ID)
-        
-        
-        try await selectIAS()
-        try await selectCIE()
-        
-        try await selectFile(id: .service)
-        
-        let response = try await readBinary(offset: 0, le: [0x0c])
-        
-        return response.data.hexEncodedString
-    }
     
     /**
      * Send APDU to verify pin

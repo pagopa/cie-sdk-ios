@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		235C6CCC79154E2A4F9CAC42 /* Pods_cie_sdk_ios_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B46BDEFE5570059C4B302ECB /* Pods_cie_sdk_ios_Example.framework */; };
+		34D609CF2E6EC99900640678 /* NISViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D609CE2E6EC99100640678 /* NISViewController.swift */; };
 		3DA718332D885BE200EC35EF /* CIEType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA718322D885BE200EC35EF /* CIEType.swift */; };
 		3DA71B0E2D943EB200EC35EF /* StartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA71B0D2D943EAA00EC35EF /* StartViewController.swift */; };
 		3DCFB93C2D77409C001050C3 /* WebViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DCFB93B2D77409C001050C3 /* WebViewViewController.swift */; };
@@ -18,7 +19,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
-		EA9FEBA0EF557521C17FA4BF /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		EA9FEBA0EF557521C17FA4BF /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		06C451A7B8A2782B4935C827 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		34D609CE2E6EC99100640678 /* NISViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISViewController.swift; sourceTree = "<group>"; };
 		3DA718322D885BE200EC35EF /* CIEType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIEType.swift; sourceTree = "<group>"; };
 		3DA71B0D2D943EAA00EC35EF /* StartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewController.swift; sourceTree = "<group>"; };
 		3DCFB93B2D77409C001050C3 /* WebViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewViewController.swift; sourceTree = "<group>"; };
@@ -62,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA9FEBA0EF557521C17FA4BF /* BuildFile in Frameworks */,
+				EA9FEBA0EF557521C17FA4BF /* (null) in Frameworks */,
 				235C6CCC79154E2A4F9CAC42 /* Pods_cie_sdk_ios_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -103,6 +105,7 @@
 		607FACD21AFB9204008FA782 /* Example for cie-sdk-ios */ = {
 			isa = PBXGroup;
 			children = (
+				34D609CE2E6EC99100640678 /* NISViewController.swift */,
 				3DA71B0D2D943EAA00EC35EF /* StartViewController.swift */,
 				3DA718322D885BE200EC35EF /* CIEType.swift */,
 				3DCFB93B2D77409C001050C3 /* WebViewViewController.swift */,
@@ -226,6 +229,7 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = K88QA8W95A;
 						LastSwiftMigration = 0900;
 						ProvisioningStyle = Manual;
 					};
@@ -365,6 +369,7 @@
 				3DA71B0E2D943EB200EC35EF /* StartViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				3DCFB93C2D77409C001050C3 /* WebViewViewController.swift in Sources */,
+				34D609CF2E6EC99900640678 /* NISViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				3DA718332D885BE200EC35EF /* CIEType.swift in Sources */,
 			);

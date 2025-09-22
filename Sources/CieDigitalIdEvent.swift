@@ -33,4 +33,8 @@ public enum CieDigitalIdEvent {
     case SIGN
     case READ_CERTIFICATE
     case SELECT_ROOT
+    
+    case GET_CHIP_INTERNAL_PUBLIC_KEY
+    case GET_CHIP_SOD
+    case CHIP_INTERNAL_SIGN_CHALLENGE
 }

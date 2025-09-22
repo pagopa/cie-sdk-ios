@@ -124,6 +124,40 @@ public class CieDigitalId : @unchecked Sendable {
             
         }).perform()
     }
+    
+    /**
+     * Perform Internal Authentication
+     * This method is used to perform Internal Authentication to verify CIE
+     *
+     * - Parameters:
+     *   - challenge: Bytes to sign using CIE in order to do internal authentication
+     *   - onEvent: Callback that notifies when events occur during the reading process. (Can be null)
+     *
+     * - Returns: InternalAuthenticationResponse (NIS, PUBLICKEY, SOD, SIGNED CHALLENGE)
+     */
+    public func performInternalAuthentication(challenge: [UInt8], _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> InternalAuthenticationResponse {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performInternalAuthentication", prominent: true)
+            }
+            
+            self.logger.logDelimiter("begin nfcDigitalId.performInternalAuthentication", prominent: true)
+            
+            let nis = try await nfcDigitalId.getNIS()
+            
+            let publicKey = try await nfcDigitalId.getChipInternalPublicKey()
+            
+            let sod = try await nfcDigitalId.getChipSOD()
+            
+            let signedChallenge = try await nfcDigitalId.signInternalChallenge(challenge: challenge)
+            
+            return InternalAuthenticationResponse(nis: nis, publicKey: publicKey, sod: sod, signedChallenge: signedChallenge)
+            
+        }).perform()
+    }
+    
 }
 
 internal protocol CieDigitalIdAlertMessage {
