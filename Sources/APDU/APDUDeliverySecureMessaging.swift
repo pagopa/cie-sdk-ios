@@ -13,6 +13,8 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
     internal var signatureKey: [UInt8]
     internal var sequence: [UInt8]
     
+    internal var cipher: PACE_CipherAlgorithms = .DESede
+    
     override var packetSize: Int  {
         /**IAS ECC v1_0_1UK.pdf 8.6.3.3 READ BINARY with Secure messaging**/
         //packetSize is limited to ‘E7’ = 231 bytes (included), so that the data protected in integrity & confidentiality with the secure messaging does not exceed 256 bytes.
@@ -23,10 +25,11 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         return true
     }
     
-    init(tag: NFCISO7816Tag, cryptoKey: [UInt8], signatureKey: [UInt8], sequence: [UInt8]) {
+    init(tag: NFCISO7816Tag, cryptoKey: [UInt8], signatureKey: [UInt8], sequence: [UInt8], cipher: PACE_CipherAlgorithms = .DESede) {
         self.cryptoKey = cryptoKey
         self.signatureKey = signatureKey
         self.sequence = sequence
+        self.cipher = cipher
         super.init(tag: tag)
     }
     
@@ -42,7 +45,15 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         
         incSeq()
         
-        return try apdu.encrypt(
+        if cipher == .AES {
+            return try apdu.encryptAES(
+                sequence: [UInt8](repeating: 0, count: 8) + sequence,
+                signatureKey: signatureKey,
+                cryptoKey: cryptoKey,
+                iv: iv)
+        }
+        
+        return try apdu.encryptDES(
             sequence: sequence,
             signatureKey: signatureKey,
             cryptoKey: cryptoKey,
@@ -55,7 +66,15 @@ class APDUDeliverySecureMessaging : APDUDeliveryClear {
         
         self.incSeq()
         
-        return try response.decrypt(
+        if cipher == .AES {
+            return try response.decryptAES(
+                sequence: [UInt8](repeating: 0, count: 8) + sequence,
+                signatureKey: signatureKey,
+                cryptoKey: cryptoKey,
+                iv: iv)
+        }
+        
+        return try response.decryptDES(
             sequence: sequence,
             signatureKey: signatureKey,
             cryptoKey: cryptoKey,

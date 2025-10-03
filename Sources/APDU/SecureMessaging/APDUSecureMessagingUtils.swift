@@ -12,7 +12,13 @@ class APDUSecureMessagingUtils {
     //For D.O. ‘87’, the padding indicator shall be equal to ‘01’. If not, the card returns ‘6988’ and the secure session is closed.
     static let evenCryptogramPADDING: UInt8 = 0x01
     
-    static func computeChecksum(signatureKey: [UInt8], data: [UInt8]) throws -> [UInt8] {
+    static func computeChecksumDES(signatureKey: [UInt8], data: [UInt8]) throws -> [UInt8] {
         return try Utils.desMAC(key: signatureKey, msg: Utils.pad(data, blockSize: 8))
+    }
+    
+    static func computeChecksumAES(signatureKey: [UInt8], data: [UInt8]) throws -> [UInt8] {
+        let checksum = try Utils.aesMAC(key: signatureKey, msg: data)
+        
+        return [UInt8](checksum[0..<8])
     }
 }

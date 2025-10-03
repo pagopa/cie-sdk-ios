@@ -109,7 +109,7 @@ extension NfcDigitalId {
         return try await function()
     }
 
-    private var readBinaryPacketSize: UInt8 {
+    internal var readBinaryPacketSize: UInt8 {
         if tag.isSecureMessaging {
             return 0x80
         }

@@ -9,6 +9,8 @@ import CryptoKit
 import CryptoTokenKit
 import CommonCrypto
 
+internal import CNIOBoringSSL
+
 class Utils {
     
     static func join(_ arrays: [[UInt8]]) -> [UInt8] {
@@ -48,6 +50,15 @@ class Utils {
         var sha256 = SHA256()
         sha256.update(data: data)
         let hash = sha256.finalize()
+        
+        return Array(hash)
+    }
+    
+    @available(iOS 13, macOS 10.15, *)
+    static func calcSHA1Hash( _ data: [UInt8] ) -> [UInt8] {
+        var sha1 = Insecure.SHA1()
+        sha1.update(data: data)
+        let hash = sha1.finalize()
         
         return Array(hash)
     }
@@ -97,6 +108,47 @@ class Utils {
         let b = try DES.decrypt(key: [UInt8](key[8..<16]), message: y, iv: iv, options:UInt32(kCCOptionECBMode))
         let a = try DES.encrypt(key: [UInt8](key[0..<8]), message: b, iv: iv, options:UInt32(kCCOptionECBMode))
         return a
+    }
+    
+    @available(iOS 13, macOS 10.15, *)
+    static func aesMAC( key: [UInt8], msg : [UInt8] ) throws -> [UInt8] {
+        let ctx = CNIOBoringSSL_CMAC_CTX_new();
+        defer { CNIOBoringSSL_CMAC_CTX_free(ctx) }
+        var key = key
+        
+        var mac = [UInt8](repeating: 0, count: 32)
+        var maclen : Int = 0
+        
+        var success: Int32 = 0
+        
+        if key.count == 16 {
+            success = CNIOBoringSSL_CMAC_Init(ctx, &key, key.count, CNIOBoringSSL_EVP_aes_128_cbc(), nil)
+        } else if key.count == 24 {
+            success = CNIOBoringSSL_CMAC_Init(ctx, &key, key.count, CNIOBoringSSL_EVP_aes_192_cbc(), nil)
+        } else if key.count == 32 {
+            success = CNIOBoringSSL_CMAC_Init(ctx, &key, key.count, CNIOBoringSSL_EVP_aes_256_cbc(), nil)
+        }
+        
+        if (success == 0) {
+            let sslError = CNIOBoringSSL_ERR_get_error()
+            throw NfcDigitalIdError.sslError(sslError, "AES\(key.count * 8)")
+        }
+        
+        success = CNIOBoringSSL_CMAC_Update(ctx, msg, msg.count);
+        
+        if (success == 0) {
+            let sslError = CNIOBoringSSL_ERR_get_error()
+            throw NfcDigitalIdError.sslError(sslError, "AES\(key.count * 8)")
+        }
+        
+        success = CNIOBoringSSL_CMAC_Final(ctx, &mac, &maclen);
+        
+        if (success == 0) {
+            let sslError = CNIOBoringSSL_ERR_get_error()
+            throw NfcDigitalIdError.sslError(sslError, "AES\(key.count * 8)")
+        }
+        
+        return [UInt8](mac[0..<maclen])
     }
     
    

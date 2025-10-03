@@ -8,4 +8,6 @@
 
 enum APDUInstructionClass: UInt8 {
     case STANDARD = 0x00
+    
+    case CHAIN = 0x10
 }

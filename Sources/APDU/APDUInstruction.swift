@@ -18,6 +18,9 @@ enum APDUInstruction : UInt8 {
     case VERIFY_CERTIFICATE = 0x2A
     case VERIFY_PIN = 0x20
     
+    case GENERAL_AUTHENTICATE = 0x86
+    case READ_BINARY1 = 0xB1
+    
     func toAPDUHead(instructionClass: APDUInstructionClass = .STANDARD, p1: UInt8 = 0x00, p2: UInt8 = 0x00) -> APDUHead {
         return toAPDUHead(instructionClass: instructionClass.rawValue, p1: p1, p2: p2)
     }

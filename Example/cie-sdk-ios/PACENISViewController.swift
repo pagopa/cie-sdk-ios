@@ -1,54 +1,40 @@
 //
-//  ViewController.swift
+//  PACENISViewController.swift
 //  cie-sdk-ios
 //
-//  Created by acapadev on 01/28/2025.
-//  Copyright (c) 2025 PagoPA. All rights reserved.
+//  Created by antoniocaparello on 03/10/25.
+//  Copyright © 2025 CocoaPods. All rights reserved.
 //
 
 import UIKit
-
 import CieSDK
 
-@preconcurrency import WebKit
 
-class ViewController: UIViewController, WKNavigationDelegate {
-    
-    var level3Url = "https://app-backend.io.italia.it/login?entityID=xx_servizicie&authLevel=SpidL3"
-    var foundUrl: String? = nil
+class PACENISViewController: UIViewController {
     
     var titleLabel: UILabel!
-    var infoLabel: UILabel!
-    var pinTextField: UITextField!
+    var infoLabel: UITextView!
+    var challengeTextField: UITextField!
+    var challengeTextView: UITextView!
     var actionButton: UIButton!
-    var cieTypeButton: UIButton!
     var showLogsButton: UIButton!
+    var shareInfoButton: UIButton!
+    var canTextField: UITextField!
+    
     
     var progress: UIProgressView!
-    
-    var webView: WKWebView!
-    
-    let togglePinSecureEntry: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: "eye.fill"), for: .normal) // Initial icon for hidden password
-        button.addTarget(self, action: #selector(togglePinVisibility), for: .touchUpInside)
-        return button
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
-        setupWebView()
         
-        loadURL()
     }
     
     func setupUI() {
         
         titleLabel = UILabel()
-        titleLabel.text = "CieSDK NfcDigitalIdAuthentication Example"
+        titleLabel.text = "CieSDK PACE-NIS Example"
         titleLabel.font = .monospacedDigitSystemFont(ofSize: 18, weight: .bold)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.numberOfLines = 0
@@ -56,42 +42,56 @@ class ViewController: UIViewController, WKNavigationDelegate {
         titleLabel.textColor = .blue
         view.addSubview(titleLabel)
         
-        infoLabel = UILabel()
-        infoLabel.text = "Waiting for '' in URL..."
+        
+        infoLabel = UITextView()
+        infoLabel.text = "Idle"
         infoLabel.translatesAutoresizingMaskIntoConstraints = false
-        infoLabel.numberOfLines = 0
         infoLabel.textColor = .lightGray
+        
         view.addSubview(infoLabel)
         
+        challengeTextField = UITextField()
+        challengeTextField.borderStyle = .roundedRect
+        challengeTextField.translatesAutoresizingMaskIntoConstraints = false
+        challengeTextField.text = ""
+        
+        view.addSubview(challengeTextField)
+        
+        challengeTextView = UITextView()
+        challengeTextView.backgroundColor = .clear
+        challengeTextView.translatesAutoresizingMaskIntoConstraints = false
+        challengeTextView.text = ""
         
         
-        pinTextField = UITextField()
-        pinTextField.placeholder = "PIN"
-        pinTextField.borderStyle = .roundedRect
-        pinTextField.translatesAutoresizingMaskIntoConstraints = false
-        pinTextField.isSecureTextEntry = true
-        pinTextField.text = ""
+        view.addSubview(challengeTextView)
         
-        view.addSubview(pinTextField)
-        view.addSubview(togglePinSecureEntry)
+        
+        canTextField = UITextField()
+        canTextField.borderStyle = .roundedRect
+        canTextField.translatesAutoresizingMaskIntoConstraints = false
+        canTextField.text = ""
+        
+        view.addSubview(canTextField)
+        
         
         actionButton = UIButton(type: .system)
-        actionButton.setTitle("AUTHENTICATE", for: .normal)
+        actionButton.setTitle("PACE+NIS", for: .normal)
         actionButton.translatesAutoresizingMaskIntoConstraints = false
-        actionButton.addTarget(self, action: #selector(doAuthentication), for: .touchUpInside)
+        actionButton.addTarget(self, action: #selector(doPACENIS), for: .touchUpInside)
         view.addSubview(actionButton)
         
-        cieTypeButton = UIButton(type: .system)
-        cieTypeButton.setTitle("GET CIE TYPE", for: .normal)
-        cieTypeButton.translatesAutoresizingMaskIntoConstraints = false
-        cieTypeButton.addTarget(self, action: #selector(getCIEType), for: .touchUpInside)
-        view.addSubview(cieTypeButton)
         
         showLogsButton = UIButton(type: .system)
         showLogsButton.setTitle("SHOW LOGS", for: .normal)
         showLogsButton.translatesAutoresizingMaskIntoConstraints = false
         showLogsButton.addTarget(self, action: #selector(presentLogs), for: .touchUpInside)
         view.addSubview(showLogsButton)
+        
+        shareInfoButton = UIButton(type: .system)
+        shareInfoButton.setTitle("SHARE INFO", for: .normal)
+        shareInfoButton.translatesAutoresizingMaskIntoConstraints = false
+        shareInfoButton.addTarget(self, action: #selector(shareOutputFile), for: .touchUpInside)
+        view.addSubview(shareInfoButton)
         
         progress = UIProgressView()
         progress.backgroundColor = .red
@@ -105,110 +105,77 @@ class ViewController: UIViewController, WKNavigationDelegate {
             titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             
-            pinTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            pinTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            pinTextField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            canTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
+            canTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            canTextField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             
-            progress.topAnchor.constraint(equalTo: pinTextField.bottomAnchor, constant: 4),
+            
+            challengeTextField.topAnchor.constraint(equalTo: canTextField.bottomAnchor, constant: 10),
+            challengeTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            challengeTextField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            challengeTextField.heightAnchor.constraint(equalToConstant: 100),
+            
+            
+            challengeTextView.topAnchor.constraint(equalTo: challengeTextField.topAnchor),
+            challengeTextView.bottomAnchor.constraint(equalTo: challengeTextField.bottomAnchor),
+            challengeTextView.leftAnchor.constraint(equalTo: challengeTextField.leftAnchor),
+            challengeTextView.rightAnchor.constraint(equalTo: challengeTextField.rightAnchor),
+            
+            progress.topAnchor.constraint(equalTo: challengeTextField.bottomAnchor, constant: 4),
             progress.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             progress.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             progress.heightAnchor.constraint(equalToConstant: 5),
             
+            
+            
             actionButton.topAnchor.constraint(equalTo: progress.bottomAnchor, constant: 10),
             actionButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            cieTypeButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
-            cieTypeButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            showLogsButton.topAnchor.constraint(equalTo: cieTypeButton.bottomAnchor, constant: 10),
+            
+            showLogsButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
             showLogsButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+         
+            shareInfoButton.topAnchor.constraint(equalTo: showLogsButton.bottomAnchor, constant: 10),
+            shareInfoButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            infoLabel.topAnchor.constraint(equalTo: showLogsButton.bottomAnchor, constant: 20),
+            
+            
+            infoLabel.topAnchor.constraint(equalTo: shareInfoButton.bottomAnchor, constant: 20),
             infoLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
             infoLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            infoLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
             
-            togglePinSecureEntry.centerYAnchor.constraint(equalTo: pinTextField.centerYAnchor),
-            togglePinSecureEntry.trailingAnchor.constraint(equalTo: pinTextField.trailingAnchor, constant: -8),
-            togglePinSecureEntry.widthAnchor.constraint(equalToConstant: 24),
-            togglePinSecureEntry.heightAnchor.constraint(equalToConstant: 24)
             
         ])
     }
+
     
-    func setupWebView() {
-        let webConfiguration = WKWebViewConfiguration()
-        webView = WKWebView(frame: .zero, configuration: webConfiguration)
-        webView.isHidden = true // Keep the web view hidden
-        webView.navigationDelegate = self
-        view.addSubview(webView)
-    }
-    
-    @objc func loadURL() {
-        guard let url = URL(string: level3Url) else {
-            infoLabel.text = "Invalid URL"
+    @objc func doPACENIS() {
+        
+        challengeTextView.endEditing(true)
+        
+        guard let challenge = challengeTextView.text,
+              !challenge.isEmpty else {
+            infoLabel.text = "Empy challenge"
             return
         }
         
-        let request = URLRequest(url: url)
-        webView.load(request)
-        infoLabel.text = "Loading..."
-    }
-    
-    @objc func togglePinVisibility() {
-        pinTextField.isSecureTextEntry.toggle()
-        
-        togglePinSecureEntry.setImage(UIImage(systemName: pinTextField.isSecureTextEntry ? "eye.fill" : "eye.slash.fill"), for: .normal)
-    }
-    
-    @objc func getCIEType() {
-        Task {
-            do {
-                let digitalId = CieDigitalId(.localFile)
-                let atr = try await digitalId.performReadAtr()  {
-                    event, progress in
-                    print(event)
-                    print(progress)
-                    
-                    digitalId.alertMessage = "\(event)"
-                    
-                    DispatchQueue.main.async {
-                        self.progress.progress = progress
-                    }
-                }
-                
-                let cieType = CIEType.fromATR(atr)
-                
-                DispatchQueue.main.async {
-                    self.progress.progress = 0.0
-                    self.infoLabel.text = "\(cieType)\n\(atr.hexEncodedString)"
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.handleError(error)
-                }
-            }
-        }
-    }
-    
-    
-    @objc func doAuthentication() {
-        guard let pin = pinTextField.text else {
-            infoLabel.text = "Invalid PIN"
+        guard let can = canTextField.text,
+              !can.isEmpty else {
+            infoLabel.text = "Empy challenge"
             return
         }
         
-        guard let foundUrl = foundUrl,
-              !foundUrl.isEmpty else {
-            infoLabel.text = "URL not found"
-            return
-        }
+        let challengeBytes = Array(challenge.utf8)
         
         Task {
             do {
                 let digitalId = CieDigitalId(.localFile)
                 
-                let authenticatedUrl = try await digitalId.performAuthentication(forUrl: foundUrl, withPin: pin) {
+                let (emrtd, nis) = try await digitalId.performMRTDAndInternalAuthentication(challenge: challengeBytes, can: can) {
                     event, progress in
+                    
                     print(event)
                     print(progress)
                     
@@ -220,14 +187,25 @@ class ViewController: UIViewController, WKNavigationDelegate {
                 }
                 
                 DispatchQueue.main.async {
-                    self.progress.progress = 0.0
-                    self.infoLabel.text = authenticatedUrl
-                    
-                    let navigateView = WebViewViewController()
-                    navigateView.urlToOpen = authenticatedUrl
-                    
-                    self.present(navigateView, animated: true)
+                    self.infoLabel.text = """
+                        NIS: \(nis.nis.hexEncodedString)
+                        
+                        PUBLIC KEY: \(nis.publicKey.hexEncodedString)
+                        
+                        SOD: \(nis.sod.hexEncodedString)
+                        
+                        CHALLENGE: \(challengeBytes.hexEncodedString)
+                        
+                        SIGNED CHALLENGE: \(nis.signedChallenge.hexEncodedString)
+                        
+                        DG1: \(emrtd.dg1.hexEncodedString)
+                                                
+                        DG11: \(emrtd.dg11.hexEncodedString)
+                                                
+                        SOD: \(emrtd.sod.hexEncodedString)
+                        """
                 }
+                
             } catch {
                 DispatchQueue.main.async {
                     self.handleError(error)
@@ -260,6 +238,51 @@ class ViewController: UIViewController, WKNavigationDelegate {
         }
         
         self.presentLogs()
+    }
+    
+    @objc func shareOutputFile() {
+        do {
+            try shareOutput(self.infoLabel.text)
+        }
+        catch {
+            
+        }
+        
+    }
+    
+    func shareOutput(_ output: String) throws {
+        
+        let fileName = "\(Date().timeIntervalSince1970.description).txt"
+        
+        let fileUrl = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName)
+        
+        let data = output.data(using: String.Encoding.utf8)!
+      
+        if FileManager.default.fileExists(atPath: fileUrl.path) {
+            if let fileHandle = FileHandle(forWritingAtPath: fileUrl.path) {
+                defer {
+                    fileHandle.closeFile()
+                }
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(data)
+            }
+        } else {
+            try data.write(to: fileUrl, options: .atomic)
+        }
+        
+        
+            
+            var filesToShare = [Any]()
+            
+            // Add the path of the file to the Array
+            filesToShare.append(fileUrl)
+            
+            // Make the activityViewContoller which shows the share-view
+            let activityViewController = UIActivityViewController(activityItems: filesToShare, applicationActivities: nil)
+            
+            // Show the share-view
+            self.present(activityViewController, animated: true, completion: nil)
     }
     
     @objc func presentLogs() {
@@ -307,23 +330,4 @@ class ViewController: UIViewController, WKNavigationDelegate {
         }
     }
     
-    func webView(_ webView: WKWebView, decidePolicyFor
-                 navigationAction: WKNavigationAction,
-                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        
-        if foundUrl != nil {
-            decisionHandler(.cancel)
-            return
-        }
-        
-        if let url = webView.url?.absoluteString, url.contains("authnRequestString") {
-            infoLabel.text = "Found 'authnRequestString'!\n\(url)"
-            self.foundUrl = url
-        }
-        
-        decisionHandler(.allow)
-    }
 }
-
-
-

@@ -126,6 +126,65 @@ public class CieDigitalId : @unchecked Sendable {
     }
     
     /**
+     * Perform PACE authentication
+     * This method is used to perform PACE authentication and reading of DG1, DG11, SOD
+     *
+     * - Parameters:
+     *   - can: Card Access Number (6 numbers found in the bottom right corner of CIE)
+     *   - onEvent: Callback that notifies when events occur during the reading process. (Can be null)
+     *
+     * - Returns: eMRTDResponse (DG1, DG11, SOD [eMRTD])
+     */
+    public func performMtrd(can: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> eMRTDResponse {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performMtrd", prominent: true)
+            }
+            
+            self.logger.logDelimiter("begin nfcDigitalId.performMtrd", prominent: true)
+        
+            
+            self.logger.logDelimiter("Starting Password Authenticated Connection Establishment (PACE)")
+            
+           
+            try? await nfcDigitalId.selectStandardFile(id: .empty)
+            
+            try await nfcDigitalId.selectRoot()
+            
+            nfcDigitalId.tag = try await nfcDigitalId.performPACE(can: can)
+            
+            let _ = try await nfcDigitalId.selectApplication(applicationId: .emrtd)
+            
+            //try? await nfcDigitalId.performReadCardData(.COM)
+            let dg1 = try await nfcDigitalId.performReadCardData(.DG1)
+            //try? await nfcDigitalId.performReadCardData(.DG2)
+//            try? await nfcDigitalId.performReadCardData(.DG3)
+//            try? await nfcDigitalId.performReadCardData(.DG4)
+//            try? await nfcDigitalId.performReadCardData(.DG5)
+//            try? await nfcDigitalId.performReadCardData(.DG6)
+//            try? await nfcDigitalId.performReadCardData(.DG7)
+//            try? await nfcDigitalId.performReadCardData(.DG8)
+//            try? await nfcDigitalId.performReadCardData(.DG9)
+//            try? await nfcDigitalId.performReadCardData(.DG10)
+            let dg11 = try await nfcDigitalId.performReadCardData(.DG11)
+//            try? await nfcDigitalId.performReadCardData(.DG12)
+//            try? await nfcDigitalId.performReadCardData(.DG13)
+//            try? await nfcDigitalId.performReadCardData(.DG14)
+//            try? await nfcDigitalId.performReadCardData(.DG15)
+//            try? await nfcDigitalId.performReadCardData(.DG16)
+//            
+            let sod = try await nfcDigitalId.performReadCardData(.SOD)
+                
+            
+            return eMRTDResponse(dg1: dg1, dg11: dg11, sod: sod)
+            }).perform()
+        }
+    
+
+
+    /**
      * Perform Internal Authentication
      * This method is used to perform Internal Authentication to verify CIE
      *
@@ -154,6 +213,82 @@ public class CieDigitalId : @unchecked Sendable {
             let signedChallenge = try await nfcDigitalId.signInternalChallenge(challenge: challenge)
             
             return InternalAuthenticationResponse(nis: nis, publicKey: publicKey, sod: sod, signedChallenge: signedChallenge)
+            
+        }).perform()
+    }
+    
+    /**
+     * Perform Internal Authentication and PACE
+     * This method is used to perform Internal Authentication to verify CIE and PACE to Read eMRTD values
+     *
+     * - Parameters:
+     *   - challenge: Bytes to sign using CIE in order to do internal authentication
+     *   - onEvent: Callback that notifies when events occur during the reading process. (Can be null)
+     *
+     * - Returns: eMRTDResponse (DG1, DG11, SOD [eMRTD]) and InternalAuthenticationResponse (NIS, PUBLICKEY, SOD [CIE], SIGNED CHALLENGE)
+     */
+    public func performMRTDAndInternalAuthentication(challenge: [UInt8], can: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> (eMRTDResponse, InternalAuthenticationResponse) {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performInternalAuthentication", prominent: true)
+            }
+            
+            self.logger.logDelimiter("begin nfcDigitalId.performInternalAuthentication", prominent: true)
+            
+            self.logger.logDelimiter("Starting Password Authenticated Connection Establishment (PACE)")
+            
+           
+            try? await nfcDigitalId.selectStandardFile(id: .empty)
+            
+            try await nfcDigitalId.selectRoot()
+            
+            nfcDigitalId.tag = try await nfcDigitalId.performPACE(can: can)
+            
+            let _ = try await nfcDigitalId.selectApplication(applicationId: .emrtd)
+            
+            //try? await nfcDigitalId.performReadCardData(.COM)
+            let dg1 = try await nfcDigitalId.performReadCardData(.DG1)
+            //try? await nfcDigitalId.performReadCardData(.DG2)
+//            try? await nfcDigitalId.performReadCardData(.DG3)
+//            try? await nfcDigitalId.performReadCardData(.DG4)
+//            try? await nfcDigitalId.performReadCardData(.DG5)
+//            try? await nfcDigitalId.performReadCardData(.DG6)
+//            try? await nfcDigitalId.performReadCardData(.DG7)
+//            try? await nfcDigitalId.performReadCardData(.DG8)
+//            try? await nfcDigitalId.performReadCardData(.DG9)
+//            try? await nfcDigitalId.performReadCardData(.DG10)
+            let dg11 = try await nfcDigitalId.performReadCardData(.DG11)
+//            try? await nfcDigitalId.performReadCardData(.DG12)
+//            try? await nfcDigitalId.performReadCardData(.DG13)
+//            try? await nfcDigitalId.performReadCardData(.DG14)
+//            try? await nfcDigitalId.performReadCardData(.DG15)
+//            try? await nfcDigitalId.performReadCardData(.DG16)
+//
+            let eMRTDSod = try await nfcDigitalId.performReadCardData(.SOD)
+                
+            
+            let emrtdResponse = eMRTDResponse(dg1: dg1, dg11: dg11, sod: eMRTDSod)
+          
+            nfcDigitalId.tag = APDUDeliveryClear(tag: nfcDigitalId.tag.tag)
+            
+            //reset secure messaging by selecting empty file
+            try? await nfcDigitalId.selectStandardFile(id: .empty)
+            
+            try await nfcDigitalId.selectRoot()
+            
+            let nis = try await nfcDigitalId.getNIS()
+            
+            let publicKey = try await nfcDigitalId.getChipInternalPublicKey()
+            
+            let cieSod = try await nfcDigitalId.getChipSOD()
+            
+            let signedChallenge = try await nfcDigitalId.signInternalChallenge(challenge: challenge)
+            
+            let internalAuthResponse = InternalAuthenticationResponse(nis: nis, publicKey: publicKey, sod: cieSod, signedChallenge: signedChallenge)
+            
+            return (emrtdResponse, internalAuthResponse)
             
         }).perform()
     }

@@ -10,11 +10,19 @@ internal import SwiftASN1
 class DERObject {
     let node: ASN1Node
     
+    init(node: ASN1Node) throws {
+        self.node = node
+    }
+    
     init(data: [UInt8]) throws {
         self.node = try DER.parse(data.removeTrailingZeros())
     }
     
     func getPrimitive(from node: ASN1Node) throws -> [UInt8] {
+        return try DERObject.getPrimitive(from: node)
+    }
+    
+    static func getPrimitive(from node: ASN1Node) throws -> [UInt8] {
         switch(node.content) {
             case .primitive(let value) :
                 return value.map({$0})

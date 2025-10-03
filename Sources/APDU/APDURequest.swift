@@ -36,24 +36,34 @@ le: \(le.hexEncodedString)
         
         let lc: [UInt8]
         
+        let _le: [UInt8]
+        
         if !data.isEmpty {
             if data.count < 0x100 {
                 //Lc short length.
                 lc = Utils.intToBin(data.count)
+                _le = le
             }
             else {
                 //Lc extended length.
                 //Lc field shall be encoded over three bytes : 00 XX YY
                 //This will never be used in code as we prefer command chaining as not all CIE support extended length.
-                lc = [0x00] + Utils.intToBin(data.count, pad: 4)
+                lc = [
+                    UInt8(data.count >> 16),
+                    UInt8((data.count >> 8) & 0xFF),
+                    UInt8(data.count & 0xFF)
+                ]
+                
+                _le = le
             }
         }
         else {
             //Data field not filled, Lc is not defined.
             lc = []
+            _le = le
         }
         
-        return head.raw + lc + data + le
+        return head.raw + lc + data + _le
     }
     
     init?(apdu: [UInt8]) {

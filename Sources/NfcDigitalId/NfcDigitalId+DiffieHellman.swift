@@ -126,8 +126,15 @@ extension NfcDigitalId {
         let sessMAC = Utils.calcSHA256Hash(Utils.join([secret, diffMAC]))[0..<16].map({$0})
         let sequence: [UInt8] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
         
+        let sessENC1 = try SecureMessagingHelpers.deriveKey(keySeed: secret, cipherAlgName: .DESede, digestAlgo: .SHA256, keyLength: 128, nonce: nil, mode: .ENC_MODE)
+        let sessMAC1 = try SecureMessagingHelpers.deriveKey(keySeed: secret, cipherAlgName: .DESede, digestAlgo: .SHA256, keyLength: 128, nonce: nil, mode: .MAC_MODE)
+        
         logger.logData(sessENC, name: "encryptionKey")
         logger.logData(sessMAC, name: "signatureKey")
+        
+        logger.logData(sessENC1, name: "encryptionKey1")
+        logger.logData(sessMAC1, name: "signatureKey1")
+        
         logger.logData(sequence, name: "sequence")
         
         return APDUDeliverySecureMessaging(tag: self.tag.tag, cryptoKey: sessENC, signatureKey: sessMAC, sequence: sequence)

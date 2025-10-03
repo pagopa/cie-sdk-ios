@@ -64,6 +64,12 @@ struct NfcDigitalIdLogger {
         log(errorMessage, error: true)
     }
     
+    func logWarning(_ message: String) {
+        let errorMessage = "🟡 [WARNING] \(message)"
+        
+        log(errorMessage, error: true)
+    }
+    
     fileprivate func logToFile(_ msg: String) {
         do {
             let data = msg.data(using: String.Encoding.utf8)!

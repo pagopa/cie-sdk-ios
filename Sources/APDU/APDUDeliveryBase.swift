@@ -32,6 +32,7 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
     }
     
     private func sendRawApdu(_ apdu: [UInt8]) async throws -> APDUResponse {
+        print("sendRawAPDU \(apdu.hexEncodedString)")
         guard let apdu = NFCISO7816APDU(data: Data(apdu)) else {
             throw NfcDigitalIdError.errorBuildingApdu
         }
@@ -47,6 +48,8 @@ class APDUDeliveryBase : APDUDeliveryProtocol {
     }
     
     func sendApdu(_ apdu: APDURequest) async throws -> APDUResponse {
+        print(apdu.description)
+        
         let response = try await sendApduUnchecked(apdu)
         
         try response.throwErrorIfNeeded()

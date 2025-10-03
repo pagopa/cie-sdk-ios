@@ -102,7 +102,9 @@ class NfcDigitalIdPrivateKey {
             throw NfcDigitalIdError.tlsUnsupportedAlgorithm
         }
         
-        return try await tag.selectKeyAndSign(algorithm: .clientServerRSAPKCS1, keyId: .sign, data: digestInfo)
+        return try await tag.requireSecureMessaging({
+            return try await tag.selectKeyAndSign(algorithm: .clientServerRSAPKCS1, keyId: .sign, data: digestInfo)
+        })
     }
     
     
