@@ -84,15 +84,12 @@ extension NfcDigitalId {
     /// - Parameters:
     ///   - nonce: The decrypted nonce received from the passport
     func computeEphemeralKeyPairGeneralMapping(nonce : [UInt8], paceInfo: PACEInfo) async throws -> BoringSSLEVP_PKEY {
-        //let agreementAlg = try paceInfo.getKeyAgreementAlgorithm() // Either DH or ECDH.
         
         let mappingKey = try paceInfo.createMappingKey()
         
         guard let pcdMappingEncodedPublicKey = mappingKey.getPublicKeyData() else {
             throw NfcDigitalIdError.paceError("Unable to get public key from mapping key")
         }
-        
-        print("PUBKEY: \(pcdMappingEncodedPublicKey.hexEncodedString)")
         
         let step2Data = Utils.wrapDO(b:0x81, arr:pcdMappingEncodedPublicKey)
         
@@ -167,26 +164,11 @@ extension NfcDigitalId {
         
         let keyLength = paceInfo.paceOid.keyLength // Get key length  the enc cipher. Either 128, 192, or 256.
         
-        print("ephemeral device key")
-        print(pcdKeyPair.getPrivateKeyData()?.hexEncodedString)
-        
-        print("ephemeral device key public")
-        print(pcdKeyPair.getPublicKeyData()?.hexEncodedString)
-        
-        print("cie public key")
-        print(ciePublicKey.getPublicKeyData()?.hexEncodedString)
-        
-        
         guard let sharedSecret = pcdKeyPair.computeSharedSecret(publicKey: ciePublicKey) else {
             throw NfcDigitalIdError.paceError("Unable to generate shared secret")
         }
         
-        print("shared secret")
-        print(sharedSecret.hexEncodedString)
-        
         let digestAlg = paceInfo.paceOid.digestAlgorithm // Either SHA-1 or SHA-256.
-        
-        //let sharedSecret = OpenSSLUtils.computeSharedSecret(privateKeyPair: pcdKeyPair, publicKey: ciePublicKey)
         
         let encKey = try SecureMessagingHelpers.deriveKey(keySeed: sharedSecret,
                                                  cipherAlgName: cipherAlg,
@@ -202,12 +184,6 @@ extension NfcDigitalId {
                                                  nonce: nil,
                                                  mode: .MAC_MODE)
  
-        print("ENC")
-        print(encKey.hexEncodedString)
-        print("MAC")
-        print(macKey.hexEncodedString)
-        
-        
         // Step 4 - generate authentication token
         
         guard let pcdAuthToken = try? generateAuthenticationToken(publicKey: ciePublicKey, macKey: macKey, oid: oid, cipherAlg: cipherAlg) else {
@@ -248,9 +224,6 @@ extension NfcDigitalId {
     func generateAuthenticationToken( publicKey: BoringSSLEVP_PKEY, macKey: [UInt8], oid: String, cipherAlg: PACE_CipherAlgorithms) throws -> [UInt8] {
         var encodedPublicKeyData = try encodePublicKey(oid:oid, key:publicKey)
         
-        print("PUBKEYENC")
-        print(encodedPublicKeyData.hexEncodedString)
-        
         let maccedPublicKeyDataObject: [UInt8]
         
         if cipherAlg == .DESede {
@@ -267,8 +240,6 @@ extension NfcDigitalId {
         // Take 8 bytes for auth token
         let authToken = [UInt8](maccedPublicKeyDataObject[0..<8])
         
-        print(authToken.hexEncodedString)
-        //Logger.pace.debug( "Generated authToken = \(binToHexRep(authToken, asArray: true))" )
         return authToken
     }
     

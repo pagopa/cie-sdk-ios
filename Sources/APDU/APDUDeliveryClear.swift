@@ -65,8 +65,6 @@ class APDUDeliveryClear : APDUDeliveryBase {
     //8.6.5 GET RESPONSE of IAS ECC Rev 1.0.1
     override func getResponse(_ response: APDUResponse) async throws -> APDUResponse {
         
-        print("getResponse \(response.description)")
-        
         var response: APDUResponse = response
         var result: [UInt8] = []
         
@@ -76,15 +74,12 @@ class APDUDeliveryClear : APDUDeliveryBase {
         
         //8.6.4 Command returning more than 256 bytes
         readingLoop: while(true) {
-            print(response.status)
             switch(response.status) {
                 case .bytesStillAvailable(let len):
                     
                     let getResponseRequest = APDURequest(instruction: .GET_RESPONSE, le: [UInt8(len)])
                
                     response = try await self.sendRawApdu(getResponseRequest)
-                    
-                    print("GET_RESPONSE\n\(response.description)")
                 
                     result.append(contentsOf: response.data)
                     

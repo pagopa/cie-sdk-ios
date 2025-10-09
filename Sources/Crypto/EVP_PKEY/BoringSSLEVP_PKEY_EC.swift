@@ -73,14 +73,12 @@ class BoringSSLEVP_PKEY_EC : BoringSSLEVP_PKEY {
         
         if CNIOBoringSSL_EVP_PKEY_derive_init(ctx) != 1 {
             // error
-            //Logger.openSSL.error( "ERROR - \(OpenSSLUtils.getOpenSSLError())" )
             return nil
         }
         
         // Set the public key
         if CNIOBoringSSL_EVP_PKEY_derive_set_peer( ctx, publicKey.ptr ) != 1 {
             // error
-            //Logger.openSSL.error( "ERROR - \(OpenSSLUtils.getOpenSSLError())" )
             return nil
         }
         
@@ -88,7 +86,6 @@ class BoringSSLEVP_PKEY_EC : BoringSSLEVP_PKEY {
         var keyLen = 0
         if CNIOBoringSSL_EVP_PKEY_derive(ctx, nil, &keyLen) != 1 {
             // Error
-            //Logger.openSSL.error( "ERROR - \(OpenSSLUtils.getOpenSSLError())" )
             return nil
         }
         
@@ -96,7 +93,6 @@ class BoringSSLEVP_PKEY_EC : BoringSSLEVP_PKEY {
         secret = [UInt8](repeating: 0, count: keyLen)
         if CNIOBoringSSL_EVP_PKEY_derive(ctx, &secret, &keyLen) != 1 {
             // Error
-            //Logger.openSSL.error( "ERROR - \(OpenSSLUtils.getOpenSSLError())" )
             return nil
         }
         
