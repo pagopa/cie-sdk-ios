@@ -157,13 +157,13 @@ class PACENISViewController: UIViewController {
         
         guard let challenge = challengeTextView.text,
               !challenge.isEmpty else {
-            infoLabel.text = "Empy challenge"
+            infoLabel.text = "Empty challenge"
             return
         }
         
         guard let can = canTextField.text,
               !can.isEmpty else {
-            infoLabel.text = "Empy challenge"
+            infoLabel.text = "Empty challenge"
             return
         }
         

@@ -141,10 +141,6 @@ class NfcDigitalId {
         
         self.logger.logDelimiter("Starting Password Authenticated Connection Establishment (PACE)")
         
-        try? await self.selectStandardFile(id: .empty)
-        
-        try await self.selectRoot()
-        
         self.tag = try await self.performPACE(can: can)
         
         let _ = try await self.selectApplication(applicationId: .emrtd)
@@ -160,13 +156,9 @@ class NfcDigitalId {
     -> (eMRTDResponse, InternalAuthenticationResponse)
     {
         eventsNumber = 0
-        totalEvents = 33
+        totalEvents = 31
         
         self.logger.logDelimiter("Starting Password Authenticated Connection Establishment (PACE)")
-        
-        try? await self.selectStandardFile(id: .empty)
-        
-        try await self.selectRoot()
         
         self.tag = try await self.performPACE(can: can)
         

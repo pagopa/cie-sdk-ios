@@ -86,6 +86,19 @@ class APDUDeliveryClear : APDUDeliveryBase {
                     if (len != 0) {
                         return response.copyWith(data: result)
                     }
+                
+                case .lessThanLeBytesAvailable(let len):
+                    
+                    let getResponseRequest = APDURequest(instruction: .GET_RESPONSE, le: [UInt8(len)])
+                
+                    response = try await self.sendRawApdu(getResponseRequest)
+                
+                    result.append(contentsOf: response.data)
+                    if (len != 0) {
+                        return response.copyWith(data: result)
+                    }
+                
+                
                 case .wrongParametersP1P2:
                     break readingLoop
                 case .endOfFileRecordReachedBeforeReadingLeBytes:

@@ -278,13 +278,51 @@ extension NfcDigitalId {
 extension NfcDigitalId {
     
     func readCardAccess() async throws -> CardAccessDER {
-        try await selectRoot()
-        //00 0c
-        try await select(.file, .application, id: .cardAccess)
+        
+        try await selectCardAccess()
         
         let cardAccessRaw =  try await readBinary(readBinaryPacketSize)
         
+        logger.logData(cardAccessRaw.hexEncodedString, name: "cardAccess")
+        
         return try CardAccessDER(data: cardAccessRaw)
+    }
+    
+    func selectCardAccess() async throws -> APDUResponse {
+        if let response = try? await select(.file, .application, id: .cardAccess) {
+            logger.log("select cardAccess")
+            return response
+        }
+        
+        if let _ = try? await self.selectStandardFile(id: .empty) {
+            if let response = try? await select(.file, .application, id: .cardAccess) {
+                logger.log("selectStandardEmptyFile and select cardAccess")
+                return response
+            }
+        }
+        
+        if let _ = try? await select(.standard, .application, id: .empty) {
+            if let response = try? await select(.file, .application, id: .cardAccess) {
+                logger.log("selectApplicationEmptyFile and select cardAccess")
+                return response
+            }
+        }
+        
+        if let _ = try? await selectRoot() {
+            if let response = try? await select(.file, .application, id: .cardAccess) {
+                logger.log("selectStandardRoot and select cardAccess")
+                return response
+            }
+        }
+        
+        if let _ = try? await selectApplicationRoot() {
+            if let response = try? await select(.file, .application, id: .cardAccess) {
+                logger.log("selectApplicationRoot and select cardAccess")
+                return response
+            }
+        }
+        
+        throw NfcDigitalIdError.responseError(.fileNotFound)
     }
     
     
@@ -302,10 +340,12 @@ extension NfcDigitalId {
         logger.logData("\(isLast)", name: "last")
         logger.logData(request, name: "request")
         
-        let generalAuthAPDU = NFCISO7816APDU(instructionClass: isLast ? APDUInstructionClass.STANDARD.rawValue : APDUInstructionClass.CHAIN.rawValue, instructionCode: APDUInstruction.GENERAL_AUTHENTICATE.rawValue, p1Parameter: 0, p2Parameter: 0, data: Data(request), expectedResponseLength: 256)
+        let generalAuthAPDU = NFCISO7816APDU(instructionClass: isLast ? APDUInstructionClass.STANDARD.rawValue : APDUInstructionClass.CHAIN.rawValue, instructionCode: APDUInstruction.GENERAL_AUTHENTICATE.rawValue, p1Parameter: 0, p2Parameter: 0, data: Data(request), expectedResponseLength: 65536)
         
         
         let response = try await tag.getResponse(try await tag.sendRawApdu(generalAuthAPDU))
+        
+        logger.logAPDUResponse(response, message: "general authenticate")
         
         try response.throwErrorIfNeeded()
         

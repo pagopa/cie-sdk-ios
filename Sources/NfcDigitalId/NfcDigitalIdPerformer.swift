@@ -40,7 +40,12 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
                 
                 activeContinuation = continuation
                 
-                session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
+                
+                if #available(iOS 16.0, *) {
+                    session = NFCTagReaderSession(pollingOption: [.iso14443, .pace], delegate: self, queue: DispatchQueue.main)
+                } else {
+                    session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
+                }
                 session?.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
                 
                 cieDigitalId.messageDelegate = self

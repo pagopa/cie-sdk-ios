@@ -134,7 +134,7 @@ class PACEViewController: UIViewController {
         
         guard let can = canTextField.text,
               !can.isEmpty else {
-            infoLabel.text = "Empy can"
+            infoLabel.text = "Empty can"
             return
         }
         

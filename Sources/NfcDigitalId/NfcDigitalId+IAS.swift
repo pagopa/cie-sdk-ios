@@ -129,6 +129,11 @@ extension NfcDigitalId {
         return try await selectStandardFile(id: .root)
     }
     
+    func selectApplicationRoot() async throws -> APDUResponse {
+        onEvent?(.SELECT_ROOT)
+        return try await select(.standard, .application, id: .root)
+    }
+    
     func readATR() async throws -> [UInt8] {
         
         try await selectRoot()
