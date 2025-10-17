@@ -52,6 +52,7 @@ class PACEViewController: UIViewController {
         canTextField.borderStyle = .roundedRect
         canTextField.translatesAutoresizingMaskIntoConstraints = false
         canTextField.text = ""
+        canTextField.placeholder = "CAN"
         
         view.addSubview(canTextField)
         
