@@ -294,6 +294,13 @@ extension NfcDigitalId {
             return response
         }
         
+        if let _ = try? await self.selectStandardFile(id: .empty2) {
+            if let response = try? await select(.file, .application, id: .cardAccess) {
+                logger.log("selectStandardEmptyFile and select cardAccess")
+                return response
+            }
+        }
+        
         if let _ = try? await self.selectStandardFile(id: .empty) {
             if let response = try? await select(.file, .application, id: .cardAccess) {
                 logger.log("selectStandardEmptyFile and select cardAccess")

@@ -95,7 +95,7 @@ enum FileId : String {
     
     
     case empty           = ""
-    
+    case empty2          = "00000000000000"
     
    
     
