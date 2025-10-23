@@ -290,42 +290,156 @@ extension NfcDigitalId {
     
     func selectCardAccess() async throws -> APDUResponse {
         if let response = try? await select(.file, .application, id: .cardAccess) {
-            logger.log("select cardAccess")
+            logger.log("select(.file, .application, id: .cardAccess)")
             return response
         }
         
-        if let _ = try? await self.selectStandardFile(id: .empty2) {
+        if let response = try? await select(.standard, .standard, id: .cardAccess) {
+            logger.log("select(.standard, .standard, id: .cardAccess)")
+            return response
+        }
+        
+        if let response = try? await select(.file, .file, id: .cardAccess) {
+            logger.log("select(.file, .file, id: .cardAccess)")
+            return response
+        }
+        
+        if let response1 = try? await self.selectStandardFile(id: .empty2) {
+            logger.logAPDUResponse(response1, message: "selectStandardFile(id: .empty2)")
             if let response = try? await select(.file, .application, id: .cardAccess) {
-                logger.log("selectStandardEmptyFile and select cardAccess")
+                logger.log("select(.file, .application, id: .cardAccess)")
                 return response
             }
         }
         
-        if let _ = try? await self.selectStandardFile(id: .empty) {
+        if let response1 = try? await self.selectStandardFile(id: .empty) {
+            logger.logAPDUResponse(response1, message: "selectStandardFile(id: .empty)")
             if let response = try? await select(.file, .application, id: .cardAccess) {
-                logger.log("selectStandardEmptyFile and select cardAccess")
+                logger.log("select(.file, .application, id: .cardAccess)")
                 return response
             }
         }
         
-        if let _ = try? await select(.standard, .application, id: .empty) {
+        if let response1 = try? await select(.standard, .application, id: .empty) {
+            logger.logAPDUResponse(response1, message: "select(.standard, .application, id: .empty)")
             if let response = try? await select(.file, .application, id: .cardAccess) {
-                logger.log("selectApplicationEmptyFile and select cardAccess")
+                logger.log("select(.file, .application, id: .cardAccess)")
                 return response
             }
         }
         
-        if let _ = try? await selectRoot() {
+        if let response1 = try? await selectRoot() {
+            logger.logAPDUResponse(response1, message: "selectRoot()")
             if let response = try? await select(.file, .application, id: .cardAccess) {
-                logger.log("selectStandardRoot and select cardAccess")
+                logger.log("select(.file, .application, id: .cardAccess)")
                 return response
             }
         }
         
-        if let _ = try? await selectApplicationRoot() {
+        if let response1 = try? await selectApplicationRoot() {
+            logger.logAPDUResponse(response1, message: "selectApplicationRoot()")
             if let response = try? await select(.file, .application, id: .cardAccess) {
-                logger.log("selectApplicationRoot and select cardAccess")
+                logger.log("select(.file, .application, id: .cardAccess)")
                 return response
+            }
+        }
+        
+        //STANDARD
+        
+        if let response1 = try? await self.selectStandardFile(id: .empty2) {
+            logger.logAPDUResponse(response1, message: "selectStandardFile(id: .empty2)")
+            if let response = try? await select(.standard, .standard, id: .cardAccess) {
+                logger.log("select(.standard, .standard, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await self.selectStandardFile(id: .empty) {
+            logger.logAPDUResponse(response1, message: "selectStandardFile(id: .empty)")
+            if let response = try? await select(.standard, .standard, id: .cardAccess) {
+                logger.log("select(.standard, .standard, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await select(.standard, .application, id: .empty) {
+            logger.logAPDUResponse(response1, message: "select(.standard, .application, id: .empty)")
+            if let response = try? await select(.standard, .standard, id: .cardAccess) {
+                logger.log("select(.standard, .standard, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await selectRoot() {
+            logger.logAPDUResponse(response1, message: "selectRoot()")
+            if let response = try? await select(.standard, .standard, id: .cardAccess) {
+                logger.log("select(.standard, .standard, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await selectApplicationRoot() {
+            logger.logAPDUResponse(response1, message: "selectApplicationRoot()")
+            if let response = try? await select(.standard, .standard, id: .cardAccess) {
+                logger.log("select(.standard, .standard, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        //FILE
+        
+        if let response1 = try? await self.selectStandardFile(id: .empty2) {
+            logger.logAPDUResponse(response1, message: "selectStandardFile(id: .empty2)")
+            if let response = try? await select(.file, .file, id: .cardAccess) {
+                logger.log("select(.file, .file, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await self.selectStandardFile(id: .empty) {
+            logger.logAPDUResponse(response1, message: "selectStandardFile(id: .empty)")
+            if let response = try? await select(.file, .file, id: .cardAccess) {
+                logger.log("select(.file, .file, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await select(.standard, .application, id: .empty) {
+            logger.logAPDUResponse(response1, message: "select(.standard, .application, id: .empty)")
+            if let response = try? await select(.file, .file, id: .cardAccess) {
+                logger.log("select(.file, .file, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await selectRoot() {
+            logger.logAPDUResponse(response1, message: "selectRoot()")
+            if let response = try? await select(.file, .file, id: .cardAccess) {
+                logger.log("select(.file, .file, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        if let response1 = try? await selectApplicationRoot() {
+            logger.logAPDUResponse(response1, message: "selectApplicationRoot()")
+            if let response = try? await select(.file, .file, id: .cardAccess) {
+                logger.log("select(.file, .file, id: .cardAccess)")
+                return response
+            }
+        }
+        
+        
+        if let iasResponse = try? await selectIAS() {
+            logger.logAPDUResponse(iasResponse, message: "selectIAS()")
+            if let cieResponse = try? await selectCIE() {
+                logger.logAPDUResponse(cieResponse, message: "selectCIE()")
+                if let rootResponse = try? await selectRoot() {
+                    logger.logAPDUResponse(rootResponse, message: "selectRoot()")
+                    if let cardAccessResponse = try? await select(.file, .application, id: .cardAccess) {
+                        logger.logAPDUResponse(cardAccessResponse, message: "select(.file, .application, id: .cardAccess)")
+                        return cardAccessResponse
+                    }
+                }
             }
         }
         

@@ -78,8 +78,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
             wrappedError = .nfcError(readerError)
             
             if readerError.code == .readerSessionInvalidationErrorSessionTimeout {
-                if #available(iOS 16.0, *) {
-                    self.session = NFCTagReaderSession(pollingOption: [.pace], delegate: self, queue: DispatchQueue.main)
+                self.session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
                     
                     self.session?.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
                     
@@ -88,9 +87,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                     self.session?.begin()
                     
                     return
-                } else {
-                    // Fallback on earlier versions
-                }
+               
             }
             
             switch readerError.code {
