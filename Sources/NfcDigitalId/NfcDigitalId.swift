@@ -175,7 +175,7 @@ class NfcDigitalId {
         //reset secure messaging by selecting empty file
         try? await self.selectStandardFile(id: .empty)
         
-        try await self.selectRoot()
+        try? await self.selectRoot()
         
         let nis = try await self.getNIS()
         
