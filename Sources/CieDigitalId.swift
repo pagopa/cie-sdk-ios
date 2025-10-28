@@ -136,14 +136,6 @@ public class CieDigitalId : @unchecked Sendable {
      * - Returns: eMRTDResponse (DG1, DG11, SOD [eMRTD])
      */
     public func performMtrd(can: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> eMRTDResponse {
-        let pollingOptions: NFCTagReaderSession.PollingOption
-        
-        if #available(iOS 16.0, *) {
-            pollingOptions = [.pace]
-        } else {
-            pollingOptions = [.iso14443]
-        }
-        
         return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
@@ -154,11 +146,11 @@ public class CieDigitalId : @unchecked Sendable {
             self.logger.logDelimiter("begin nfcDigitalId.performMtrd", prominent: true)
             
             return try await nfcDigitalId.performMtrd(can: can)
-        }).perform(pollingOptions: pollingOptions)
-        }
+        }).perform(pollingOptions:  [.iso14443])
+    }
     
-
-
+    
+    
     /**
      * Perform Internal Authentication
      * This method is used to perform Internal Authentication to verify CIE
@@ -170,9 +162,6 @@ public class CieDigitalId : @unchecked Sendable {
      * - Returns: InternalAuthenticationResponse (NIS, PUBLICKEY, SOD, SIGNED CHALLENGE)
      */
     public func performInternalAuthentication(challenge: [UInt8], _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> InternalAuthenticationResponse {
-        
-        let pollingOptions: NFCTagReaderSession.PollingOption = [.iso14443]
-        
         return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
@@ -184,7 +173,7 @@ public class CieDigitalId : @unchecked Sendable {
             
             return try await nfcDigitalId.performInternalAuthentication(challenge: challenge)
             
-        }).perform(pollingOptions: pollingOptions)
+        }).perform(pollingOptions: [.iso14443])
     }
     
     /**
@@ -198,14 +187,6 @@ public class CieDigitalId : @unchecked Sendable {
      * - Returns: eMRTDResponse (DG1, DG11, SOD [eMRTD]) and InternalAuthenticationResponse (NIS, PUBLICKEY, SOD [CIE], SIGNED CHALLENGE)
      */
     public func performMRTDAndInternalAuthentication(challenge: [UInt8], can: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> (eMRTDResponse, InternalAuthenticationResponse) {
-        let pollingOptions: NFCTagReaderSession.PollingOption
-        
-        if #available(iOS 16.0, *) {
-            pollingOptions = [.pace]
-        } else {
-            pollingOptions = [.iso14443]
-        }
-        
         return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
             nfcDigitalId in
             
@@ -217,7 +198,7 @@ public class CieDigitalId : @unchecked Sendable {
             
             return try await nfcDigitalId.performMRTDAndInternalAuthentication(can: can, challenge: challenge)
             
-        }).perform(pollingOptions: pollingOptions)
+        }).perform(pollingOptions: [.iso14443])
     }
     
 }

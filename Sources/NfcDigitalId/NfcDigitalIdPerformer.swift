@@ -77,19 +77,6 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         if let readerError = error as? NFCReaderError {
             wrappedError = .nfcError(readerError)
             
-            if readerError.code == .readerSessionInvalidationErrorSessionTimeout {
-                self.session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
-                    
-                    self.session?.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
-                    
-                    cieDigitalId.messageDelegate = self
-                    
-                    self.session?.begin()
-                    
-                    return
-               
-            }
-            
             switch readerError.code {
                 case .readerSessionInvalidationErrorUserCanceled:
                     break
