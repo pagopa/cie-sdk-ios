@@ -84,14 +84,29 @@ extension NfcDigitalId {
             logger.logData(le, name: "le")
         }
        
-        return try await tag.sendApdu(
-            APDURequest(
-                instruction: .SELECT,
-                p1: directory.rawValue,
-                p2: template.rawValue,
-                data: id.bytes,
-                le: le)
-        )
+        do {
+            return try await tag.sendApdu(
+                APDURequest(
+                    instruction: .SELECT,
+                    p1: directory.rawValue,
+                    p2: template.rawValue,
+                    data: id.bytes,
+                    le: le))
+        }
+        catch {
+            if let error = error as? NfcDigitalIdError {
+                switch(error) {
+                case .responseError(let status):
+                    logger.logData("\(status)", name: "select APDU Status")
+                    break
+                default:
+                    logger.logError(error.description)
+                    break
+                }
+            }
+            throw error
+        }
+        
     }
     
     func selectApplication(applicationId: FileId) async throws -> APDUResponse {
@@ -109,7 +124,7 @@ extension NfcDigitalId {
         return try await function()
     }
 
-    private var readBinaryPacketSize: UInt8 {
+    internal var readBinaryPacketSize: UInt8 {
         if tag.isSecureMessaging {
             return 0x80
         }

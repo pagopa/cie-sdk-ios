@@ -97,7 +97,7 @@ public class CieDigitalId : @unchecked Sendable {
             
             return try await nfcDigitalId.performAuthentication(forUrl: url, withPin: pin, idpUrl: self.idpUrl)
             
-        }).perform()
+        }).perform(pollingOptions: [.iso14443])
     }
     
     
@@ -122,8 +122,34 @@ public class CieDigitalId : @unchecked Sendable {
             
             return try await nfcDigitalId.performReadAtr()
             
-        }).perform()
+        }).perform(pollingOptions: [.iso14443])
     }
+    
+    /**
+     * Perform PACE authentication
+     * This method is used to perform PACE authentication and reading of DG1, DG11, SOD
+     *
+     * - Parameters:
+     *   - can: Card Access Number (6 numbers found in the bottom right corner of CIE)
+     *   - onEvent: Callback that notifies when events occur during the reading process. (Can be null)
+     *
+     * - Returns: eMRTDResponse (DG1, DG11, SOD [eMRTD])
+     */
+    public func performMtrd(can: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> eMRTDResponse {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performMtrd", prominent: true)
+            }
+            
+            self.logger.logDelimiter("begin nfcDigitalId.performMtrd", prominent: true)
+            
+            return try await nfcDigitalId.performMtrd(can: can)
+        }).perform(pollingOptions:  [.iso14443])
+    }
+    
+    
     
     /**
      * Perform Internal Authentication
@@ -145,17 +171,34 @@ public class CieDigitalId : @unchecked Sendable {
             
             self.logger.logDelimiter("begin nfcDigitalId.performInternalAuthentication", prominent: true)
             
-            let nis = try await nfcDigitalId.getNIS()
+            return try await nfcDigitalId.performInternalAuthentication(challenge: challenge)
             
-            let publicKey = try await nfcDigitalId.getChipInternalPublicKey()
+        }).perform(pollingOptions: [.iso14443])
+    }
+    
+    /**
+     * Perform Internal Authentication and PACE
+     * This method is used to perform Internal Authentication to verify CIE and PACE to Read eMRTD values
+     *
+     * - Parameters:
+     *   - challenge: Bytes to sign using CIE in order to do internal authentication
+     *   - onEvent: Callback that notifies when events occur during the reading process. (Can be null)
+     *
+     * - Returns: eMRTDResponse (DG1, DG11, SOD [eMRTD]) and InternalAuthenticationResponse (NIS, PUBLICKEY, SOD [CIE], SIGNED CHALLENGE)
+     */
+    public func performMRTDAndInternalAuthentication(challenge: [UInt8], can: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> (eMRTDResponse, InternalAuthenticationResponse) {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
+            nfcDigitalId in
             
-            let sod = try await nfcDigitalId.getChipSOD()
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performMRTDAndInternalAuthentication", prominent: true)
+            }
             
-            let signedChallenge = try await nfcDigitalId.signInternalChallenge(challenge: challenge)
+            self.logger.logDelimiter("begin nfcDigitalId.performMRTDAndInternalAuthentication", prominent: true)
             
-            return InternalAuthenticationResponse(nis: nis, publicKey: publicKey, sod: sod, signedChallenge: signedChallenge)
+            return try await nfcDigitalId.performMRTDAndInternalAuthentication(can: can, challenge: challenge)
             
-        }).perform()
+        }).perform(pollingOptions: [.iso14443])
     }
     
 }

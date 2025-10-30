@@ -29,7 +29,7 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
         self.onEvent = onEvent
     }
     
-    public func perform() async throws -> T {
+    public func perform(pollingOptions: NFCTagReaderSession.PollingOption) async throws -> T {
         guard NFCTagReaderSession.readingAvailable else {
             throw NfcDigitalIdError.scanNotSupported
         }
@@ -40,7 +40,8 @@ class NfcDigitalIdPerformer<T : Sendable>: NSObject, @unchecked Sendable {
                 
                 activeContinuation = continuation
                 
-                session = NFCTagReaderSession(pollingOption: [.iso14443], delegate: self, queue: DispatchQueue.main)
+                session = NFCTagReaderSession(pollingOption: pollingOptions, delegate: self, queue: DispatchQueue.main)
+                
                 session?.alertMessage = cieDigitalId.alertMessages[AlertMessageKey.readingInstructions]!
                 
                 cieDigitalId.messageDelegate = self
@@ -75,6 +76,7 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         
         if let readerError = error as? NFCReaderError {
             wrappedError = .nfcError(readerError)
+            
             switch readerError.code {
                 case .readerSessionInvalidationErrorUserCanceled:
                     break
@@ -98,6 +100,8 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
         logger.logDelimiter("tagReaderSession didDetect", prominent: true)
         
+        print(session)
+        print(tags)
         if tags.count > 1 {
             // Restart polling in 500ms
             let retryInterval = DispatchTimeInterval.milliseconds(500)
@@ -118,6 +122,10 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
         var cieTag: NFCISO7816Tag
         switch tags.first! {
             case let .iso7816(tag):
+            
+            logger.logData(tag.initialSelectedAID, name: "tag.initialSelectedAID")
+            logger.logData(tag.historicalBytes?.hexEncodedString() ?? "", name: "tag.applicationData")
+           
                 cieTag = tag
             default:
                 logger.logError(tags.first.debugDescription)

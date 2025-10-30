@@ -35,6 +35,10 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
     //case cieCertificateNotValid
     case certificateNotValid
     
+    case secureMessagingError(String)
+    case paceNotSupported
+    case paceError(String)
+    
     public var description: String {
         switch self {
             case .scanNotSupported:
@@ -85,6 +89,15 @@ public enum NfcDigitalIdError: Error, CustomStringConvertible, Equatable {
 //              return "Cie certificate not valid"
             case .certificateNotValid:
                 return "Certificate not valid"
+            
+            case .secureMessagingError(let error):
+                return "Secure Messaging Error: \(error)"
+            
+            case .paceNotSupported:
+                return "PACE not supported"
+        
+            case .paceError(let error):
+                return "PACE Error: \(error)"
         }
     }
 }
