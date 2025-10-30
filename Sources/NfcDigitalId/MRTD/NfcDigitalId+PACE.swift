@@ -195,9 +195,6 @@ extension NfcDigitalId {
         let response = try await sendGeneralAuthenticateToken(token: pcdAuthToken)
         
         let tvlResp = TKBERTLVRecord.sequenceOfRecords(from: Data(response.data))!
-        if tvlResp[0].tag != 0x86 {
-            logger.logWarning("Expecting tag 0x86, found: \(Data([UInt8(tvlResp[0].tag)]).hexEncodedString())")
-        }
         
         // Calculate expected authentication token
         let expectedPICCToken = try self.generateAuthenticationToken( publicKey: pcdKeyPair, macKey: macKey, oid: oid, cipherAlg: cipherAlg)
