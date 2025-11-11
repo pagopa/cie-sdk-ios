@@ -14,6 +14,28 @@ import CryptoKit
 extension NfcDigitalId {
     
     func performPACE(can: String) async throws -> APDUDeliverySecureMessaging {
+        do {
+            return try await _performPACE(can: can)
+        } catch {
+            
+            switch error {
+            case let error as NfcDigitalIdError:
+                switch(error) {
+                case .wrongPin(let remainingTries):
+                    throw NfcDigitalIdError.wrongCan
+                    break
+                default:
+                    break
+                }
+            default:
+                break
+            }
+            
+            throw error
+        }
+    }
+    
+    private func _performPACE(can: String) async throws -> APDUDeliverySecureMessaging {
         
         let CAN_PACE_KEY_REFERENCE : UInt8 = 0x02
         
