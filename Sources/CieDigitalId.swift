@@ -102,6 +102,32 @@ public class CieDigitalId : @unchecked Sendable {
     
     
     /**
+     * Perform authentication
+     * This method is used to perform CIE certificate reading
+     *
+     * - Parameters:
+     *   - pin: PIN of the CIE used to perform authentication
+     *   - onEvent: Callback that notifies when events occur during the authentication process. (Can be null)
+     *
+     * - Returns: CieCertificateResponse
+     */
+    public func performCertificate(withPin pin: String, _ onEvent: CieDigitalIdOnEvent? = nil) async throws -> CieCertificateResponse {
+        return try await NfcDigitalIdPerformer(cieDigitalId: self, onEvent: onEvent, performer: {
+            nfcDigitalId in
+            
+            defer {
+                self.logger.logDelimiter("end nfcDigitalId.performAuthentication", prominent: true)
+            }
+            self.logger.logDelimiter("begin nfcDigitalId.performAuthentication", prominent: true)
+            
+            return try await nfcDigitalId.performReadCertificate(withPin: pin)
+            
+        }).perform(pollingOptions: [.iso14443])
+    }
+    
+    
+    
+    /**
      * Perform ATR reading
      * This method is used to perform ATR reading of the CIE
      *

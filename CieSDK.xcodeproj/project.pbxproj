@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		348FF7042ECF52E900F17A1B /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = 348FF7032ECF52E900F17A1B /* X509 */; };
 		3DEAC6122D6E1359005D056D /* AsyncHTTPClient in Frameworks */ = {isa = PBXBuildFile; productRef = 3DEAC6112D6E1359005D056D /* AsyncHTTPClient */; };
 		3DEAC63F2D6E174B005D056D /* SwiftASN1 in Frameworks */ = {isa = PBXBuildFile; productRef = 3DEAC63E2D6E174B005D056D /* SwiftASN1 */; };
 /* End PBXBuildFile section */
@@ -30,16 +31,25 @@
 			files = (
 				3DEAC6122D6E1359005D056D /* AsyncHTTPClient in Frameworks */,
 				3DEAC63F2D6E174B005D056D /* SwiftASN1 in Frameworks */,
+				348FF7042ECF52E900F17A1B /* X509 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		348FF7022ECF52E900F17A1B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3DEAC5932D6E1181005D056D = {
 			isa = PBXGroup;
 			children = (
 				3DEAC59F2D6E1181005D056D /* Sources */,
+				348FF7022ECF52E900F17A1B /* Frameworks */,
 				3DEAC59E2D6E1181005D056D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,6 +95,7 @@
 			packageProductDependencies = (
 				3DEAC6112D6E1359005D056D /* AsyncHTTPClient */,
 				3DEAC63E2D6E174B005D056D /* SwiftASN1 */,
+				348FF7032ECF52E900F17A1B /* X509 */,
 			);
 			productName = CieSDK;
 			productReference = 3DEAC59D2D6E1181005D056D /* CieSDK.framework */;
@@ -117,6 +128,7 @@
 			packageReferences = (
 				3DEAC6102D6E1359005D056D /* XCRemoteSwiftPackageReference "async-http-client" */,
 				3DEAC63D2D6E174B005D056D /* XCRemoteSwiftPackageReference "swift-asn1" */,
+				341AF7072ECF525E00ED6602 /* XCRemoteSwiftPackageReference "swift-certificates" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3DEAC59E2D6E1181005D056D /* Products */;
@@ -372,6 +384,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		341AF7072ECF525E00ED6602 /* XCRemoteSwiftPackageReference "swift-certificates" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-certificates.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.15.1;
+			};
+		};
 		3DEAC6102D6E1359005D056D /* XCRemoteSwiftPackageReference "async-http-client" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/swift-server/async-http-client.git";
@@ -391,6 +411,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		348FF7032ECF52E900F17A1B /* X509 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 341AF7072ECF525E00ED6602 /* XCRemoteSwiftPackageReference "swift-certificates" */;
+			productName = X509;
+		};
 		3DEAC6112D6E1359005D056D /* AsyncHTTPClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3DEAC6102D6E1359005D056D /* XCRemoteSwiftPackageReference "async-http-client" */;
