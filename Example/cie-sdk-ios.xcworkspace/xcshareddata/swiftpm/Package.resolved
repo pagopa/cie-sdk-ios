@@ -49,8 +49,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-certificates.git",
       "state" : {
-        "revision" : "4b092f15164144c24554e0a75e080a960c5190a6",
-        "version" : "1.14.0"
+        "revision" : "c059d9c9d08d6654b9a92dda93d9049a278964c6"
       }
     },
     {
