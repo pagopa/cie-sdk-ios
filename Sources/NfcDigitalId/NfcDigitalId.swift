@@ -111,7 +111,7 @@ class NfcDigitalId {
                     } else if item1.type == surname {
                         certData.surname = item1.value.description
                     } else if item1.type == documentSerial {
-                        certData.docSeriesNumber = item1.value.description
+                        certData.docSerialNumber = item1.value.description
                     } else if item1.type == fiscalCode {
                         certData.fiscalCode = item1.value.description
                     }

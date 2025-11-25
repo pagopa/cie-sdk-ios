@@ -92,5 +92,5 @@ public struct CieCertificateResponse: Sendable {
     public var name: String?
     public var surname: String?
     public var fiscalCode: String?
-    public var docSeriesNumber: String?
+    public var docSerialNumber: String?
 }
