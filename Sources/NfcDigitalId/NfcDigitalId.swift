@@ -7,6 +7,8 @@
 
 import CoreNFC
 internal import NIOCore
+internal import X509
+internal import SwiftASN1
 
 class NfcDigitalId {
     
@@ -69,6 +71,62 @@ class NfcDigitalId {
         
         return try await request.performAuthentication(
             certificate: certificate, privateKey: privateKey)
+    }
+    
+    func performReadCertificate(withPin pin: String) async throws
+    -> CieCertificateResponse
+    {
+        eventsNumber = 0
+        totalEvents = 27
+        
+        try await performNfcAuthentication(withPin: pin)
+        
+        let certificate = try await readCertificate()
+        
+        logger.logData(certificate, name: "CIE Certificate")
+        
+        logger.logDelimiter("request.performAuthentication", prominent: true)
+        
+        do {
+            
+            let sslCertificate = try X509.Certificate(derEncoded: certificate.removeTrailingZeros())
+            
+            var certData = CieCertificateResponse()
+            
+            let name: SwiftASN1.ASN1ObjectIdentifier = try SwiftASN1.ASN1ObjectIdentifier.init(elements: [2, 5, 4, 42])
+              
+            let surname: SwiftASN1.ASN1ObjectIdentifier = try SwiftASN1.ASN1ObjectIdentifier.init(elements: [2, 5, 4, 4])
+            let documentSerial: SwiftASN1.ASN1ObjectIdentifier = try SwiftASN1.ASN1ObjectIdentifier.init(elements: [2, 5, 4, 5])
+            let fiscalCode: SwiftASN1.ASN1ObjectIdentifier = try SwiftASN1.ASN1ObjectIdentifier.init(elements: [2, 5, 4, 3])
+            
+            sslCertificate.subject.forEach({
+                item in
+                let relative = item as RelativeDistinguishedName
+                
+                relative.forEach({
+                    item1 in
+                    
+                    if item1.type == name {
+                        certData.name = item1.value.description
+                    } else if item1.type == surname {
+                        certData.surname = item1.value.description
+                    } else if item1.type == documentSerial {
+                        certData.docSerialNumber = item1.value.description
+                    } else if item1.type == fiscalCode {
+                        certData.fiscalCode = item1.value.description
+                    }
+                })
+                
+            })
+            
+            return certData
+        }
+        catch {
+            print(error)
+            throw error
+        }
+        
+      
     }
     
     private func performNfcAuthentication(withPin pin: String) async throws {

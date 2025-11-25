@@ -24,6 +24,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
     var cieTypeButton: UIButton!
     var showLogsButton: UIButton!
     
+    var cieCertificateButton: UIButton!
+    
     var progress: UIProgressView!
     
     var webView: WKWebView!
@@ -87,6 +89,13 @@ class ViewController: UIViewController, WKNavigationDelegate {
         cieTypeButton.addTarget(self, action: #selector(getCIEType), for: .touchUpInside)
         view.addSubview(cieTypeButton)
         
+        cieCertificateButton = UIButton(type: .system)
+        cieCertificateButton.setTitle("CIE CERTIFICATE", for: .normal)
+        cieCertificateButton.translatesAutoresizingMaskIntoConstraints = false
+        cieCertificateButton.addTarget(self, action: #selector(getCIECertificate), for: .touchUpInside)
+        view.addSubview(cieCertificateButton)
+        
+        
         showLogsButton = UIButton(type: .system)
         showLogsButton.setTitle("SHOW LOGS", for: .normal)
         showLogsButton.translatesAutoresizingMaskIntoConstraints = false
@@ -120,7 +129,10 @@ class ViewController: UIViewController, WKNavigationDelegate {
             cieTypeButton.topAnchor.constraint(equalTo: actionButton.bottomAnchor, constant: 10),
             cieTypeButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            showLogsButton.topAnchor.constraint(equalTo: cieTypeButton.bottomAnchor, constant: 10),
+            cieCertificateButton.topAnchor.constraint(equalTo: cieTypeButton.bottomAnchor, constant: 10),
+            cieCertificateButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            
+            showLogsButton.topAnchor.constraint(equalTo: cieCertificateButton.bottomAnchor, constant: 10),
             showLogsButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
             infoLabel.topAnchor.constraint(equalTo: showLogsButton.bottomAnchor, constant: 20),
@@ -190,6 +202,40 @@ class ViewController: UIViewController, WKNavigationDelegate {
         }
     }
     
+    @objc func getCIECertificate() {
+        guard let pin = pinTextField.text else {
+            infoLabel.text = "Invalid PIN"
+            return
+        }
+        
+        Task {
+            do {
+                let digitalId = CieDigitalId(.localFile)
+                let certificate = try await digitalId.performCertificate(withPin: pin)  {
+                    event, progress in
+                    print(event)
+                    print(progress)
+                    
+                    digitalId.alertMessage = "\(event)"
+                    
+                    DispatchQueue.main.async {
+                        self.progress.progress = progress
+                    }
+                }
+                
+                let certificateStr = certificate
+               
+                DispatchQueue.main.async {
+                    self.progress.progress = 0.0
+                    self.infoLabel.text = "\(certificateStr)\n"
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.handleError(error)
+                }
+            }
+        }
+    }
     
     @objc func doAuthentication() {
         guard let pin = pinTextField.text else {

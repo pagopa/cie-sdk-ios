@@ -86,3 +86,11 @@ public struct InternalAuthenticationResponse : Sendable {
     public var sod: [UInt8]
     public var signedChallenge: [UInt8]
 }
+
+
+public struct CieCertificateResponse: Sendable {
+    public var name: String?
+    public var surname: String?
+    public var fiscalCode: String?
+    public var docSerialNumber: String?
+}
