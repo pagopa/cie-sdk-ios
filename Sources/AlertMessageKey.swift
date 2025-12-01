@@ -17,4 +17,5 @@ enum AlertMessageKey : String {
     case wrongPin1AttemptLeft
     case wrongPin2AttemptLeft
     case genericError
+    case wrongCan
 }

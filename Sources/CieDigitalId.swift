@@ -66,6 +66,7 @@ public class CieDigitalId : @unchecked Sendable {
         alertMessages[AlertMessageKey.wrongPin1AttemptLeft] = "PIN errato, hai ancora 1 tentativo"
         alertMessages[AlertMessageKey.wrongPin2AttemptLeft] = "PIN errato, hai ancora 2 tentativi"
         alertMessages[AlertMessageKey.genericError] = "Qualcosa è andato storto"
+        alertMessages[AlertMessageKey.wrongCan] = "CAN errato"
     }
     
     
