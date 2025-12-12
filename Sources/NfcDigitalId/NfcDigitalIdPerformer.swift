@@ -180,6 +180,10 @@ extension NfcDigitalIdPerformer : NFCTagReaderSessionDelegate {
                                 
                             case .cardBlocked:
                                 errorMessage = cieDigitalId.alertMessages[AlertMessageKey.cardLocked]!
+                            
+                            case .wrongCan:
+                                errorMessage = cieDigitalId.alertMessages[AlertMessageKey.wrongCan]!
+                            
                             default:
                                 errorMessage = error.description
                         }
