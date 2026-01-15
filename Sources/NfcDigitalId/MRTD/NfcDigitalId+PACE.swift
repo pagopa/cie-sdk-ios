@@ -84,20 +84,35 @@ extension NfcDigitalId {
         
         onEvent?(.EMRTD_AUTHENTICATE_REQUEST_NONCE)
         
-        let response = try await self.sendGeneralAuthenticate(data: [], isLast: false)
+        let response = try await self.sendGeneralAuthenticate(data: [], isLast: false, isShort: true)
         
-        let data = response.data
-        let encryptedNonce = try NonceDER(data: data).value
-        
-        if (cipherAlg == .AES) {
-            let iv = [UInt8](repeating:0, count: 16)
+        do {
+            let data = response.data
+            let encryptedNonce = try NonceDER(data: data).value
             
-            return try AES.decrypt(key: paceKey, message: encryptedNonce, iv: iv)
+            if (cipherAlg == .AES) {
+                let iv = [UInt8](repeating:0, count: 16)
+                
+                return try AES.decrypt(key: paceKey, message: encryptedNonce, iv: iv)
+            }
+            
+            let iv = [UInt8](repeating:0, count: 8)
+            
+            return try TDES.decrypt(key: paceKey, message: encryptedNonce, iv: iv)
         }
-        
-        let iv = [UInt8](repeating:0, count: 8)
-        
-        return try TDES.decrypt(key: paceKey, message: encryptedNonce, iv: iv)
+        catch {
+            
+            if let asn1Error = error as? ASN1Error {
+                logger.logError(asn1Error.description)
+                logger.logError("$\(asn1Error.code)")
+                logger.logError(asn1Error.localizedDescription)
+            }
+            
+            
+            
+            throw error
+        }
+       
     }
     
     /// Computes ephemeral parameters by mapping the nonce received from the CIE using Generic Mapping
@@ -116,6 +131,8 @@ extension NfcDigitalId {
         let step2Data = Utils.wrapDO(b:0x81, arr:pcdMappingEncodedPublicKey)
         
         onEvent?(.EMRTD_AUTHENTICATE_SEND_PUBLICKEY)
+        
+        do {
         
         let response = try await self.sendGeneralAuthenticate(data:step2Data, isLast:false)
         
@@ -136,6 +153,19 @@ extension NfcDigitalId {
         }
         
         return try mappingKey.doMappingAgreement(ciePublicKeyData: piccMappingEncodedPublicKey, nonce: bn_nonce)
+        }
+        catch {
+            
+            if let asn1Error = error as? ASN1Error {
+                logger.logError(asn1Error.description)
+                logger.logError("$\(asn1Error.code)")
+                logger.logError(asn1Error.localizedDescription)
+            }
+            
+            
+            
+            throw error
+        }
     }
     
     /// Sends the ephemeral public key to the CIE and receives its ephmeral public key in exchange
@@ -335,7 +365,7 @@ extension NfcDigitalId {
         return try await self.sendGeneralAuthenticate(data:data, isLast:true)
     }
     
-    func sendGeneralAuthenticate(data: [UInt8], isLast: Bool = false) async throws -> APDUResponse  {
+    func sendGeneralAuthenticate(data: [UInt8], isLast: Bool = false, isShort: Bool = false) async throws -> APDUResponse  {
         let request = Utils.wrapDO(b: 0x7C, arr: data)
         
         logger.logDelimiter(#function)
@@ -343,7 +373,7 @@ extension NfcDigitalId {
         logger.logData("\(isLast)", name: "last")
         logger.logData(request, name: "request")
         
-        let generalAuthAPDU = NFCISO7816APDU(instructionClass: isLast ? APDUInstructionClass.STANDARD.rawValue : APDUInstructionClass.CHAIN.rawValue, instructionCode: APDUInstruction.GENERAL_AUTHENTICATE.rawValue, p1Parameter: 0, p2Parameter: 0, data: Data(request), expectedResponseLength: 65536)
+        let generalAuthAPDU = NFCISO7816APDU(instructionClass: isLast ? APDUInstructionClass.STANDARD.rawValue : APDUInstructionClass.CHAIN.rawValue, instructionCode: APDUInstruction.GENERAL_AUTHENTICATE.rawValue, p1Parameter: 0, p2Parameter: 0, data: Data(request), expectedResponseLength: isShort ? 256 : 65536)
         
         
         let response = try await tag.getResponse(try await tag.sendRawApdu(generalAuthAPDU))
