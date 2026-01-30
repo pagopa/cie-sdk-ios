@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CieSDK
 
 class StartViewController: UIViewController {
     
@@ -14,6 +15,8 @@ class StartViewController: UIViewController {
     var nisActionButton: UIButton!
     var paceActionButton: UIButton!
     var paceAndNisActionButton: UIButton!
+    
+    var lastLogButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +46,11 @@ class StartViewController: UIViewController {
         paceAndNisActionButton.backgroundColor = .systemBlue
         paceAndNisActionButton.tintColor = .white
         
+        lastLogButton = UIButton(type: .system)
+        lastLogButton.setTitle("Last log", for: .normal)
+        lastLogButton.backgroundColor = .systemBlue
+        lastLogButton.tintColor = .white
+        
         
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         actionButton.addTarget(self, action: #selector(doBegin), for: .touchUpInside)
@@ -61,6 +69,10 @@ class StartViewController: UIViewController {
         paceAndNisActionButton.translatesAutoresizingMaskIntoConstraints = false
         paceAndNisActionButton.addTarget(self, action: #selector(doPACENIS), for: .touchUpInside)
         view.addSubview(paceAndNisActionButton)
+        
+        lastLogButton.translatesAutoresizingMaskIntoConstraints = false
+        lastLogButton.addTarget(self, action: #selector(doLastLog), for: .touchUpInside)
+        view.addSubview(lastLogButton)
         
         NSLayoutConstraint.activate([
             actionButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 64),
@@ -85,7 +97,13 @@ class StartViewController: UIViewController {
             paceAndNisActionButton.topAnchor.constraint(equalTo: paceActionButton.bottomAnchor, constant: 16),
             paceAndNisActionButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
             paceAndNisActionButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
-            paceAndNisActionButton.heightAnchor.constraint(equalToConstant: 64)
+            paceAndNisActionButton.heightAnchor.constraint(equalToConstant: 64),
+            
+            lastLogButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            lastLogButton.topAnchor.constraint(equalTo: paceAndNisActionButton.bottomAnchor, constant: 16),
+            lastLogButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+            lastLogButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            lastLogButton.heightAnchor.constraint(equalToConstant: 64)
             
             ])
     }
@@ -112,6 +130,44 @@ class StartViewController: UIViewController {
         let main = UIStoryboard(name: "Main", bundle:nil)
         let vc : UIViewController = main.instantiateViewController(withIdentifier: "PACENISViewController")
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func doLastLog() {
+        if let fileUrl = CieDigitalId.retriveLastLogFilePath() {
+            
+            if let fileHandle = FileHandle(forReadingAtPath: fileUrl) {
+                defer {
+                    fileHandle.closeFile()
+                }
+                
+                let data = fileHandle.readDataToEndOfFile()
+                
+                let s = String(data: data, encoding: .utf8)
+                
+                let logsController = UIAlertController(title: "Last Log", message: s, preferredStyle: .alert)
+                
+                logsController.addAction(UIAlertAction(title: "CLOSE", style: .destructive, handler: {
+                    _ in
+                    logsController.dismiss(animated: true)
+                }))
+                
+                logsController.addAction(UIAlertAction(title: "SHARE", style: .default, handler: {
+                    _ in
+                    var filesToShare = [Any]()
+                    
+                    // Add the path of the file to the Array
+                    filesToShare.append(fileUrl)
+                    
+                    // Make the activityViewContoller which shows the share-view
+                    let activityViewController = UIActivityViewController(activityItems: filesToShare, applicationActivities: nil)
+                    
+                    // Show the share-view
+                    self.present(activityViewController, animated: true, completion: nil)
+                }))
+                
+                self.present(logsController, animated: true)
+            }
+        }
     }
         
         
