@@ -228,6 +228,36 @@ public class CieDigitalId : @unchecked Sendable {
         }).perform(pollingOptions: [.iso14443])
     }
     
+    /**
+     * Read the last CieSDK iOS log
+     * This method is used to read the last CieSDK local log
+     *
+     * - Returns: String of logs if exists null otherwise
+     */
+    public static func retriveLastLogFile() -> String? {
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path),
+           let fileName = files.filter({
+               item in
+               return item.contains("CieSDK")
+           })
+            .sorted().last
+        {
+            let fileUrl = FileManager.default.temporaryDirectory
+                .appendingPathComponent(fileName)
+            if let fileHandle = FileHandle(forReadingAtPath: fileUrl.path) {
+                defer {
+                    fileHandle.closeFile()
+                }
+                
+                let data = fileHandle.readDataToEndOfFile()
+                
+                return String(data: data, encoding: .utf8)
+            }
+        }
+        return nil
+    }
+    
+    
 }
 
 internal protocol CieDigitalIdAlertMessage {

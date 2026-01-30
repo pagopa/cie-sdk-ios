@@ -87,7 +87,11 @@ extension NfcDigitalId {
         let response = try await self.sendGeneralAuthenticate(data: [], isLast: false, isShort: true)
         
         do {
+            
             let data = response.data
+            
+            logger.logData(data.hexEncodedString, name: "NONCE RESPONSE")
+            
             let encryptedNonce = try NonceDER(data: data).value
             
             if (cipherAlg == .AES) {
@@ -107,8 +111,6 @@ extension NfcDigitalId {
                 logger.logError("$\(asn1Error.code)")
                 logger.logError(asn1Error.localizedDescription)
             }
-            
-            
             
             throw error
         }
