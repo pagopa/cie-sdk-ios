@@ -229,6 +229,33 @@ public class CieDigitalId : @unchecked Sendable {
     }
     
     /**
+     * Read the last CieSDK iOS log file path
+     * This method is used to read the last CieSDK local log file path
+     *
+     * - Returns: Path of log file if exists null otherwise
+     */
+    public static func retriveLastLogFilePath() -> String? {
+        if let files = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.temporaryDirectory.path),
+           let fileName = files.filter({
+               item in
+               return item.contains("CieSDK")
+           })
+            .sorted().last
+        {
+            let fileUrl = FileManager.default.temporaryDirectory
+                .appendingPathComponent(fileName)
+            
+            if #available(iOS 16.0, *) {
+                return fileUrl.path(percentEncoded: true)
+            } else {
+                return fileUrl.path
+            }
+        }
+        return nil
+    }
+    
+    
+    /**
      * Read the last CieSDK iOS log
      * This method is used to read the last CieSDK local log
      *
