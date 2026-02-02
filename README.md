@@ -19,6 +19,12 @@ CieSDK iOS is an utility library to perform mTLS authentication using CIE ([Cart
 | setAlertMessage | set custom messages to show inside native iOS NFC reading view | - |
 | performAuthentication | perform CIE mTLS Authentication and return authorizationUrl | - |
 | performReadAtr | perform CIE ATR Reading and return ATR bytes | - |
+| performCertificate | perform CIE certificate reading | - |
+| performMtrd | perform PACE authentication and reading of DG1, DG11, SOD | - |
+| performInternalAuthentication | perform Internal Authentication to verify CIE | - |
+| performMRTDAndInternalAuthentication | perform Internal Authentication to verify CIE and PACE to Read eMRTD values | - |
+| retriveLastLogFilePath | read the last CieSDK local log file path | - |
+| retriveLastLogFile | read the last CieSDK local log | - |
 
 ### CieSDKDigitalId.LogMode
 
