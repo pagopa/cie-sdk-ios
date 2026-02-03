@@ -25,6 +25,8 @@ CieSDK iOS is an utility library to perform mTLS authentication using CIE ([Cart
 | performMRTDAndInternalAuthentication | perform Internal Authentication to verify CIE and PACE to Read eMRTD values | - |
 | retriveLastLogFilePath | read the last CieSDK local log file path | - |
 | retriveLastLogFile | read the last CieSDK local log | - |
+| setLogMode | set CieSDK log mode | - |
+| getLogMode | get CieSDK log mode | - |
 
 ### CieSDKDigitalId.LogMode
 

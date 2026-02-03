@@ -175,7 +175,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
     @objc func getCIEType() {
         Task {
             do {
-                let digitalId = CieDigitalId(.localFile)
+                let digitalId = CieDigitalIdSingleton.shared
                 let atr = try await digitalId.performReadAtr()  {
                     event, progress in
                     print(event)
@@ -210,7 +210,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         
         Task {
             do {
-                let digitalId = CieDigitalId(.localFile)
+                let digitalId = CieDigitalIdSingleton.shared
                 let certificate = try await digitalId.performCertificate(withPin: pin)  {
                     event, progress in
                     print(event)
@@ -251,7 +251,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         
         Task {
             do {
-                let digitalId = CieDigitalId(.localFile)
+                let digitalId = CieDigitalIdSingleton.shared
                 
                 let authenticatedUrl = try await digitalId.performAuthentication(forUrl: foundUrl, withPin: pin) {
                     event, progress in
