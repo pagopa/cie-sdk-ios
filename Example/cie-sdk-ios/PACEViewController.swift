@@ -141,7 +141,7 @@ class PACEViewController: UIViewController {
         
         Task {
             do {
-                let digitalId = CieDigitalId(.localFile)
+                let digitalId = CieDigitalIdSingleton.shared
                 
                 let response = try await digitalId.performMtrd(can: can) {
                     event, progress in

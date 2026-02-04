@@ -11,7 +11,7 @@ import OSLog
 
 struct NfcDigitalIdLogger {
     
-    private let mode: CieDigitalId.LogMode
+    private var mode: CieDigitalId.LogMode
     private var filename: String?
     
     lazy private var dateFormatter: DateFormatter = {
@@ -23,6 +23,14 @@ struct NfcDigitalIdLogger {
     init(mode: CieDigitalId.LogMode = .disabled) {
         self.mode = mode
         self.filename = dateFormatter.string(from: Date()) + "-CieSDK"
+    }
+    
+    mutating func setLogMode(_ mode: CieDigitalId.LogMode) {
+        self.mode = mode
+    }
+    
+    func getLogMode() -> CieDigitalId.LogMode {
+        return mode
     }
     
     func logDelimiter(_ message: String, prominent: Bool = false) {

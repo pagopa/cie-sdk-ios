@@ -172,7 +172,7 @@ class PACENISViewController: UIViewController {
         
         Task {
             do {
-                let digitalId = CieDigitalId(.localFile)
+                let digitalId = CieDigitalIdSingleton.shared
                 
                 let (emrtd, nis) = try await digitalId.performMRTDAndInternalAuthentication(challenge: challengeBytes, can: can) {
                     event, progress in

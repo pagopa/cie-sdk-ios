@@ -9,6 +9,10 @@
 import UIKit
 import CieSDK
 
+class CieDigitalIdSingleton {
+    static var shared: CieDigitalId = CieDigitalId(.disabled)
+}
+
 class StartViewController: UIViewController {
     
     var actionButton: UIButton!
@@ -17,6 +21,10 @@ class StartViewController: UIViewController {
     var paceAndNisActionButton: UIButton!
     
     var lastLogButton: UIButton!
+    
+    var logMode: UIPickerView!
+    
+    private var logModes: [CieDigitalId.LogMode] = [.disabled , .enabled, .console, .localFile]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +60,14 @@ class StartViewController: UIViewController {
         lastLogButton.tintColor = .white
         
         
+        logMode = UIPickerView()
+        logMode.delegate = self
+        logMode.dataSource = self
+        logMode.backgroundColor = .systemBlue
+        
+        logMode.selectRow(logModes.index(of: CieDigitalIdSingleton.shared.getLogMode()) ?? 0, inComponent: 0, animated: false)
+        
+        
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         actionButton.addTarget(self, action: #selector(doBegin), for: .touchUpInside)
         view.addSubview(actionButton)
@@ -73,6 +89,9 @@ class StartViewController: UIViewController {
         lastLogButton.translatesAutoresizingMaskIntoConstraints = false
         lastLogButton.addTarget(self, action: #selector(doLastLog), for: .touchUpInside)
         view.addSubview(lastLogButton)
+        
+        logMode.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(logMode)
         
         NSLayoutConstraint.activate([
             actionButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 64),
@@ -103,7 +122,13 @@ class StartViewController: UIViewController {
             lastLogButton.topAnchor.constraint(equalTo: paceAndNisActionButton.bottomAnchor, constant: 16),
             lastLogButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
             lastLogButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
-            lastLogButton.heightAnchor.constraint(equalToConstant: 64)
+            lastLogButton.heightAnchor.constraint(equalToConstant: 64),
+            
+            logMode.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            logMode.topAnchor.constraint(equalTo: lastLogButton.bottomAnchor, constant: 16),
+            logMode.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+            logMode.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            logMode.heightAnchor.constraint(equalToConstant: 64)
             
             ])
     }
@@ -171,4 +196,23 @@ class StartViewController: UIViewController {
     }
         
         
+}
+
+extension StartViewController : UIPickerViewDelegate {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return "\(logModes[row])"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        CieDigitalIdSingleton.shared.setLogMode(logModes[row])
+    }
+}
+
+extension StartViewController : UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return logModes.count
+    }
 }

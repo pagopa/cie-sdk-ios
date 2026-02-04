@@ -77,6 +77,25 @@ public class CieDigitalId : @unchecked Sendable {
     }
     
     /**
+     * Set CieSDK log mode
+     * This method is used to set CieSDK log mode
+     *
+     */
+    public func setLogMode(_ logMode: LogMode) {
+        self.logger.setLogMode(logMode)
+    }
+    
+    /**
+     * Get CieSDK log mode
+     * This method is used to get CieSDK log mode
+     *
+     * - Returns: LogMode
+     */
+    public func getLogMode() -> LogMode {
+        return self.logger.getLogMode()
+    }
+    
+    /**
      * Perform authentication
      * This method is used to perform Level3 CIE mTLS Authentication
      *

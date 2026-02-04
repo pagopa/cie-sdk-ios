@@ -154,7 +154,7 @@ class NISViewController: UIViewController {
         
         Task {
             do {
-                let digitalId = CieDigitalId(.localFile)
+                let digitalId = CieDigitalIdSingleton.shared
                 
                 let response = try await digitalId.performInternalAuthentication(challenge: challengeBytes) {
                     event, progress in
