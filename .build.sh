@@ -31,7 +31,8 @@ xcodebuild archive \
     -destination "generic/platform=iOS Simulator" \
     -archivePath ".archives/CieSDK-iOS-simulator.xcarchive" \
     -configuration Release \
-    -sdk iphonesimulator
+    -sdk iphonesimulator \
+    DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
 
 # iOS Devices
 xcodebuild archive \
@@ -39,7 +40,8 @@ xcodebuild archive \
     -archivePath ".archives/CieSDK-iOS.xcarchive" \
     -destination "generic/platform=iOS" \
     -configuration Release \
-    -sdk iphoneos 
+    -sdk iphoneos \
+    DEBUG_INFORMATION_FORMAT=dwarf-with-dsym
     
 # Build CieSDK.xcframework
 xcodebuild -create-xcframework \
