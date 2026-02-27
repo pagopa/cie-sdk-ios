@@ -248,15 +248,34 @@ extension NfcDigitalId {
         
         let response = try await sendGeneralAuthenticateToken(token: pcdAuthToken)
         
-        let tvlResp = TKBERTLVRecord.sequenceOfRecords(from: Data(response.data))!
+        logger.logDelimiter("ANDROID ALT VERSION")
+        if let piccTokenData = try? TlvReader(data: Data(response.data)).readAll().first(where: {$0.tag == 0x86})?.value  {
+            
+            let piccToken1 = [UInt8](piccTokenData)
+            
+            logger.logData(piccToken1, name: "piccToken1")
+        }
+        else {
+            logger.logData("null", name: "piccToken1")
+        }
+        
+        logger.logDelimiter("ANDROID ALT VERSION")
+        
+        guard let tvlResp = TKBERTLVRecord.sequenceOfRecords(from: Data(response.data)) else {
+            throw NfcDigitalIdError.paceError("Unable to decode token container")
+        }
+        
+        let piccTokenRaw = try DER.parse([UInt8](tvlResp[0].value))
+       
+        let piccToken = try DERObject.getPrimitive(from: piccTokenRaw)
+        
+        logger.logData(piccToken, name: "piccToken")
         
         // Calculate expected authentication token
         let expectedPICCToken = try self.generateAuthenticationToken( publicKey: pcdKeyPair, macKey: macKey, oid: oid, cipherAlg: cipherAlg)
         
         
-        let piccTokenRaw = try DER.parse([UInt8](tvlResp[0].value))
-        
-        let piccToken = try DERObject.getPrimitive(from: piccTokenRaw)
+//
         
         
         guard piccToken == expectedPICCToken else {
@@ -364,7 +383,7 @@ extension NfcDigitalId {
     func sendGeneralAuthenticateToken(token: [UInt8]) async throws -> APDUResponse  {
         let data = Utils.wrapDO(b:0x85, arr:token)
         
-        return try await self.sendGeneralAuthenticate(data:data, isLast:true)
+        return try await self.sendGeneralAuthenticate(data:data, isLast:true, isShort: true)
     }
     
     func sendGeneralAuthenticate(data: [UInt8], isLast: Bool = false, isShort: Bool = false) async throws -> APDUResponse  {
