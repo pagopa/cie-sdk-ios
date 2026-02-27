@@ -249,7 +249,7 @@ extension NfcDigitalId {
         let response = try await sendGeneralAuthenticateToken(token: pcdAuthToken)
         
         logger.logDelimiter("ANDROID ALT VERSION")
-        if let piccTokenData = try TlvReader(data: Data(response.data)).readAll().first(where: {$0.tag == 0x86})?.value  {
+        if let piccTokenData = try? TlvReader(data: Data(response.data)).readAll().first(where: {$0.tag == 0x86})?.value  {
             
             let piccToken1 = [UInt8](piccTokenData)
             
