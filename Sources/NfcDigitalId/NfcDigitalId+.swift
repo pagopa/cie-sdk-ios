@@ -34,11 +34,11 @@ extension NfcDigitalId {
 
         readingLoop: while true {
             let response = try await readBinary(offset: offset, le: [chunkSize])
-            
+            logger.logAPDUResponse(response, message: "readBinary response")
             switch(response.status) {
                 case .wrongParametersP1P2:
                     return result
-                case .endOfFileRecordReachedBeforeReadingLeBytes:
+            case .endOfFileRecordReachedBeforeReadingLeBytes:
                     result.append(contentsOf: response.data)
                     break readingLoop
                 case .lessThanLeBytesAvailable(let len):
