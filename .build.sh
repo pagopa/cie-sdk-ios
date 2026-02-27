@@ -44,7 +44,7 @@ xcodebuild archive \
 # Build CieSDK.xcframework
 xcodebuild -create-xcframework \
     -framework ".archives/CieSDK-iOS.xcarchive/Products/Library/Frameworks/CieSDK.framework" \
-    -debug-symbols "$(pwd)/.archives/CieSDK-iOS.xcarchive/dSYMs/CieSDK.framework.dSYM" \
+    -debug-symbols ".archives/CieSDK-iOS.xcarchive/dSYMs/CieSDK.framework.dSYM" \
     -framework ".archives/CieSDK-iOS-simulator.xcarchive/Products/Library/Frameworks/CieSDK.framework" \
     -debug-symbols "$(pwd)/.archives/CieSDK-iOS-simulator.xcarchive/dSYMs/CieSDK.framework.dSYM" \
     -output ".archives/CieSDK.xcframework"
