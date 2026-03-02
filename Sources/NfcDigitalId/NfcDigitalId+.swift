@@ -38,7 +38,7 @@ extension NfcDigitalId {
             switch(response.status) {
                 case .wrongParametersP1P2:
                     return result
-            case .endOfFileRecordReachedBeforeReadingLeBytes:
+                case .endOfFileRecordReachedBeforeReadingLeBytes:
                     result.append(contentsOf: response.data)
                     break readingLoop
                 case .lessThanLeBytesAvailable(let len):
@@ -46,6 +46,10 @@ extension NfcDigitalId {
                     continue readingLoop
                 default:
                     try response.throwErrorIfNeeded()
+            }
+            
+            if response.data.isEmpty {
+                break readingLoop
             }
             
             result.append(contentsOf: response.data)

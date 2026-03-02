@@ -50,6 +50,10 @@ struct NfcDigitalIdLogger {
     }
     
     func log(_ message: String, error: Bool = false) {
+        _log("\(Date())\n\(message)", error: error)
+    }
+    
+    func _log(_ message: String, error: Bool = false) {
         switch mode {
         case .enabled:
             print(message)

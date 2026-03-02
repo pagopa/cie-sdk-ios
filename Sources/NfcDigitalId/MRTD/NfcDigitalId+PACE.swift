@@ -248,19 +248,6 @@ extension NfcDigitalId {
         
         let response = try await sendGeneralAuthenticateToken(token: pcdAuthToken)
         
-        logger.logDelimiter("ANDROID ALT VERSION")
-        if let piccTokenData = try? TlvReader(data: Data(response.data)).readAll().first(where: {$0.tag == 0x86})?.value  {
-            
-            let piccToken1 = [UInt8](piccTokenData)
-            
-            logger.logData(piccToken1, name: "piccToken1")
-        }
-        else {
-            logger.logData("null", name: "piccToken1")
-        }
-        
-        logger.logDelimiter("ANDROID ALT VERSION")
-        
         guard let tvlResp = TKBERTLVRecord.sequenceOfRecords(from: Data(response.data)) else {
             throw NfcDigitalIdError.paceError("Unable to decode token container")
         }
