@@ -388,7 +388,34 @@ extension NfcDigitalId {
         
         logger.logAPDUResponse(response, message: "general authenticate")
         
-        try response.throwErrorIfNeeded()
+        do {
+            
+            try response.throwErrorIfNeeded()
+            
+        }
+        catch {
+            switch error {
+            case let error as NfcDigitalIdError:
+                switch(error) {
+                case .responseError(let status):
+                    switch(status) {
+                    case .securityStatusNotSatisfied:
+                        throw NfcDigitalIdError.wrongCan
+                        break
+                    default:
+                        break
+                    }
+                    break
+                    
+                default:
+                    break
+                }
+            default:
+                break
+            }
+            
+            throw error
+        }
         
         return response
     }
