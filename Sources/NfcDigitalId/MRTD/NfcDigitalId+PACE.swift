@@ -467,6 +467,7 @@ extension NfcDigitalId {
 
 public struct eMRTDResponse : Sendable {
     public var dg1: [UInt8]
+    public var dg2: [UInt8]
     public var dg11: [UInt8]
     public var sod: [UInt8]
 }

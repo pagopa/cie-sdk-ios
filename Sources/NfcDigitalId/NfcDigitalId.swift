@@ -204,10 +204,11 @@ class NfcDigitalId {
         let _ = try await self.selectApplication(applicationId: .emrtd)
         
         let dg1 = try await self.performReadCardData(.DG1)
+        let dg2 = try await self.performReadCardData(.DG2)
         let dg11 = try await self.performReadCardData(.DG11)
         let sod = try await self.performReadCardData(.SOD)
         
-        return eMRTDResponse(dg1: dg1, dg11: dg11, sod: sod)
+        return eMRTDResponse(dg1: dg1, dg2: dg2, dg11: dg11, sod: sod)
     }
     
     func performMRTDAndInternalAuthentication(can: String, challenge: [UInt8]) async throws
@@ -223,10 +224,11 @@ class NfcDigitalId {
         let _ = try await self.selectApplication(applicationId: .emrtd)
         
         let dg1 = try await self.performReadCardData(.DG1)
+        let dg2 = try await self.performReadCardData(.DG2)
         let dg11 = try await self.performReadCardData(.DG11)
         let mrtdSod = try await self.performReadCardData(.SOD)
         
-        let emrtdResponse = eMRTDResponse(dg1: dg1, dg11: dg11, sod: mrtdSod)
+        let emrtdResponse = eMRTDResponse(dg1: dg1, dg2: dg2, dg11: dg11, sod: mrtdSod)
         
         self.tag = APDUDeliveryClear(tag: self.tag.tag)
         
